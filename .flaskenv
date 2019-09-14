@@ -1,0 +1,3 @@
+FLASK_RUN_PORT=8000
+FLASK_APP=nfu
+FLASK_ENV=development
