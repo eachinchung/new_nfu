@@ -2,7 +2,7 @@ from flask import Flask
 from flask_cors import CORS
 
 from nfu.api.oauth import oauth_bp
-from nfu.extensions import db
+from nfu.extensions import db, mail, cors
 
 
 # 加载基本配置
@@ -22,5 +22,6 @@ def register_blueprints(app):
 
 # 初始化拓展
 def register_extensions(app):
-    CORS(app)
+    cors.init_app(app)
     db.init_app(app)
+    mail.init_app(app)
