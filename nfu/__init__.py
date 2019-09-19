@@ -9,8 +9,6 @@ from nfu.extensions import db
 def create_app(config_name=None):
     app = Flask('nfu')
     app.config.from_pyfile('settings.py')
-    app.jinja_env.trim_blocks = True
-    app.jinja_env.lstrip_blocks = True
 
     register_blueprints(app)
     register_extensions(app)
