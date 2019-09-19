@@ -1,27 +1,57 @@
 from flask import Blueprint, request, jsonify
 
-from nfu.expand import generate_token
+from nfu.expand import generate_token, validate_token
+from nfu.extensions import db
 from nfu.models import User
 
 oauth_bp = Blueprint('oauth', __name__)
 
 
+# 登陆接口，获取令牌
 @oauth_bp.route('/get_token', methods=['POST'])
 def get_token():
-    username = request.form.get('username')
+    user_id = request.form.get('user_id')
     password = request.form.get('password')
 
-    user = User.query.get(username)
+    user = User.query.get(user_id)
     if user is None or not user.validate_password(password):
         return jsonify({'message': '账号或密码错误'})
 
     return jsonify({
         'message': 'success',
         'access_token': generate_token({'id': user.id}),
-        'refresh_token': generate_token({'id': user.id}, token_type='REFRESH_TOKEN', expires_in=172800)
+        'refresh_token': generate_token({'id': user.id}, token_type='REFRESH_TOKEN', expires_in=2592000)
     })
 
 
+# 注册接口
+@oauth_bp.route('/sign_up', methods=['POST'])
+def sign_up():
+    user_id = request.form.get('user_id')
+    name = request.form.get('name')
+    password = request.form.get('password')
+    room_id = request.form.get('room_id')
+    email = request.form.get('email')
+
+    user = User(id=user_id, name=name, room_id=room_id, email=email)
+    user.set_password(password)
+
+    db.session.add(user)
+    db.session.commit()
+
+    return jsonify({'message': 'success'})
+
+
+# 刷新令牌
 @oauth_bp.route('/refresh_token', methods=['POST'])
 def refresh_token():
-    pass
+    token = request.form.get('refresh_token')
+    validate = validate_token(token, 'REFRESH_TOKEN')
+    if validate[0]:
+        return jsonify({
+            'message': 'success',
+            'access_token': generate_token(validate[1]),
+            'refresh_token': generate_token(validate[1], token_type='REFRESH_TOKEN', expires_in=2592000)
+        })
+    else:
+        return jsonify({'message': validate[1]})
