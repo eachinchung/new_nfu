@@ -1,8 +1,10 @@
 from os import getenv
+from threading import Thread
 
 from flask_mail import Message
 from itsdangerous import TimedJSONWebSignatureSerializer, BadSignature, SignatureExpired
 
+import app
 from nfu.extensions import mail
 
 
@@ -24,10 +26,17 @@ def validate_token(token: str, token_type: str = 'ACCESS_TOKEN') -> tuple:
         return True, data
 
 
+# 发送邮件，供多线程调用
+def send_async_mail(my_app, message):
+    with my_app.app_context():
+        mail.send(message)
+
+
 # 发送邮件
 def send_email(subject, to, body, html=None):
     message = Message(subject, recipients=to)
     message.body = body
     if html is not None:
         message.html = html
-    mail.send(message)
+    thr = Thread(target=send_async_mail, args=[app, message])
+    thr.start()
