@@ -10,7 +10,6 @@ class User(db.Model):
     password = db.Column(db.String(94))
     room_id = db.Column(db.Integer)
     email = db.Column(db.String(255))
-    validate_email = db.Column(db.Boolean, default=False)
     bus_session = db.Column(db.String(50))
 
     def set_password(self, password):
