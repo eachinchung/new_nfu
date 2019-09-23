@@ -27,13 +27,13 @@ def validate_token(token: str, token_type: str = 'ACCESS_TOKEN') -> tuple:
 
 
 # 发送邮件，供多线程调用
-def send_async_mail(my_app, message):
+def send_async_mail(my_app, message: Message) -> None:
     with my_app.app_context():
         mail.send(message)
 
 
 # 发送邮件
-def send_email(subject, to, body, html=None):
+def send_email(subject: str, to: str, body: str, html=None) -> None:
     # noinspection PyProtectedMember
     app = current_app._get_current_object()
     message = Message(subject, recipients=[to])

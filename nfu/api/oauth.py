@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 
-from nfu.expand import generate_token, validate_token, send_email
+from nfu.expand import generate_token, validate_token
 from nfu.extensions import db
 from nfu.models import User
 from nfu.nfu_expand import get_student_name
