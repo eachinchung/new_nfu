@@ -1,6 +1,7 @@
-from flask import Flask
+from flask import Flask, jsonify
 
 from nfu.api.oauth import oauth_bp
+from nfu.api.validate import validate_bp
 from nfu.extensions import db, mail, cors
 
 
@@ -11,12 +12,14 @@ def create_app():
 
     register_blueprints(app)
     register_extensions(app)
+    register_errors(app)
     return app
 
 
 # 加载蓝本
 def register_blueprints(app):
     app.register_blueprint(oauth_bp, url_prefix='/oauth')
+    app.register_blueprint(validate_bp, url_prefix='/validate')
 
 
 # 初始化拓展
@@ -24,3 +27,14 @@ def register_extensions(app):
     cors.init_app(app)
     db.init_app(app)
     mail.init_app(app)
+
+
+# 加载错误页
+def register_errors(app):
+    @app.errorhandler(404)
+    def page_not_found(e):
+        return jsonify({'message': '404 找不到此资源'}), 404
+
+    @app.errorhandler(500)
+    def internal_server_error(e):
+        return jsonify({'message': '500 服务器内部错误'}), 500
