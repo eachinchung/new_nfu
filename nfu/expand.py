@@ -36,7 +36,7 @@ def send_async_mail(my_app, message):
 def send_email(subject, to, body, html=None):
     # noinspection PyProtectedMember
     app = current_app._get_current_object()
-    message = Message(subject, recipients=to)
+    message = Message(subject, recipients=[to])
     message.body = body
     if html is not None:
         message.html = html

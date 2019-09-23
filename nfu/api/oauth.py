@@ -14,8 +14,6 @@ def get_token():
     user_id = request.form.get('user_id')
     password = request.form.get('password')
 
-    send_email('验证你的邮箱', ['eachin@kaimon.cn'], '测试')
-
     user = User.query.get(user_id)
     if user is None or not user.validate_password(password):
         return jsonify({'message': '账号或密码错误'})
@@ -44,7 +42,7 @@ def sign_up():
         db.session.add(user)
         db.session.commit()
 
-        # send_email('验证你的邮箱', [email], '测试')
+        # send_email('验证你的邮箱', email, '测试')
 
         return jsonify({'message': 'success'})
 
