@@ -1,12 +1,11 @@
 from flask import Flask
-from flask_cors import CORS
 
 from nfu.api.oauth import oauth_bp
 from nfu.extensions import db, mail, cors
 
 
 # 加载基本配置
-def create_app(config_name=None):
+def create_app():
     app = Flask('nfu')
     app.config.from_pyfile('settings.py')
 

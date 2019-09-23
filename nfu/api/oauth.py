@@ -3,6 +3,7 @@ from flask import Blueprint, request, jsonify
 from nfu.expand import generate_token, validate_token
 from nfu.extensions import db
 from nfu.models import User
+from nfu.nfu_expand import get_student_name
 
 oauth_bp = Blueprint('oauth', __name__)
 
@@ -28,18 +29,25 @@ def get_token():
 @oauth_bp.route('/sign_up', methods=['POST'])
 def sign_up():
     user_id = request.form.get('user_id')
-    name = request.form.get('name')
     password = request.form.get('password')
     room_id = request.form.get('room_id')
     email = request.form.get('email')
 
-    user = User(id=user_id, name=name, room_id=room_id, email=email)
-    user.set_password(password)
+    name = get_student_name(user_id, password)
 
-    db.session.add(user)
-    db.session.commit()
+    if name[0]:
+        user = User(id=user_id, name=name[1], room_id=room_id, email=email)
+        user.set_password(password)
 
-    return jsonify({'message': 'success'})
+        db.session.add(user)
+        db.session.commit()
+
+        # send_email('验证你的邮箱', [email], '测试')
+
+        return jsonify({'message': 'success'})
+
+    else:
+        return jsonify({'message': name[1]})
 
 
 # 刷新令牌

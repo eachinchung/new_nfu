@@ -10,6 +10,7 @@ class User(db.Model):
     password = db.Column(db.String(94))
     room_id = db.Column(db.Integer)
     email = db.Column(db.String(255))
+    validate_email = db.Column(db.Boolean, default=False)
     bus_session = db.Column(db.String(50))
 
     def set_password(self, password):
@@ -17,3 +18,11 @@ class User(db.Model):
 
     def validate_password(self, password):
         return check_password_hash(self.password, password)
+
+
+# 电费表
+class Electric(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    room_id = db.Column(db.Integer, index=True)
+    value = db.Column(db.Float)
+    time = db.Column(db.Date)
