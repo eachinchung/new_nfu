@@ -1,10 +1,10 @@
 from os import getenv
 from threading import Thread
 
+from flask import current_app
 from flask_mail import Message
 from itsdangerous import TimedJSONWebSignatureSerializer, BadSignature, SignatureExpired
 
-import app
 from nfu.extensions import mail
 
 
@@ -34,9 +34,11 @@ def send_async_mail(my_app, message):
 
 # 发送邮件
 def send_email(subject, to, body, html=None):
+    # noinspection PyProtectedMember
+    app = current_app._get_current_object()
     message = Message(subject, recipients=to)
     message.body = body
     if html is not None:
         message.html = html
-    thr = Thread(target=send_async_mail, args=[app, message])
-    thr.start()
+
+    Thread(target=send_async_mail, args=[app, message]).start()

@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 
-from nfu.expand import generate_token, validate_token
+from nfu.expand import generate_token, validate_token, send_email
 from nfu.extensions import db
 from nfu.models import User
 from nfu.nfu_expand import get_student_name
@@ -13,6 +13,8 @@ oauth_bp = Blueprint('oauth', __name__)
 def get_token():
     user_id = request.form.get('user_id')
     password = request.form.get('password')
+
+    send_email('验证你的邮箱', ['eachin@kaimon.cn'], '测试')
 
     user = User.query.get(user_id)
     if user is None or not user.validate_password(password):
