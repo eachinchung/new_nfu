@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
 
+from nfu.email import send_validate_email
 from nfu.extensions import db
 from nfu.models import User
 from nfu.nfu import get_student_name
@@ -16,11 +17,14 @@ def get_token() -> jsonify:
 
     user = User.query.get(user_id)
     if user is None or not user.validate_password(password):
-        return jsonify({'message': '账号或密码错误'})
+        return jsonify({'message': '账号密码错误'})
+
+    if not user.validate_email:
+        return jsonify({'message': '账号暂未激活。'})
 
     return jsonify({
         'message': 'success',
-        'access_token': generate_token({'id': user.id}),
+        'access_token': generate_token({'id': user.id, 'validate_email': user.validate_email}),
         'refresh_token': generate_token({'id': user.id}, token_type='REFRESH_TOKEN', expires_in=2592000)
     })
 
@@ -32,22 +36,24 @@ def sign_up() -> jsonify:
     password = request.form.get('password')
     room_id = request.form.get('room_id')
     email = request.form.get('email')
+    user = User.query.get(user_id)
+    if user is None:
+        name = get_student_name(user_id, password)
+        if name[0]:  # 如果正确获得学生姓名，默认代表该用户拥有该账号合法性
+            token = generate_token({'user_id': user_id}, token_type='EMAIL_TOKEN')
+            send_validate_email(email, name[1], user_id, token)
 
-    name = get_student_name(user_id, password)
+            user = User(id=user_id, name=name[1], room_id=room_id, email=email)
+            user.set_password(password)
 
-    if name[0]:
-        user = User(id=user_id, name=name[1], room_id=room_id, email=email)
-        user.set_password(password)
+            db.session.add(user)
+            db.session.commit()
 
-        db.session.add(user)
-        db.session.commit()
-
-        # send_email('验证你的邮箱', email, '测试')
-
-        return jsonify({'message': 'success'})
-
+            return jsonify({'message': 'success'})
+        else:
+            return jsonify({'message': name[1]})
     else:
-        return jsonify({'message': name[1]})
+        return jsonify({'message': '该账号已存在'})
 
 
 # 刷新令牌
@@ -56,10 +62,15 @@ def refresh_token() -> jsonify:
     token = request.form.get('refresh_token')
     validate = validate_token(token, 'REFRESH_TOKEN')
     if validate[0]:
+        user = User.query.get(validate[1]['user_id'])
+
+        if user is None:
+            return jsonify({'message': '账号不存在'})
+
         return jsonify({
             'message': 'success',
-            'access_token': generate_token(validate[1]),
-            'refresh_token': generate_token(validate[1], token_type='REFRESH_TOKEN', expires_in=2592000)
+            'access_token': generate_token({'id': user.id, 'validate_email': user.validate_email}),
+            'refresh_token': generate_token({'id': user.id}, token_type='REFRESH_TOKEN', expires_in=2592000)
         })
     else:
         return jsonify({'message': validate[1]})
