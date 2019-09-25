@@ -11,7 +11,7 @@ oauth_bp = Blueprint('oauth', __name__)
 
 # 登陆接口，获取令牌
 @oauth_bp.route('/get_token', methods=['POST'])
-def get_token() -> jsonify:
+def get_token() -> str:
     user_id = request.form.get('user_id')
     password = request.form.get('password')
 
@@ -32,7 +32,7 @@ def get_token() -> jsonify:
 
 # 注册接口
 @oauth_bp.route('/sign_up', methods=['POST'])
-def sign_up() -> jsonify:
+def sign_up() -> str:
     user_id = request.form.get('user_id')
     password = request.form.get('password')
     room_id = request.form.get('room_id')
@@ -60,7 +60,7 @@ def sign_up() -> jsonify:
 
 # 刷新令牌
 @oauth_bp.route('/refresh_token', methods=['POST'])
-def refresh_token() -> jsonify:
+def refresh_token() -> str:
     token = request.form.get('refresh_token')
     validate = validate_token(token, 'REFRESH_TOKEN')
     if validate[0]:
