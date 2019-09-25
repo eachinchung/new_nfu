@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify
 
 from nfu.extensions import db
-from nfu.models import User
+from nfu.models import  Power
 from nfu.token import validate_token
 
 validate_bp = Blueprint('validate', __name__)
@@ -12,10 +12,10 @@ validate_bp = Blueprint('validate', __name__)
 def email(token) -> jsonify:
     validate = validate_token(token, 'EMAIL_TOKEN')
     if validate[0]:
-        user = User.query.get(validate[1]['user_id'])
-        if user is not None and not user.validate_email:
-            user.validate_email = True
-            db.session.add(user)
+        user_power = Power.query.get(validate[1]['user_id'])
+        if user_power is not None and not user_power.validate_email:
+            user_power.validate_email = True
+            db.session.add(user_power)
             db.session.commit()
             return jsonify({'message': 'success'})
         else:

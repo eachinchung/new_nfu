@@ -13,7 +13,7 @@ def send_async_mail(my_app, message: Message) -> None:
 
 
 # 发送邮件
-def send_email(subject: str, to: str, body: str, html=None) -> None:
+def send_email(subject: str, to: str, body: str, html: str = None) -> None:
     # noinspection PyProtectedMember
     app = current_app._get_current_object()
     message = Message(subject, recipients=[to])
@@ -21,6 +21,7 @@ def send_email(subject: str, to: str, body: str, html=None) -> None:
     if html is not None:
         message.html = html
 
+    # 异步发送
     Thread(target=send_async_mail, args=[app, message]).start()
 
 
