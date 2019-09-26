@@ -1,4 +1,6 @@
 import json
+import re
+from dataclasses import dataclass
 
 import requests
 
@@ -21,3 +23,92 @@ def get_electric(room: int) -> tuple:
         else:
             electric_quantity = round(float(electric_quantity), 2)
             return True, electric_quantity
+
+
+@dataclass
+class Pay:
+    __amount: int
+    __user_id: int
+    __name: str
+    __room_id: int
+    __building: str
+    __floor: str
+    __room: int
+    __session = requests.session()
+
+    # 准备支付，获取智能电表签名
+    def __ready_pay(self) -> tuple:
+        url = 'http://axf.nfu.edu.cn/electric/pay/doPay'
+        data = {
+            'amt': self.__amount,
+            'custNo': self.__user_id,
+            'custName': self.__name,
+            'roomId': self.__room_id,
+            'areaName': '南方学院',
+            'architectureName': self.__building,
+            'floorName': self.__floor,
+            'roomName': self.__room
+        }
+
+        try:
+            response = self.__session.post(url, data=data, timeout=1)
+        except OSError:
+            return False, '与安心付服务器连接超时，请稍后再试'
+
+        try:
+            # 尝试获取签名
+            json_data = re.search(r'name="json" value=.+', response.text).group()[19:-4]
+            signature = re.search(r'name="signature" value=.+', response.text).group()[24:-4]
+        except AttributeError:
+            return False, '与安心付服务器连接超时，请稍后再试'
+
+        return True, json_data, signature
+
+    # 设置支付方式为微信支付
+    def __set_wechat_pay(self, json_data, signature):
+        url = 'http://nfu.zhihuianxin.net/paycenter/gateway_web'
+        data = {
+            'json': json_data,
+            'signature': signature
+        }
+        header = {'Referer': 'http://axf.nfu.edu.cn/electric/pay/doPay'}
+
+        try:
+            # 向安心付接口 post 订单数据，无需返回值
+            self.__session.post(url, data=data, headers=header)
+        except OSError:
+            return False, '与安心付服务器连接超时，请稍后再试'
+
+        url = 'http://nfu.zhihuianxin.net/paycenter/payGateway_web'
+        data = {'payChannel': 'WxPay'}
+        header = {'Referer': 'http://nfu.zhihuianxin.net/paycenter/gateway_web'}
+
+        try:
+            response = self.__session.post(url, data=data, headers=header)
+        except OSError:
+            return False, '与安心付服务器连接超时，请稍后再试'
+
+        try:
+            json_data = re.search(r'name="json" value=.+', response.text).group()[19:-5]
+            signature = re.search(r'name="signature" value=.+', response.text).group()[24:-5]
+        except AttributeError:
+            return False, '与安心付服务器连接超时，请稍后再试'
+
+        # 返回 json、signature 为向支付页面 post 的 body
+        # 只要设置好创建订单数据的 cookie，并重定向回安心付支付接口，即可调用安心付支付接口
+        # 学校安心付接口为 post 提交，但后端并无验证，故 body 数据在 url 带上并重定向即可
+        return True, json_data, signature, self.__session.cookies.get_dict()
+
+    def create_order(self):
+        ready_pay = self.__ready_pay()
+
+        # 如果安心付，服务器错误，直接返回上层数据
+        if not ready_pay[0]:
+            return ready_pay
+
+        set_wechat_pay = self.__set_wechat_pay(ready_pay[1], ready_pay[2])
+
+        if set_wechat_pay[0]:
+            return set_wechat_pay
+        else:
+            return False, '与安心付服务器连接超时，请稍后再试'
