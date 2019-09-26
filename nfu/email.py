@@ -7,7 +7,7 @@ from nfu.extensions import mail
 
 
 # 发送邮件，供多线程调用
-def send_async_mail(my_app, message: Message) -> None:
+def __send_async_mail(my_app, message: Message) -> None:
     with my_app.app_context():
         mail.send(message)
 
@@ -22,7 +22,7 @@ def send_email(subject: str, to: str, body: str, html: str = None) -> None:
         message.html = html
 
     # 异步发送
-    Thread(target=send_async_mail, args=[app, message]).start()
+    Thread(target=__send_async_mail, args=[app, message]).start()
 
 
 # 发送验证邮箱的邮件
