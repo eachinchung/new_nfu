@@ -14,7 +14,9 @@ def validate_token(token: str, token_type: str = 'ACCESS_TOKEN') -> tuple:
     s = TimedJSONWebSignatureSerializer(getenv(token_type))
     try:
         data = s.loads(token)
-    except (BadSignature, SignatureExpired):
-        return False, '签名错误，或证书已过期'
+    except BadSignature:
+        return False, '签名错误'
+    except SignatureExpired:
+        return False, '签名已过期'
     else:
         return True, data
