@@ -11,8 +11,12 @@ validate_bp = Blueprint('validate', __name__)
 @validate_bp.route('/email/<string:token>')
 def email(token) -> str:
     validate = validate_token(token, 'EMAIL_TOKEN')
+    # 验证token是否通过
     if validate[0]:
         user_power = Power.query.get(validate[1]['user_id'])
+        # 验证邮箱是否激活
+        # 因不存在账号几乎不可能获取token，
+        # 故合并两个验证。
         if user_power is not None and not user_power.validate_email:
             user_power.validate_email = True
             db.session.add(user_power)
