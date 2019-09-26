@@ -19,7 +19,7 @@ def create_app():
 
 # 加载蓝本
 def register_blueprints(app):
-    app.register_blueprint(electric_bp, url_prefix='electric')
+    app.register_blueprint(electric_bp, url_prefix='/electric')
     app.register_blueprint(oauth_bp, url_prefix='/oauth')
     app.register_blueprint(validate_bp, url_prefix='/validate')
 
