@@ -18,21 +18,21 @@ def create_app():
 
 
 # 加载蓝本
-def register_blueprints(app):
+def register_blueprints(app) -> None:
     app.register_blueprint(electric_bp, url_prefix='/electric')
     app.register_blueprint(oauth_bp, url_prefix='/oauth')
     app.register_blueprint(validate_bp, url_prefix='/validate')
 
 
 # 初始化拓展
-def register_extensions(app):
+def register_extensions(app) -> None:
     cors.init_app(app)
     db.init_app(app)
     mail.init_app(app)
 
 
 # 加载错误页
-def register_errors(app):
+def register_errors(app) -> None:
     @app.errorhandler(404)
     def page_not_found(e):
         return jsonify({'message': '404 找不到此资源'}), 404
