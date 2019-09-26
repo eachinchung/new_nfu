@@ -82,3 +82,15 @@ class ClassSchedule(db.Model):
     end_node = db.Column(db.Integer)
     start_week = db.Column(db.Integer)
     end_week = db.Column(db.Integer)
+
+
+# 车票订单
+class TicketOrder(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer)
+    ticket_time = db.Column(db.DateTime)
+    bus_ids = db.Column(db.String)
+    passenger_ids = db.Column(db.String)
+    order_message = db.Column(db.String)
+    order_time = db.Column(db.DateTime)
+    trade_no = db.Column(db.String)
