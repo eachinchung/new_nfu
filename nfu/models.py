@@ -27,6 +27,15 @@ class Power(db.Model):
     bus_ticket = db.Column(db.Boolean, default=False)
     admin = db.Column(db.Boolean, default=False)
 
+    # 返回权限字典
+    def get_dict(self):
+        return {
+            'id': self.id,
+            'validate_email': self.validate_email,
+            'bus_ticket': self.bus_ticket,
+            'admin': self.admin
+        }
+
 
 # 宿舍表
 class Dormitory(db.Model):
