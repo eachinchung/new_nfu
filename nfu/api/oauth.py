@@ -90,7 +90,7 @@ def refresh_validate_email() -> str:
             send_validate_email(validate[1]['email'], validate[1]['name'], validate[1]['id'], token)
             return jsonify({'message': 'success'})
 
-        return jsonify({'message': 'success'})
+        return jsonify({'message': '该账号已激活'})
     else:
         return jsonify({'message': validate[1]})
 
