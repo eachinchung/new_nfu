@@ -17,11 +17,13 @@ def get_token() -> str:
 
     user = User.query.get(user_id)
     user_power = Power.query.get(user_id)
-    if user is None or not user.validate_password(password):
-        return jsonify({'message': '账号密码错误'})
 
-    if not user_power.validate_email:
+    # 首先验证账号是否激活，若账号未激活，以下操作无意义
+    if user is None or not user_power.validate_email:
         return jsonify({'message': '账号暂未激活。'})
+
+    if not user.validate_password(password):
+        return jsonify({'message': '账号密码错误'})
 
     return jsonify({
         'message': 'success',
@@ -37,6 +39,7 @@ def sign_up() -> str:
     password = request.form.get('password')
     room_id = request.form.get('room_id')
     email = request.form.get('email')
+
     user = User.query.get(user_id)
     if user is None:
         name = get_student_name(user_id, password)
@@ -45,10 +48,10 @@ def sign_up() -> str:
             send_validate_email(email, name[1], user_id, token)
 
             user = User(id=user_id, name=name[1], room_id=room_id, email=email)
-            user.set_password(password)
+            user.set_password(password)  # 将教务系统密码默认为用户密码，并哈希加密
 
             db.session.add(user)
-            db.session.add(Power(id=user_id))
+            db.session.add(Power(id=user_id))  # 初始化权限，全部False
             db.session.commit()
 
             return jsonify({'message': 'success'})
