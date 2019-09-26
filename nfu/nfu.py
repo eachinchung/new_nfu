@@ -56,7 +56,7 @@ def get_jw_token(student_id: int) -> tuple:
         response = post_session.post(url, data=data, timeout=1)
         token = json.loads(response.text)['msg']
 
-        if not token:
+        if not token:  # 如果教务系统反200，且获取不到 token，可能是学校修复了这个 bug。
             return False, '不可预知错误，请稍后再试！'
 
     except (OSError, json.decoder.JSONDecodeError):

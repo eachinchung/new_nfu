@@ -1,3 +1,4 @@
+from os import getenv
 from threading import Thread
 
 from flask import current_app, render_template
@@ -8,6 +9,7 @@ from nfu.extensions import mail
 
 # 发送邮件，供多线程调用
 def __send_async_mail(my_app, message: Message) -> None:
+    # my_app 的意义是激活 flask 上下文
     with my_app.app_context():
         mail.send(message)
 
@@ -18,6 +20,7 @@ def send_email(subject: str, to: str, body: str, html: str = None) -> None:
     app = current_app._get_current_object()
     message = Message(subject, recipients=[to])
     message.body = body
+    # 为增加代码的复用性，我们支持发送纯文本邮件
     if html is not None:
         message.html = html
 
@@ -27,6 +30,6 @@ def send_email(subject: str, to: str, body: str, html: str = None) -> None:
 
 # 发送验证邮箱的邮件
 def send_validate_email(to: str, name: str, user_id: int, token) -> None:
-    url = 'http://127.0.0.1:2333/validate/email/' + token
+    url = getenv('API_URL') + '/validate/email/' + token
     body = render_template('email/validate_email.txt', name=name, user_id=user_id, url=url)
     send_email('请验证您的邮箱地址', to, body)
