@@ -12,6 +12,7 @@ class User(db.Model):
     email = db.Column(db.String)
     bus_session = db.Column(db.String)
 
+    # 出于用户隐私保护，用户密码我们将采用哈希加密
     def set_password(self, password):
         self.password = generate_password_hash(password)
 
