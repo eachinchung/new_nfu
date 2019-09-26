@@ -17,7 +17,7 @@ def email(token) -> str:
         # 验证邮箱是否激活
         # 因不存在账号几乎不可能获取 token，
         # 故合并两个验证。
-        user_power = Power.query.get(validate[1]['user_id'])
+        user_power = Power.query.get(validate[1]['id'])
         if user_power is not None and not user_power.validate_email:
             user_power.validate_email = True
             db.session.add(user_power)

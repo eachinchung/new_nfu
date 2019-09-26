@@ -56,7 +56,7 @@ def sign_up() -> str:
     if user is None:
         name = get_student_name(user_id, password)
         if name[0]:  # 如果正确获得学生姓名，默认代表该用户拥有该账号合法性
-            token = generate_token({'user_id': user_id}, token_type='EMAIL_TOKEN')
+            token = generate_token({'id': user_id}, token_type='EMAIL_TOKEN')
             send_validate_email(email, name[1], user_id, token)
 
             user = User(id=user_id, name=name[1], room_id=room_id, email=email)
@@ -86,7 +86,7 @@ def refresh_validate_email() -> str:
             return jsonify({'message': '账号不存在'})
 
         if not user_power.validate_email:
-            token = generate_token({'user_id': validate[1]['id']}, token_type='EMAIL_TOKEN')
+            token = generate_token({'id': validate[1]['id']}, token_type='EMAIL_TOKEN')
             send_validate_email(validate[1]['email'], validate[1]['name'], validate[1]['id'], token)
             return jsonify({'message': 'success'})
 
