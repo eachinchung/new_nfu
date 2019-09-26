@@ -30,6 +30,7 @@ def send_email(subject: str, to: str, body: str, html: str = None) -> None:
 
 # 发送验证邮箱的邮件
 def send_validate_email(to: str, name: str, user_id: int, token) -> None:
+    # url 拼接实例 http://127.0.0.1:5000/validate/email/token
     url = getenv('API_URL') + '/validate/email/' + token
     body = render_template('email/validate_email.txt', name=name, user_id=user_id, url=url)
     send_email('请验证您的邮箱地址', to, body)
