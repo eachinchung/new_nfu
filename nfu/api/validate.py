@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify
 
 from nfu.extensions import db
-from nfu.models import  Power
+from nfu.models import Power
 from nfu.token import validate_token
 
 validate_bp = Blueprint('validate', __name__)
