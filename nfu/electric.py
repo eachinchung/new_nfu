@@ -6,7 +6,7 @@ import requests
 
 
 # 获取宿舍电费
-def get_electric(room: int) -> tuple:
+def get_electric_data(room: int) -> tuple:
     url = 'http://axf.nfu.edu.cn/electric/getData/getReserveAM'
     data = {'roomId': room}
     try:
