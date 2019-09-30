@@ -5,8 +5,18 @@ from dataclasses import dataclass
 import requests
 
 
-# 获取宿舍电费
 def get_electric_data(room: int) -> tuple:
+    """
+    获取宿舍电费
+
+    Args:
+        room: 宿舍id
+
+    return: 一个元组，通常我规定第一个为bool，用来判定是否成功获取数据。
+
+    Raises:
+        OSError: 一般错误为超时，学校系统炸了，与我们无关
+    """
     url = 'http://axf.nfu.edu.cn/electric/getData/getReserveAM'
     data = {'roomId': room}
     try:
@@ -36,8 +46,26 @@ class Pay:
     __room: int
     __session = requests.session()
 
-    # 准备支付，获取智能电表签名
     def __ready_pay(self) -> tuple:
+        """
+        准备支付，获取智能电表签名
+
+        - 字段说明
+            - amt 充值金额
+            - custNo 学生学号
+            - custName 学生姓名
+            - roomId 房间号
+            - areaName 学校名字，写死南方学院就行
+            - architectureName 宿舍楼
+            - floorName 楼层
+            - roomName 楼号
+
+        return: 一个元组，通常我规定第一个为bool，用来判定是否成功获取数据。
+
+        Raises:
+            OSError: 安心付晚上11点过后，无法充值电费，会报错。
+        """
+
         url = 'http://axf.nfu.edu.cn/electric/pay/doPay'
         data = {
             'amt': self.__amount,
@@ -64,8 +92,24 @@ class Pay:
 
         return True, json_data, signature
 
-    # 设置支付方式为微信支付
     def __set_wechat_pay(self, json_data, signature):
+        """
+        设置支付方式为微信支付
+
+        - 字段说明
+            - json json_data
+            - signature signature
+            - payChannel 设置为微信支付
+
+        Args:
+            json_data: ready_pay 返回的订单数据
+            signature: ready_pay 返回的数字签名
+
+        return: 一个元组，通常我规定第一个为bool，用来判定是否成功获取数据。
+
+        Raises:
+            OSError: 安心付晚上11点过后，无法充值电费，会报错。
+        """
         url = 'http://nfu.zhihuianxin.net/paycenter/gateway_web'
         data = {
             'json': json_data,

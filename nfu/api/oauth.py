@@ -9,9 +9,12 @@ from nfu.token import generate_token, validate_token
 oauth_bp = Blueprint('oauth', __name__)
 
 
-# 登陆接口，获取令牌
 @oauth_bp.route('/get_token', methods=['POST'])
 def get_token() -> str:
+    """
+    登陆接口，获取令牌
+    return: json
+    """
     user_id = request.form.get('user_id')
     password = request.form.get('password')
 
@@ -44,9 +47,12 @@ def get_token() -> str:
     })
 
 
-# 注册接口
 @oauth_bp.route('/sign_up', methods=['POST'])
 def sign_up() -> str:
+    """
+    注册接口
+    return: json
+    """
     user_id = request.form.get('user_id')
     password = request.form.get('password')
     room_id = request.form.get('room_id')
@@ -73,9 +79,12 @@ def sign_up() -> str:
         return jsonify({'message': '该账号已存在'})
 
 
-# 重新发送激活邮件
 @oauth_bp.route('/refresh_validate_email', methods=['POST'])
 def refresh_validate_email() -> str:
+    """
+    重新发送激活邮件
+    return: json
+    """
     token = request.form.get('refresh_validate_email_token')
     validate = validate_token(token, 'REFRESH_EMAIL_TOKEN')
 
@@ -95,9 +104,12 @@ def refresh_validate_email() -> str:
         return jsonify({'message': validate[1]})
 
 
-# 刷新令牌
 @oauth_bp.route('/refresh_token', methods=['POST'])
 def refresh_token() -> str:
+    """
+    刷新令牌
+    return: json
+    """
     token = request.form.get('refresh_token')
     validate = validate_token(token, 'REFRESH_TOKEN')
     if validate[0]:

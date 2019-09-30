@@ -10,9 +10,12 @@ from nfu.token import validate_token
 electric_bp = Blueprint('electric', __name__)
 
 
-# 获取宿舍电费
 @electric_bp.route('/get_electric', methods=['POST'])
 def get_electric() -> str:
+    """
+    获取宿舍电费
+    return: json
+    """
     token = request.form.get('access_token')
     validate = validate_token(token)
 

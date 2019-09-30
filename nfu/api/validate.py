@@ -7,9 +7,16 @@ from nfu.token import validate_token
 validate_bp = Blueprint('validate', __name__)
 
 
-# 验证邮箱合法性，并激活账号
 @validate_bp.route('/email/<string:token>')
-def email(token) -> str:
+def email(token: str) -> str:
+    """
+    验证邮箱合法性，并激活账号
+
+    Args:
+        token: 激活邮箱的token。
+
+    return: json
+    """
     validate = validate_token(token, 'EMAIL_TOKEN')
     # 验证 token 是否通过
     if validate[0]:
