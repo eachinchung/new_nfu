@@ -9,7 +9,7 @@ from nfu.token import validate_token
 def check_login(func):
     """
     检查用户的access_token是否合法
-    因为有账号才能拿到token，故不考虑，token不存在的情况
+    因为有账号才能拿到token，故不考虑，账号不存在的情况
 
     :param func: 使用此装饰器的函数
     :return: 指向新函数
