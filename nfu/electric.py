@@ -33,7 +33,7 @@ def get_electric_data(room: int) -> tuple:
 
 
 @dataclass
-class Pay:
+class ElectricPay:
     amount: int
     user_id: int
     name: str
@@ -134,7 +134,7 @@ class Pay:
         except AttributeError:
             return False, '与安心付服务器连接超时，请稍后再试'
 
-        return True, json_data, signature, self.session.cookies.get_dict()
+        return True, json_data, signature, self.session.cookies.get_dict()['JSESSIONID']
 
     def create_order(self):
         ready_pay = self.__ready_pay()
