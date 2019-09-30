@@ -14,7 +14,7 @@ electric_bp = Blueprint('electric', __name__)
 def get_electric() -> str:
     """
     获取宿舍电费
-    return: json
+    :return: json
     """
     token = request.form.get('access_token')
     validate = validate_token(token)

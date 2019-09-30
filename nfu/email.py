@@ -7,15 +7,26 @@ from flask_mail import Message
 from nfu.extensions import mail
 
 
-# 发送邮件，供多线程调用
 def __send_async_mail(my_app, message: Message) -> None:
-    # my_app 的意义是激活 flask 上下文
+    """
+    发送邮件，供多线程调用
+    :param my_app: 激活 flask 上下文
+    :param message: 邮件的内容
+    :return:
+    """
     with my_app.app_context():
         mail.send(message)
 
 
-# 发送邮件
 def send_email(subject: str, to: str, body: str, html: str = None) -> None:
+    """
+    发送邮件
+    :param subject: 邮件标题
+    :param to: 收件人
+    :param body: 文本类型邮件内容
+    :param html: html类型邮件内容（可选）
+    :return:
+    """
     # noinspection PyProtectedMember
     app = current_app._get_current_object()
     message = Message(subject, recipients=[to])
@@ -28,8 +39,15 @@ def send_email(subject: str, to: str, body: str, html: str = None) -> None:
     Thread(target=__send_async_mail, args=[app, message]).start()
 
 
-# 发送验证邮箱的邮件
 def send_validate_email(to: str, name: str, user_id: int, token) -> None:
+    """
+    发送验证邮箱的邮件
+    :param to: 收件人
+    :param name: 用户姓名
+    :param user_id: 学号
+    :param token: 激活邮箱的token
+    :return:
+    """
     # url 拼接实例 http://127.0.0.1:5000/validate/email/token
     url = getenv('API_URL') + '/validate/email/' + token
     body = render_template('email/validate_email.txt', name=name, user_id=user_id, url=url)

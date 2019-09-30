@@ -11,11 +11,8 @@ validate_bp = Blueprint('validate', __name__)
 def email(token: str) -> str:
     """
     验证邮箱合法性，并激活账号
-
-    Args:
-        token: 激活邮箱的token。
-
-    return: json
+    :param token: 激活邮箱的token
+    :return: json
     """
     validate = validate_token(token, 'EMAIL_TOKEN')
     # 验证 token 是否通过

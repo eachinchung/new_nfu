@@ -9,13 +9,9 @@ def get_electric_data(room: int) -> tuple:
     """
     获取宿舍电费
 
-    Args:
-        room: 宿舍id
-
-    return: 一个元组，通常我规定第一个为bool，用来判定是否成功获取数据。
-
-    Raises:
-        OSError: 一般错误为超时，学校系统炸了，与我们无关
+    :param room: 宿舍id
+    :return: 一个元组，通常我规定第一个为bool，用来判定是否成功获取数据。
+    :raise OSError: 一般错误为超时，学校系统炸了，与我们无关
     """
 
     url = 'http://axf.nfu.edu.cn/electric/getData/getReserveAM'
@@ -38,14 +34,14 @@ def get_electric_data(room: int) -> tuple:
 
 @dataclass
 class Pay:
-    __amount: int
-    __user_id: int
-    __name: str
-    __room_id: int
-    __building: str
-    __floor: str
-    __room: int
-    __session = requests.session()
+    amount: int
+    user_id: int
+    name: str
+    room_id: int
+    building: str
+    floor: str
+    room: int
+    session = requests.session()
 
     def __ready_pay(self) -> tuple:
         """
@@ -61,26 +57,24 @@ class Pay:
             - floorName 楼层
             - roomName 楼号
 
-        return: 一个元组，通常我规定第一个为bool，用来判定是否成功获取数据。
-
-        Raises:
-            OSError: 安心付晚上11点过后，无法充值电费，会报错。
+        :return: 一个元组，通常我规定第一个为bool，用来判定是否成功获取数据。
+        :raises OSError: 安心付晚上11点过后，无法充值电费，会报错。
         """
 
         url = 'http://axf.nfu.edu.cn/electric/pay/doPay'
         data = {
-            'amt': self.__amount,
-            'custNo': self.__user_id,
-            'custName': self.__name,
-            'roomId': self.__room_id,
+            'amt': self.amount,
+            'custNo': self.user_id,
+            'custName': self.name,
+            'roomId': self.room_id,
             'areaName': '南方学院',
-            'architectureName': self.__building,
-            'floorName': self.__floor,
-            'roomName': self.__room
+            'architectureName': self.building,
+            'floorName': self.floor,
+            'roomName': self.room
         }
 
         try:
-            response = self.__session.post(url, data=data, timeout=1)
+            response = self.session.post(url, data=data, timeout=1)
         except OSError:
             return False, '与安心付服务器连接超时，请稍后再试'
 
@@ -97,19 +91,19 @@ class Pay:
         """
         设置支付方式为微信支付
 
+        返回 json、signature 为向支付页面 post 的 body
+        只要设置好创建订单数据的 cookie，并重定向回安心付支付接口，即可调用安心付支付接口
+        学校安心付接口为 post 提交，但后端并无验证，故 body 数据在 url 带上并重定向即可
+
         - 字段说明
             - json json_data
             - signature signature
             - payChannel 设置为微信支付
 
-        Args:
-            json_data: ready_pay 返回的订单数据
-            signature: ready_pay 返回的数字签名
-
-        return: 一个元组，通常我规定第一个为bool，用来判定是否成功获取数据。
-
-        Raises:
-            OSError: 安心付晚上11点过后，无法充值电费，会报错。
+        :param json_data: ready_pay 返回的订单数据
+        :param signature: ready_pay 返回的数字签名
+        :return: 一个元组，通常我规定第一个为bool，用来判定是否成功获取数据。
+        :raise: OSError: 安心付晚上11点过后，无法充值电费，会报错。
         """
 
         url = 'http://nfu.zhihuianxin.net/paycenter/gateway_web'
@@ -121,7 +115,7 @@ class Pay:
 
         try:
             # 向安心付接口 post 订单数据，无需返回值
-            self.__session.post(url, data=data, headers=header)
+            self.session.post(url, data=data, headers=header)
         except OSError:
             return False, '与安心付服务器连接超时，请稍后再试'
 
@@ -130,7 +124,7 @@ class Pay:
         header = {'Referer': 'http://nfu.zhihuianxin.net/paycenter/gateway_web'}
 
         try:
-            response = self.__session.post(url, data=data, headers=header)
+            response = self.session.post(url, data=data, headers=header)
         except OSError:
             return False, '与安心付服务器连接超时，请稍后再试'
 
@@ -140,10 +134,7 @@ class Pay:
         except AttributeError:
             return False, '与安心付服务器连接超时，请稍后再试'
 
-        # 返回 json、signature 为向支付页面 post 的 body
-        # 只要设置好创建订单数据的 cookie，并重定向回安心付支付接口，即可调用安心付支付接口
-        # 学校安心付接口为 post 提交，但后端并无验证，故 body 数据在 url 带上并重定向即可
-        return True, json_data, signature, self.__session.cookies.get_dict()
+        return True, json_data, signature, self.session.cookies.get_dict()
 
     def create_order(self):
         ready_pay = self.__ready_pay()
@@ -156,5 +147,5 @@ class Pay:
 
         if set_wechat_pay[0]:
             return set_wechat_pay
-        else:
-            return False, '与安心付服务器连接超时，请稍后再试'
+
+        return False, '与安心付服务器连接超时，请稍后再试'

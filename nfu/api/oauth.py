@@ -51,7 +51,7 @@ def get_token() -> str:
 def sign_up() -> str:
     """
     注册接口
-    return: json
+    :return: json
     """
     user_id = request.form.get('user_id')
     password = request.form.get('password')
@@ -83,7 +83,7 @@ def sign_up() -> str:
 def refresh_validate_email() -> str:
     """
     重新发送激活邮件
-    return: json
+    :return: json
     """
     token = request.form.get('refresh_validate_email_token')
     validate = validate_token(token, 'REFRESH_EMAIL_TOKEN')
@@ -108,7 +108,7 @@ def refresh_validate_email() -> str:
 def refresh_token() -> str:
     """
     刷新令牌
-    return: json
+    :return: json
     """
     token = request.form.get('refresh_token')
     validate = validate_token(token, 'REFRESH_TOKEN')

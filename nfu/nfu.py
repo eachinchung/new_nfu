@@ -6,17 +6,11 @@ import requests
 def get_student_name(student_id: int, password: str) -> tuple:
     """
     与教务系统校对账号密码
-
-    Args:
-        student_id: 学号
-        password: 教务系统的密码
-
-    return: 一个元组，通常我规定第一个为bool，用来判定是否成功获取数据。
-
-    Raises:
-        OSError: 一般错误为超时，学校系统炸了，与我们无关
+    :param student_id: 学号
+    :param password: 教务系统的密码
+    :return: 一个元组，通常我规定第一个为bool，用来判定是否成功获取数据。
+    :raise OSError: 一般错误为超时，学校系统炸了，与我们无关
     """
-
     url = 'http://ecampus.nfu.edu.cn:2929/jw-privilegei/User/r-login'
     post_session = requests.session()
     data = {
@@ -56,14 +50,9 @@ def get_student_name(student_id: int, password: str) -> tuple:
 def get_jw_token(student_id: int) -> tuple:
     """
     登陆教务系统
-
-    Args:
-        student_id: 学号，基于教务系统的Bug，登陆时，密码直接提交空字符串就可以了
-
-    return: 一个元组，通常我规定第一个为bool，用来判定是否成功获取数据。
-
-    Raises:
-        OSError: 一般错误为超时，学校系统炸了，与我们无关
+    :param student_id: 学号，基于教务系统的Bug，登陆时，密码直接提交空字符串就可以了
+    :return: 一个元组，通常我规定第一个为bool，用来判定是否成功获取数据。
+    :raise OSError: 一般错误为超时，学校系统炸了，与我们无关
     """
 
     url = 'http://ecampus.nfu.edu.cn:2929/jw-privilegei/User/r-login'
