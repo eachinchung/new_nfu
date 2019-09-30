@@ -6,6 +6,12 @@ import requests
 def get_student_name(student_id: int, password: str) -> tuple:
     """
     与教务系统校对账号密码
+
+    - 字段说明
+        - username 学号
+        - password 密码
+        - rd 随机数，可以随机，也可以不填，我也不知道来干嘛的
+
     :param student_id: 学号
     :param password: 教务系统的密码
     :return: 一个元组，通常我规定第一个为bool，用来判定是否成功获取数据。
