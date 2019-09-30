@@ -42,13 +42,15 @@ def send_email(subject: str, to: str, body: str, html: str = None) -> None:
 def send_validate_email(to: str, name: str, user_id: int, token) -> None:
     """
     发送验证邮箱的邮件
+
+    url 拼接实例 http://127.0.0.1:5000/validate/email/token
+
     :param to: 收件人
     :param name: 用户姓名
     :param user_id: 学号
     :param token: 激活邮箱的token
     :return:
     """
-    # url 拼接实例 http://127.0.0.1:5000/validate/email/token
     url = getenv('API_URL') + '/validate/email/' + token
     body = render_template('email/validate_email.txt', name=name, user_id=user_id, url=url)
     send_email('请验证您的邮箱地址', to, body)
