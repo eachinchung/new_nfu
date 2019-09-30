@@ -17,6 +17,7 @@ def get_electric_data(room: int) -> tuple:
     Raises:
         OSError: 一般错误为超时，学校系统炸了，与我们无关
     """
+
     url = 'http://axf.nfu.edu.cn/electric/getData/getReserveAM'
     data = {'roomId': room}
     try:
@@ -110,6 +111,7 @@ class Pay:
         Raises:
             OSError: 安心付晚上11点过后，无法充值电费，会报错。
         """
+
         url = 'http://nfu.zhihuianxin.net/paycenter/gateway_web'
         data = {
             'json': json_data,
