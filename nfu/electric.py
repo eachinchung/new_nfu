@@ -102,7 +102,7 @@ class ElectricPay:
 
         :param json_data: ready_pay 返回的订单数据
         :param signature: ready_pay 返回的数字签名
-        :return: 一个元组，通常我规定第一个为bool，用来判定是否成功获取数据。
+        :return: 0.bool 1.json 2.signature 3.cookies
         :raise: OSError: 安心付晚上11点过后，无法充值电费，会报错。
         """
 
