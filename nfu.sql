@@ -21,10 +21,10 @@ create table power
 
 create table dormitory
 (
-    id       int(8)  not null primary key,
+    id       int(8)   not null primary key,
     building char(15) not null,
-    floor    char(2) not null,
-    room     int(3)  not null
+    floor    char(2)  not null,
+    room     int(3)   not null
 );
 
 create table electric
@@ -61,6 +61,7 @@ create table achievement
     midterm_achievements   float       not null,
     practice_achievements  float       not null,
     peacetime_achievements float       not null,
+    index course_id (course_id),
     foreign key (user_id) references user (id) on delete cascade on update cascade
 );
 
@@ -77,6 +78,7 @@ create table class_schedule
     end_node    tinyint     not null,
     start_week  tinyint     not null,
     end_week    tinyint     not null,
+    index course_id (course_id),
     foreign key (user_id) references user (id) on delete cascade on update cascade
 );
 
