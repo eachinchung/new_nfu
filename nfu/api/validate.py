@@ -8,7 +8,7 @@ validate_bp = Blueprint('validate', __name__)
 
 
 @validate_bp.route('/email/<string:token>')
-def email(token: str) -> str:
+def email(token: str):
     """
     验证邮箱合法性，并激活账号
     :param token: 激活邮箱的token

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, make_response, redirect, url_for
 
 from nfu.decorators import check_access_token
 from nfu.electric import get_electric_data, ElectricPay
@@ -12,7 +12,7 @@ electric_bp = Blueprint('electric', __name__)
 
 @electric_bp.route('/get_electric', methods=['POST'])
 @check_access_token
-def get_electric(user) -> str:
+def get_electric(user):
     """
     获取宿舍电费
     :param user: @check_login 返回用户的数据
@@ -37,7 +37,7 @@ def get_electric(user) -> str:
 
 @electric_bp.route('/create_order', methods=['POST'])
 @check_access_token
-def create_order(user) -> str:
+def create_order(user):
     """
     创建电费充值订单
     :param user: @check_login 返回用户的数据
@@ -54,3 +54,14 @@ def create_order(user) -> str:
         return jsonify({'message': order_data[1]})
 
     return jsonify({'message': 'success', 'json': order_data[1], 'signature': order_data[2], 'cookies': order_data[3]})
+
+
+@electric_bp.route('/pay_order')
+def pay_order():
+    json_data = '1'
+    signature = '1'
+    url = "http://nfu.zhihuianxin.net/school_paycgi_wxpay/paycgi_upw?json=" + json_data + "&signature=" + signature
+    response = make_response(redirect(url))
+    print(type(response))
+    # response.set_cookie('JSESSIONID', demo[3]['JSESSIONID'])
+    return response

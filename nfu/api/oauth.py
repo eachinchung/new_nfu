@@ -10,7 +10,7 @@ oauth_bp = Blueprint('oauth', __name__)
 
 
 @oauth_bp.route('/get_token', methods=['POST'])
-def get_token() -> str:
+def get_token():
     """
     登陆接口，获取令牌
     return: json
@@ -48,7 +48,7 @@ def get_token() -> str:
 
 
 @oauth_bp.route('/sign_up', methods=['POST'])
-def sign_up() -> str:
+def sign_up():
     """
     注册接口
     :return: json
@@ -80,7 +80,7 @@ def sign_up() -> str:
 
 
 @oauth_bp.route('/refresh_validate_email', methods=['POST'])
-def refresh_validate_email() -> str:
+def refresh_validate_email():
     """
     重新发送激活邮件
     :return: json
@@ -105,7 +105,7 @@ def refresh_validate_email() -> str:
 
 
 @oauth_bp.route('/refresh_token', methods=['POST'])
-def refresh_token() -> str:
+def refresh_token():
     """
     刷新令牌
     :return: json
