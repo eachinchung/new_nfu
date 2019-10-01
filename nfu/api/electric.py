@@ -30,7 +30,7 @@ def get_electric(user):
             db.session.add(electric_data)
             db.session.commit()
         else:
-            return jsonify({'message': electric[1]})
+            return jsonify({'message': electric[1]}), 403
 
     return jsonify({'message': 'success', 'electric': electric_data.value})
 
@@ -51,17 +51,23 @@ def create_order(user):
     order_data = order.create_order()
 
     if not order_data[0]:
-        return jsonify({'message': order_data[1]})
+        return jsonify({'message': order_data[1]}), 403
 
-    return jsonify({'message': 'success', 'json': order_data[1], 'signature': order_data[2], 'cookies': order_data[3]})
+    return jsonify({
+        'message': 'success',
+        'json': order_data[1],
+        'signature': order_data[2],
+        'electric_cookies': order_data[3]
+    })
 
 
 @electric_bp.route('/pay_order')
+@check_access_token
 def pay_order():
-    json_data = '1'
-    signature = '1'
+    json_data = request.args.get('json')
+    signature = request.args.get('signature')
+    electric_cookies = request.args.get('electric_cookies')
     url = "http://nfu.zhihuianxin.net/school_paycgi_wxpay/paycgi_upw?json=" + json_data + "&signature=" + signature
     response = make_response(redirect(url))
-    print(type(response))
-    # response.set_cookie('JSESSIONID', demo[3]['JSESSIONID'])
+    response.set_cookie('JSESSIONID', electric_cookies)
     return response
