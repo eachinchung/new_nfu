@@ -23,13 +23,14 @@ def get_electric():
     # 当数据库没有电费数据时，我们向安心付请求数据
     if electric_data is None:
         electric = get_electric_data(g.user.room_id)
-        if electric[0]:
-            # 并将电费数据写入数据库
-            electric_data = Electric(room_id=g.user.room_id, value=electric[1], time=datetime.now())
-            db.session.add(electric_data)
-            db.session.commit()
-        else:
+
+        if not electric[0]:
             return jsonify({'message': electric[1]}), 403
+
+        # 并将电费数据写入数据库
+        electric_data = Electric(room_id=g.user.room_id, value=electric[1], time=datetime.now())
+        db.session.add(electric_data)
+        db.session.commit()
 
     return jsonify({'message': 'success', 'electric': electric_data.value})
 
