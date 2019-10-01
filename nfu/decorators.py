@@ -18,19 +18,15 @@ def check_access_token(func):
     @wraps(func)
     def wrapper(*args, **kw):
         token = request.values.get('access_token')
-
         if token is None:
             return jsonify({'message': '没有访问权限'}), 403
 
         validate = validate_token(token)
-
         # 验证 token 是否通过
-        if validate[0]:
-            user = User.query.get(validate[1]['id'])
-
-        else:
+        if not validate[0]:
             return jsonify({'message': validate[1]}), 403
 
+        user = User.query.get(validate[1]['id'])
         return func(user, *args, **kw)
 
     return wrapper

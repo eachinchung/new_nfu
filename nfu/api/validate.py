@@ -22,10 +22,8 @@ def email(token: str):
 
     # 获取用户权限表
     # 验证邮箱是否激活
-    # 因不存在账号几乎不可能获取 token，
-    # 故合并两个验证。
     user_power = Power.query.get(validate[1]['id'])
-    if user_power.validate_email or user_power is None:
+    if user_power.validate_email:
         return jsonify({'message': '该账号已激活'}), 500
 
     user_power.validate_email = True
