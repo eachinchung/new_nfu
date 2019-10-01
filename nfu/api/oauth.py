@@ -98,12 +98,12 @@ def refresh_validate_email():
     if user_power is None:
         return jsonify({'message': '账号不存在'}), 500
 
-    if not user_power.validate_email:
-        token = generate_token({'id': validate[1]['id']}, token_type='EMAIL_TOKEN')
-        send_validate_email(validate[1]['email'], validate[1]['name'], validate[1]['id'], token)
-        return jsonify({'message': 'success'})
+    if user_power.validate_email:
+        return jsonify({'message': '该账号已激活'}), 500
 
-    return jsonify({'message': '该账号已激活'}), 500
+    token = generate_token({'id': validate[1]['id']}, token_type='EMAIL_TOKEN')
+    send_validate_email(validate[1]['email'], validate[1]['name'], validate[1]['id'], token)
+    return jsonify({'message': 'success'})
 
 
 @oauth_bp.route('/refresh_token', methods=['POST'])
