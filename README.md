@@ -44,7 +44,7 @@
 验证邮箱合法性 `validate/email/token`
 
 ### 电费接口
-获取宿舍电费 `electric/get_electric`
+获取宿舍电费 `electric/get`
 
 创建电费充值订单 `electric/create_order`
 

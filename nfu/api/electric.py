@@ -10,9 +10,9 @@ from nfu.models import Electric, Dormitory
 electric_bp = Blueprint('electric', __name__)
 
 
-@electric_bp.route('/get_electric')
+@electric_bp.route('/get')
 @check_access_token
-def get_electric():
+def get():
     """
     获取宿舍电费
     :return: json
