@@ -2,7 +2,7 @@ from datetime import datetime
 
 from flask import Blueprint, request, jsonify
 
-from nfu.decorators import check_login
+from nfu.decorators import check_access_token
 from nfu.electric import get_electric_data, ElectricPay
 from nfu.extensions import db
 from nfu.models import Electric, Dormitory
@@ -11,17 +11,13 @@ electric_bp = Blueprint('electric', __name__)
 
 
 @electric_bp.route('/get_electric', methods=['POST'])
-@check_login
-def get_electric(user, error) -> str:
+@check_access_token
+def get_electric(user) -> str:
     """
     获取宿舍电费
     :param user: @check_login 返回用户的数据
-    :param error: @check_login 返回的错误
     :return: json
     """
-
-    if user is None:
-        return jsonify({'message': error})
 
     electric_data = Electric.query.filter_by(room_id=user.room_id).first()
 
@@ -40,17 +36,13 @@ def get_electric(user, error) -> str:
 
 
 @electric_bp.route('/create_order', methods=['POST'])
-@check_login
-def create_order(user, error) -> str:
+@check_access_token
+def create_order(user) -> str:
     """
     创建电费充值订单
     :param user: @check_login 返回用户的数据
-    :param error: @check_login 返回的错误
     :return: json 跳转支付页面所必须的数据
     """
-
-    if user is None:
-        return jsonify({'message': error})
 
     amount = request.form.get('amount')
     dormitory = Dormitory.query.get(user.room_id)
