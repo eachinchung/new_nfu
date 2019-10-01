@@ -9,7 +9,7 @@ from nfu.extensions import mail
 
 def __send_async_mail(my_app, message: Message) -> None:
     """
-    发送邮件，供多线程调用
+    私有函数，发送邮件，供多线程调用
     :param my_app: 激活 flask 上下文
     :param message: 邮件的内容
     :return:
