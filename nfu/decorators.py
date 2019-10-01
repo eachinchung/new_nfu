@@ -11,6 +11,8 @@ def check_access_token(func):
     检查用户的access_token是否合法
     因为有账号才能拿到token，故不考虑，账号不存在的情况
 
+    使用flask的g对象，全局储存，user数据
+
     :param func: 使用此装饰器的函数
     :return: 指向新函数，或者返回错误
     """
