@@ -5,7 +5,7 @@ from requests import session
 
 def get_student_name(student_id: int, password: str) -> tuple:
     """
-    与教务系统校对账号密码
+    与教务系统校对账号密码，并获取学生姓名
 
     - 字段说明
         - username 学号
@@ -37,21 +37,20 @@ def get_student_name(student_id: int, password: str) -> tuple:
     except (OSError, decoder.JSONDecodeError):
         return False, '教务系统错误，请稍后再试'
 
-    else:
-        url = 'http://ecampus.nfu.edu.cn:2929/jw-privilegei/User/r-getMyself'
-        data = {'jwloginToken': token}
+    url = 'http://ecampus.nfu.edu.cn:2929/jw-privilegei/User/r-getMyself'
+    data = {'jwloginToken': token}
 
-        try:
-            response = http_session.post(url, data=data, timeout=1)
-            name = loads(response.text)['msg']['name']
+    try:
+        response = http_session.post(url, data=data, timeout=1)
+        name = loads(response.text)['msg']['name']
 
-            if not name:
-                return False, '教务系统错误，请稍后再试'
-
-            return True, name
-
-        except (OSError, KeyError):
+        if not name:
             return False, '教务系统错误，请稍后再试'
+
+        return True, name
+
+    except (OSError, KeyError):
+        return False, '教务系统错误，请稍后再试'
 
 
 def get_jw_token(student_id: int) -> tuple:
@@ -82,3 +81,34 @@ def get_jw_token(student_id: int) -> tuple:
 
     else:
         return True, token
+
+
+def get_class_schedule(token: str, school_year: int, semester: int) -> tuple:
+    """
+    向教务系统请求课程表数据
+
+    :param token:
+    :param school_year:
+    :param semester:
+    :return:
+    """
+    url = 'http://ecampus.nfu.edu.cn:2929/jw-cssi/CssStudent/r-listJxb'
+    http_session = session()
+    data = {
+        'xn': school_year,
+        'xq': semester,
+        'jwloginToken': token
+    }
+    try:
+        response = http_session.post(url, data=data, timeout=1)
+        course_list = loads(response.text)['msg']
+    except (OSError, KeyError, decoder.JSONDecodeError):
+        return False, '教务系统错误，请稍后再试'
+
+    else:
+        if not isinstance(course_list, list):
+            return False, '教务系统错误，请稍后再试'
+
+        for course in course_list:
+            for merge in course['kbMergeList']:
+                pass
