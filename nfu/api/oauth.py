@@ -18,10 +18,8 @@ def get_token():
     user_id = request.form.get('user_id')
     password = request.form.get('password')
 
-    user = User.query.get(user_id)
-    user_power = Power.query.get(user_id)
-
     # 首先验证账号是否存在
+    user = User.query.get(user_id)
     if user is None:
         return jsonify({'message': '账号不存在。'}), 500
 
@@ -29,6 +27,7 @@ def get_token():
         return jsonify({'message': '密码错误'}), 500
 
     # 验证账号是否激活，若账号未激活，往后操作无意义
+    user_power = Power.query.get(user_id)
     if not user_power.validate_email:
         data = {
             'id': user.id,
