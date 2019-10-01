@@ -17,6 +17,7 @@ def get_student_name(student_id: int, password: str) -> tuple:
     :return: 一个元组，通常我规定第一个为bool，用来判定是否成功获取数据。
     :raise OSError: 一般错误为超时，学校系统炸了，与我们无关
     """
+
     url = 'http://ecampus.nfu.edu.cn:2929/jw-privilegei/User/r-login'
     post_session = requests.session()
     data = {
