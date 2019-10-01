@@ -21,8 +21,8 @@ def check_access_token(func):
         if token is None:
             return jsonify({'message': '没有访问权限'}), 403
 
-        validate = validate_token(token)
         # 验证 token 是否通过
+        validate = validate_token(token)
         if not validate[0]:
             return jsonify({'message': validate[1]}), 403
 
