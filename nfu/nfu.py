@@ -19,7 +19,7 @@ def get_student_name(student_id: int, password: str) -> tuple:
     """
 
     url = 'http://ecampus.nfu.edu.cn:2929/jw-privilegei/User/r-login'
-    post_session = session()
+    http_session = session()
     data = {
         'username': student_id,
         'password': password,
@@ -28,7 +28,7 @@ def get_student_name(student_id: int, password: str) -> tuple:
 
     try:
         # 因为教务系统经常抽风，故设置1秒超时
-        response = post_session.post(url, data=data, timeout=1)
+        response = http_session.post(url, data=data, timeout=1)
         token = loads(response.text)['msg']
 
         if not token:
@@ -42,7 +42,7 @@ def get_student_name(student_id: int, password: str) -> tuple:
         data = {'jwloginToken': token}
 
         try:
-            response = post_session.post(url, data=data, timeout=1)
+            response = http_session.post(url, data=data, timeout=1)
             name = loads(response.text)['msg']['name']
 
             if not name:
@@ -63,7 +63,7 @@ def get_jw_token(student_id: int) -> tuple:
     """
 
     url = 'http://ecampus.nfu.edu.cn:2929/jw-privilegei/User/r-login'
-    post_session = session()
+    http_session = session()
     data = {
         'username': student_id,
         'password': '',
@@ -71,7 +71,7 @@ def get_jw_token(student_id: int) -> tuple:
     }
 
     try:
-        response = post_session.post(url, data=data, timeout=1)
+        response = http_session.post(url, data=data, timeout=1)
         token = loads(response.text)['msg']
 
         if not token:  # 如果教务系统反200，且获取不到 token，可能是学校修复了这个 bug。
