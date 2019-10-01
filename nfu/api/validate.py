@@ -11,6 +11,7 @@ validate_bp = Blueprint('validate', __name__)
 def email(token: str):
     """
     验证邮箱合法性，并激活账号
+    因为有账号才能拿到token，故不考虑，账号不存在的情况
     :param token: 激活邮箱的token
     :return: json
     """
