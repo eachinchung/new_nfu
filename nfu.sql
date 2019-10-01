@@ -22,7 +22,7 @@ create table power
 create table dormitory
 (
     id       int(8)  not null primary key,
-    building char(8) not null,
+    building char(15) not null,
     floor    char(2) not null,
     room     int(3)  not null
 );
