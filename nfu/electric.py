@@ -1,5 +1,5 @@
-import json
-import re
+from json import decoder, loads
+from re import search
 from dataclasses import dataclass
 
 import requests
@@ -23,9 +23,9 @@ def get_electric_data(room: int) -> tuple:
         return False, '安心付服务器错误'
     else:
         try:
-            electric_quantity = json.loads(response.text)
+            electric_quantity = loads(response.text)
             electric_quantity = electric_quantity['data']['remainPower']
-        except KeyError:
+        except (KeyError, decoder.JSONDecodeError):
             return False, '此宿舍无数据'
         else:
             electric_quantity = round(float(electric_quantity), 2)
@@ -80,8 +80,8 @@ class ElectricPay:
 
         try:
             # 尝试获取签名
-            json_data = re.search(r'name="json" value=.+', response.text).group()[19:-4]
-            signature = re.search(r'name="signature" value=.+', response.text).group()[24:-4]
+            json_data = search(r'name="json" value=.+', response.text).group()[19:-4]
+            signature = search(r'name="signature" value=.+', response.text).group()[24:-4]
         except AttributeError:
             return False, '与安心付服务器连接超时，请稍后再试'
 
@@ -129,8 +129,8 @@ class ElectricPay:
             return False, '与安心付服务器连接超时，请稍后再试'
 
         try:
-            json_data = re.search(r'name="json" value=.+', response.text).group()[19:-5]
-            signature = re.search(r'name="signature" value=.+', response.text).group()[24:-5]
+            json_data = search(r'name="json" value=.+', response.text).group()[19:-5]
+            signature = search(r'name="signature" value=.+', response.text).group()[24:-5]
         except AttributeError:
             return False, '与安心付服务器连接超时，请稍后再试'
 
