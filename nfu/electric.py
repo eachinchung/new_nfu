@@ -42,7 +42,7 @@ class ElectricPay:
     building: str
     floor: str
     room: int
-    http_session = session()
+    __http_session = session()
 
     def __ready_pay(self) -> tuple:
         """
@@ -75,7 +75,7 @@ class ElectricPay:
         }
 
         try:
-            response = self.http_session.post(url, data=data, timeout=1)
+            response = self.__http_session.post(url, data=data, timeout=1)
         except OSError:
             return False, '与安心付服务器连接超时，请稍后再试'
 
@@ -116,7 +116,7 @@ class ElectricPay:
 
         try:
             # 向安心付接口 post 订单数据，无需返回值
-            self.http_session.post(url, data=data, headers=header)
+            self.__http_session.post(url, data=data, headers=header)
         except OSError:
             return False, '与安心付服务器连接超时，请稍后再试'
 
@@ -125,7 +125,7 @@ class ElectricPay:
         header = {'Referer': 'http://nfu.zhihuianxin.net/paycenter/gateway_web'}
 
         try:
-            response = self.http_session.post(url, data=data, headers=header)
+            response = self.__http_session.post(url, data=data, headers=header)
         except OSError:
             return False, '与安心付服务器连接超时，请稍后再试'
 
@@ -135,7 +135,7 @@ class ElectricPay:
         except AttributeError:
             return False, '与安心付服务器连接超时，请稍后再试'
 
-        return True, json_data, signature, self.http_session.cookies.get_dict()['JSESSIONID']
+        return True, json_data, signature, self.__http_session.cookies.get_dict()['JSESSIONID']
 
     def create_order(self):
         ready_pay = self.__ready_pay()
