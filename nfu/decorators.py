@@ -1,6 +1,6 @@
 from functools import wraps
 
-from flask import request, jsonify
+from flask import request, jsonify, g
 
 from nfu.models import User
 from nfu.token import validate_token
@@ -26,7 +26,7 @@ def check_access_token(func):
         if not validate[0]:
             return jsonify({'message': validate[1]}), 403
 
-        user = User.query.get(validate[1]['id'])
-        return func(user, *args, **kw)
+        g.user = User.query.get(validate[1]['id'])
+        return func(*args, **kw)
 
     return wrapper
