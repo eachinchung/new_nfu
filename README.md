@@ -42,3 +42,10 @@
 
 ### 验证接口
 验证邮箱合法性 `validate/email/token`
+
+### 电费接口
+获取宿舍电费 `electric/get_electric`
+
+创建电费充值订单 `electric/create_order`
+
+跳转支付页面 `electric/pay_order`
