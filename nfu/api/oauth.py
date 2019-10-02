@@ -46,6 +46,32 @@ def get_token():
     })
 
 
+@oauth_bp.route('/refresh_token', methods=['POST'])
+def refresh_token():
+    """
+    刷新令牌
+    :return: json
+    """
+    token = request.form.get('refresh_token')
+    validate = validate_token(token, 'REFRESH_TOKEN')
+
+    # 令牌验证不通过
+    if not validate[0]:
+        return jsonify({'message': validate[1]}), 403
+
+    user = User.query.get(validate[1]['user_id'])
+    user_power = Power.query.get(validate[1]['user_id'])
+
+    if user is None:
+        return jsonify({'message': '账号不存在'}), 500
+
+    return jsonify({
+        'message': 'success',
+        'access_token': generate_token(user_power.get_dict()),
+        'refresh_token': generate_token({'id': user.id}, token_type='REFRESH_TOKEN', expires_in=2592000)
+    })
+
+
 @oauth_bp.route('/sign_up', methods=['POST'])
 def sign_up():
     """
@@ -103,29 +129,3 @@ def refresh_validate_email():
     token = generate_token({'id': validate[1]['id']}, token_type='EMAIL_TOKEN')
     send_validate_email(validate[1]['email'], validate[1]['name'], validate[1]['id'], token)
     return jsonify({'message': 'success'})
-
-
-@oauth_bp.route('/refresh_token', methods=['POST'])
-def refresh_token():
-    """
-    刷新令牌
-    :return: json
-    """
-    token = request.form.get('refresh_token')
-    validate = validate_token(token, 'REFRESH_TOKEN')
-
-    # 令牌验证不通过
-    if not validate[0]:
-        return jsonify({'message': validate[1]}), 403
-
-    user = User.query.get(validate[1]['user_id'])
-    user_power = Power.query.get(validate[1]['user_id'])
-
-    if user is None:
-        return jsonify({'message': '账号不存在'}), 500
-
-    return jsonify({
-        'message': 'success',
-        'access_token': generate_token(user_power.get_dict()),
-        'refresh_token': generate_token({'id': user.id}, token_type='REFRESH_TOKEN', expires_in=2592000)
-    })
