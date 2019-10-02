@@ -3,6 +3,7 @@ from flask import Flask, jsonify
 from nfu.api.class_schedule import class_schedule_bp
 from nfu.api.electric import electric_bp
 from nfu.api.oauth import oauth_bp
+from nfu.api.school_bus import school_bus_bp
 from nfu.api.validate import validate_bp
 from nfu.extensions import db, mail, cors
 
@@ -23,6 +24,7 @@ def register_blueprints(app) -> None:
     app.register_blueprint(class_schedule_bp, url_prefix='/class_schedule')
     app.register_blueprint(electric_bp, url_prefix='/electric')
     app.register_blueprint(oauth_bp, url_prefix='/oauth')
+    app.register_blueprint(school_bus_bp, url_prefix='/school_bus')
     app.register_blueprint(validate_bp, url_prefix='/validate')
 
 
