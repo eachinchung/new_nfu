@@ -17,3 +17,5 @@ def get():
 
     if not class_schedule:
         return 'None'
+
+    return '暂未完工'
