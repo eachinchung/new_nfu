@@ -14,7 +14,7 @@ create table power
 (
     id             int(9)     not null primary key,
     validate_email tinyint(1) not null,
-    bus_ticket     tinyint(1) not null,
+    school_bus     tinyint(1) not null,
     admin          tinyint(1) not null,
     foreign key (id) references user (id) on delete cascade on update cascade
 );
