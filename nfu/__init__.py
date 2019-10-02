@@ -39,8 +39,12 @@ def register_extensions(app) -> None:
 def register_errors(app) -> None:
     @app.errorhandler(404)
     def page_not_found(e):
-        return jsonify({'message': '404 找不到此资源'}), 404
+        return jsonify({'message': '404 错误 – 找不到此资源'}), 404
+
+    @app.errorhandler(405)
+    def page_not_found(e):
+        return jsonify({'message': '405 错误 – 方法不被允许'}), 405
 
     @app.errorhandler(500)
     def internal_server_error(e):
-        return jsonify({'message': '500 服务器内部错误'}), 500
+        return jsonify({'message': '500 错误 – 服务器内部错误'}), 500
