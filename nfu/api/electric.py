@@ -25,7 +25,7 @@ def get():
         electric = get_electric_data(g.user.room_id)
 
         if not electric[0]:
-            return jsonify({'message': electric[1]}), 403
+            return jsonify({'message': electric[1]}), 500
 
         # 并将电费数据写入数据库
         electric_data = Electric(room_id=g.user.room_id, value=electric[1], time=datetime.now())
@@ -51,7 +51,7 @@ def create_order():
     order_data = order.create_order()
 
     if not order_data[0]:
-        return jsonify({'message': order_data[1]}), 403
+        return jsonify({'message': order_data[1]}), 500
 
     return jsonify({
         'message': 'success',
