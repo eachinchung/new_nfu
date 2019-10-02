@@ -24,7 +24,7 @@ class User(db.Model):
 class Power(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     validate_email = db.Column(db.Boolean, default=False)
-    bus_ticket = db.Column(db.Boolean, default=False)
+    school_bus = db.Column(db.Boolean, default=False)
     admin = db.Column(db.Boolean, default=False)
 
     # 返回权限字典
@@ -32,7 +32,7 @@ class Power(db.Model):
         return {
             'id': self.id,
             'validate_email': self.validate_email,
-            'bus_ticket': self.bus_ticket,
+            'school_bus': self.school_bus,
             'admin': self.admin
         }
 
