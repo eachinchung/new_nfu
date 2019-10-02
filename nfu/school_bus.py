@@ -4,7 +4,7 @@ from re import search
 from requests import session
 
 
-def get_ticket_schedule(route_id: int, date: list, bus_session: str) -> tuple:
+def get_bus_schedule(route_id: int, date: list, bus_session: str) -> tuple:
     """
     若日期在车票预售期内，获取班车时刻表。
 
@@ -42,9 +42,10 @@ def get_ticket_schedule(route_id: int, date: list, bus_session: str) -> tuple:
         return True, data
 
 
-def get_passenger(bus_session: str) -> tuple:
+def get_bus_passenger(bus_session: str) -> tuple:
     """
     获取乘车人数据
+    同样，数据都会在页面直接返回。
     :param bus_session: 校车系统的 session
     :return: 0.是否成功获取数据，1.数据
     """
