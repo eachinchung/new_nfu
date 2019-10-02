@@ -29,6 +29,8 @@ def check_access_token(func):
             return jsonify({'message': validate[1]}), 403
 
         g.user = User.query.get(validate[1]['id'])
+        g.user_power = validate[1]
+
         return func(*args, **kw)
 
     return wrapper
