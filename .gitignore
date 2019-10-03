@@ -2,3 +2,6 @@
 .idea/
 .env
 __pycache__
+
+# 此为私人cdn加速文件
+bus_ticket_cdn.html
