@@ -60,5 +60,5 @@ def get_ticket():
     if not ticket_data[0]:
         return jsonify({'message': ticket_data[1]}), 500
 
-    return render_template('html/bus_ticket.html', bus_data=ticket_data[1], ticket=ticket_data[2],
+    return render_template('html/bus_ticket_cdn.html', bus_data=ticket_data[1], ticket=ticket_data[2],
                            javascript=ticket_data[3])

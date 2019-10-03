@@ -53,4 +53,6 @@
 ### 校巴接口
 获取班车时刻表 `school_bus/get_schedule`
 
-获取乘车人数据 `passenger/get`
+获取乘车人数据 `school_bus/passenger/get`
+
+获取电子车票 `school_bus/ticket/get`

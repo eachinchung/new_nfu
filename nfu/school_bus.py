@@ -138,7 +138,9 @@ def get_ticket_data(order_id: int, bus_session: str):
     :param bus_session: 校车系统的 session
     :return bus_data: 班车数据，同个订单，统一即可
     :return ticket: 车票数据
+    :return javascript: 处理车票的js，动态生成js，实在是太骚了。
     """
+
     url = 'http://nfuedu.zftcloud.com/campusbus_index/order/ticket.html'
     http_session = session()
     headers = {'Cookie': bus_session}
@@ -146,12 +148,12 @@ def get_ticket_data(order_id: int, bus_session: str):
     try:
         response = http_session.get(url, params={'order_id': order_id}, headers=headers)
         bus_data = {
-            'road_from': search(r'<span class="road_from">.+', response.text).group(),
-            'road_to': search(r'<span class="road_to">.+', response.text).group(),
-            'year': search(r'<span class="data_y">.+', response.text).group(),
-            'week': search(r'<span class="data_week">.+', response.text).group(),
-            'time': search(r'<span class="data_hm">.+', response.text).group(),
-            'bus_id': search(r'<div class="data_bc">.+', response.text).group(),
+            'road_from': search(r'<span class="road_from">.+', response.text).group()[:-1],
+            'road_to': search(r'<span class="road_to">.+', response.text).group()[:-1],
+            'year': search(r'<span class="data_y">.+', response.text).group()[:-1],
+            'week': search(r'<span class="data_week">.+', response.text).group()[:-1],
+            'time': search(r'<span class="data_hm">.+', response.text).group()[:-1],
+            'bus_id': search(r'<div class="data_bc">.+', response.text).group()[:-1],
             'take_station': search(r'上车点：.+', response.text).group()[:-5]
         }
         javascript = search(r'<script>.+</script>', response.text, S).group()
@@ -167,9 +169,9 @@ def get_ticket_data(order_id: int, bus_session: str):
 
     for i, ticket_id in enumerate(ticket_ids):
         ticket.append({
-            'ticket_id': ticket_id,
-            'passenger': passengers[i],
-            'seat': seats[i]
+            'ticket_id': ticket_id[:-1],
+            'passenger': passengers[i][:-1],
+            'seat': seats[i][:-1]
         })
 
     return True, bus_data, ticket, javascript
