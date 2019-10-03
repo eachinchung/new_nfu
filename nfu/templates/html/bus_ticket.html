@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0, user-scalable=no"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta name="renderer" content="webkit"/>
+    <title>电子票</title>
+    <link href="http://nfuedu.zftcloud.com/public/static/campusbus/css/mui.min.css" rel="stylesheet"/>
+    <link href="http://nfuedu.zftcloud.com/public/static/campusbus/css/common/swiper.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="http://nfuedu.zftcloud.com/public/static/campusbus/css/ticket.css"/>
+    <style>
+        .testbox {
+            height: 1.8rem;
+            overflow: hidden;
+        }
+
+        .top_xi {
+            background: -webkit-linear-gradient(left, #05A3EB 0%, #05A3EB 90%);
+            color: white;
+            font-size: .34rem;
+            padding: .35rem 0;
+            position: relative;
+        }
+    </style>
+</head>
+
+<body>
+<div class="content">
+    <div class="swiper-container">
+        <div class="swiper-wrapper">
+            {% for data in ticket %}
+            <div class="swiper-slide">
+                <div class="top_xi">
+                    <div class="road_box">
+                        {{ bus_data['road_from']|safe }}
+                        <span class="road_line">→</span>
+                        {{ bus_data['road_to']|safe }}
+                    </div>
+                    <div class="data_box">
+                        {{ bus_data['year']|safe }}
+                        {{ bus_data['week']|safe }}
+                        {{ bus_data['time']|safe }}
+                        <span class="data_to">发车</span>
+                    </div>
+                    {{ bus_data['bus_id']|safe }}
+                    <div class="box_radius">
+                        <div class="radius"></div>
+                        <div class="radius"></div>
+                        <div class="radius"></div>
+                        <div class="radius"></div>
+                        <div class="radius"></div>
+                    </div>
+                </div>
+                <div class="xi_center">
+                    <p class="er_text"><img src="http://nfuedu.zftcloud.com/public/static/campusbus/img/dg.png" alt=""/>
+                        验票时请调亮屏幕
+                    </p>
+                    <div class="erwei" id="erwei"></div>
+                    <p class="erwei_num">{{ data['ticket_id']|safe }}</p>
+                    {{ data['passenger']|safe }}
+                    {{ data['seat']|safe }}
+                    <p class="erwei_num erwei_c" style="text-align: center;text-indent:.5rem;">{{ data['take_station']
+                        }}</p>
+                    <div class="box_radius">
+                        <div class="radius"></div>
+                        <div class="radius"></div>
+                    </div>
+                </div>
+                <div class="c_crat">
+                    <div class="title_s">乘车说明</div>
+                    <p class="title_stext">购票成功后，凭<span
+                            style="color: #ef6100">电子票和身份证</span>上车，请确保电子票与身份证<span
+                            style="color: #ef6100">信息一致</span>。请同学们<span
+                            style="color: #ef6100">提前20分钟</span>候车。请勿截图使用图片编辑软件修改电子票信息，一经发现将其具体信息提交学生工作部。
+                    </p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="swiper-pagination"></div>
+    </div>
+    <p class="hint" style="z-index:99;">从化中旅 支云校园</p>
+</div>
+<script src="http://nfuedu.zftcloud.com/public/static/campusbus/js/common/jquery.min.js"></script>
+<script src="http://nfuedu.zftcloud.com/public/static/campusbus/js/common/ui-size.js"></script>
+<script src="http://nfuedu.zftcloud.com/public/static/campusbus/js/common/swiper.min.js"></script>
+<script src="http://nfuedu.zftcloud.com/public/static/campusbus/js/common/JsBarcode.all.min.js"></script>
+{{ javascript|safe }}
+</body>
+
+</html>
