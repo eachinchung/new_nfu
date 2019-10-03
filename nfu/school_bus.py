@@ -125,6 +125,15 @@ def get_ticket_data(order_id: int, bus_session: str):
     """
     获取电子票的数据
 
+    - 字段说明
+        road_from       始发车站
+        road_to         终点站
+        year            乘车年份
+        week            乘车星期
+        time            发车时间
+        bus_id          班车号
+        take_station    乘车车站
+
     :param order_id: 订单id
     :param bus_session: 校车系统的 session
     :return bus_data: 班车数据，同个订单，统一即可
@@ -151,7 +160,7 @@ def get_ticket_data(order_id: int, bus_session: str):
         return False, '学校车票系统错误，请稍后再试'
 
     ticket_ids = findall(r'<p class="erwei_num">电子票号：.+', response.text)
-    passengers = findall(r'<p class="erwei_num erwei_c"  style="text-align: center;text-indent:0.2.+', response.text)
+    passengers = findall(r'<p class="erwei_num erwei_c"..style="text-align: center;text-indent:0.2.+', response.text)
     seats = findall(r'<p class="erwei_num erwei_c" style="text-align: center;text-indent:.5rem;">座.+', response.text)
 
     ticket = []

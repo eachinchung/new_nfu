@@ -20,6 +20,7 @@ def check_access_token(func):
     @wraps(func)
     def wrapper(*args, **kw):
         token = request.values.get('access_token')
+
         if token is None:
             return jsonify({'message': '没有访问权限'}), 403
 
