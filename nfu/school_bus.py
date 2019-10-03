@@ -1,5 +1,5 @@
 from json import loads, decoder
-from re import search, findall
+from re import search, findall, S
 
 from requests import session
 
@@ -121,6 +121,52 @@ def create_order(passenger_ids: str, connect_id: int, schedule_id: int, date: st
     }
 
 
+def get_ticket_data(order_id: int, bus_session: str):
+    """
+    获取电子票的数据
+
+    :param order_id: 订单id
+    :param bus_session: 校车系统的 session
+    :return bus_data: 班车数据，同个订单，统一即可
+    :return ticket: 车票数据
+    """
+    url = 'http://nfuedu.zftcloud.com/campusbus_index/order/ticket.html'
+    http_session = session()
+    headers = {'Cookie': bus_session}
+
+    try:
+        response = http_session.get(url, params={'order_id': order_id}, headers=headers)
+        bus_data = {
+            'road_from': search(r'<span class="road_from">.+', response.text).group(),
+            'road_to': search(r'<span class="road_to">.+', response.text).group(),
+            'year': search(r'<span class="data_y">.+', response.text).group(),
+            'week': search(r'<span class="data_week">.+', response.text).group(),
+            'time': search(r'<span class="data_hm">.+', response.text).group(),
+            'bus_id': search(r'<div class="data_bc">.+', response.text).group(),
+            'take_station': search(r'上车点：.+', response.text).group()[:-5]
+        }
+        javascript = search(r'<script>.+</script>', response.text, S).group()
+
+    except (OSError, AttributeError):
+        return False, '学校车票系统错误，请稍后再试'
+
+    ticket_ids = findall(r'<p class="erwei_num">电子票号：.+', response.text)
+    passengers = findall(r'<p class="erwei_num erwei_c"  style="text-align: center;text-indent:0.2.+', response.text)
+    seats = findall(r'<p class="erwei_num erwei_c" style="text-align: center;text-indent:.5rem;">座.+', response.text)
+
+    ticket = []
+
+    for i, ticket_id in enumerate(ticket_ids):
+        ticket.append({
+            'ticket_id': ticket_id,
+            'passenger': passengers[i],
+            'seat': seats[i]
+        })
+
+    return True, bus_data, ticket, javascript
+
+
+# 暂未完成，思考爬取算法中
 def get_ticket_ids(order_id: int, bus_session: str):
     """
     因为一个订单里面可能有多张车票，所以我们爬取一下车票号
