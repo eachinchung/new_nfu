@@ -1,7 +1,7 @@
 from flask import Blueprint, request, g, jsonify, render_template
 
 from nfu.decorators import check_access_token, check_power_school_bus
-from nfu.school_bus import get_bus_schedule, get_passenger_data, get_ticket_data, get_ticket_ids
+from nfu.school_bus import get_bus_schedule, get_passenger_data, get_ticket_data, get_ticket_ids, return_ticket
 
 school_bus_bp = Blueprint('school_bus', __name__)
 
@@ -81,4 +81,26 @@ def get_ticket_ids_bp():
     return jsonify({
         'message': 'success',
         'passenger': ticket_ids[1],
+    })
+
+
+@school_bus_bp.route('/ticket/delete', methods=['POST'])
+@check_access_token
+@check_power_school_bus
+def return_ticket_bp():
+    """
+    退票
+    :return:
+    """
+    order_id = request.form.get('order_id')
+    ticket_id = request.form.get('ticket_id')
+
+    post = return_ticket(order_id, ticket_id, g.user.bus_session)
+
+    if not post[0]:
+        return jsonify({'message': post[1]}), 500
+
+    return jsonify({
+        'message': 'success',
+        'return_ticket': post[1],
     })

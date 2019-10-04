@@ -56,3 +56,7 @@
 获取乘车人数据 `school_bus/passenger/get`
 
 获取电子车票 `school_bus/ticket/get`
+
+获取车票的id，用于退票 `school_bus/ticket_id/get`
+
+退票 `school_bus/ticket/delete`
