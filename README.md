@@ -36,9 +36,9 @@
 ### OAuth2 接口
 注册接口 `oauth/sign_up`
 
-登陆接口，获取令牌 `oauth/get_token`
+登陆接口，获取令牌 `oauth/token/get`
 
-刷新令牌 `oauth/refresh_token`
+刷新令牌 `oauth/token/refresh`
 
 ### 验证接口
 验证邮箱合法性 `validate/email/token`
@@ -51,7 +51,7 @@
 跳转支付页面 `electric/pay_order`
 
 ### 校巴接口
-获取班车时刻表 `school_bus/get_schedule`
+获取班车时刻表 `school_bus/schedule/get`
 
 获取乘车人数据 `school_bus/passenger/get`
 

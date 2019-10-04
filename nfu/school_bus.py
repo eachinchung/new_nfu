@@ -177,7 +177,6 @@ def get_ticket_data(order_id: int, bus_session: str):
     return True, bus_data, ticket, javascript
 
 
-# 暂未完成，思考爬取算法中
 def get_ticket_ids(order_id: int, bus_session: str):
     """
     因为一个订单里面可能有多张车票，所以我们爬取一下车票号
@@ -196,15 +195,26 @@ def get_ticket_ids(order_id: int, bus_session: str):
     except OSError:
         return False, '学校车票系统错误，请稍后再试'
 
-    # 抓取页面退票js函数
-    js_refund = findall(r'refund\(\d+ , \d+\)', response.text)
-    if not js_refund:
-        return False, '获取车票号失败，请确认该订单是否已退号'
+    ticket_list = []
+    ticket_data = findall(r'<span class="title_name title_w">.+\n.+\n.+\n.+\n.+', response.text)
 
-    ticket_ids = []
-    # 从js函数里面提取参数，里面有车票号
-    for ticket in js_refund:
-        ticket_ids.append(findall(r'\d+', ticket)[1])
+    for ticket in ticket_data:
+
+        try:
+            name = search(r'w">.+<s', ticket).group()[3:-9]
+        except AttributeError:
+            return False, '学校车票系统错误，请稍后再试'
+
+        try:
+            ticket_id = search(r', \d+', ticket).group()[2:]
+        except AttributeError:
+            ticket_list.append({
+                'name': name
+            })
+        else:
+            ticket_list.append((True, name, ticket_id))
+
+    return True, ticket_list
 
 
 def return_ticket(order_id: int, ticket_id: int, bus_session: str):
