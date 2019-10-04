@@ -9,7 +9,7 @@ from nfu.token import generate_token, validate_token
 oauth_bp = Blueprint('oauth', __name__)
 
 
-@oauth_bp.route('/get_token', methods=['POST'])
+@oauth_bp.route('/token/get', methods=['POST'])
 def get_token():
     """
     登陆接口，获取令牌
@@ -46,7 +46,7 @@ def get_token():
     })
 
 
-@oauth_bp.route('/refresh_token', methods=['POST'])
+@oauth_bp.route('/token/refresh', methods=['POST'])
 def refresh_token():
     """
     刷新令牌
