@@ -19,15 +19,15 @@ def email(token: str):
 
     # 验证 token 是否通过
     if not validate[0]:
-        return jsonify({'message': validate[1]}), 403
+        return jsonify({'adopt': False, 'message': validate[1]}), 403
 
     # 获取用户权限表
     # 验证邮箱是否激活
     user_power = Power.query.get(validate[1]['id'])
     if user_power.validate_email:
-        return jsonify({'message': '该账号已激活'}), 500
+        return jsonify({'adopt': False, 'message': '该账号已激活'}), 500
 
     user_power.validate_email = True
     db.session.add(user_power)
     db.session.commit()
-    return jsonify({'message': 'success'})
+    return jsonify({'adopt': True, 'message': 'success'})

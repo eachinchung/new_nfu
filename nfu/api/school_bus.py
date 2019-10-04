@@ -20,12 +20,9 @@ def get_schedule():
 
     schedule = get_bus_schedule(route_id, date, g.user.bus_session)
     if not schedule[0]:
-        return jsonify({'message': schedule[1]}), 500
+        return jsonify({'adopt': False, 'message': schedule[1]}), 500
 
-    return jsonify({
-        'message': 'success',
-        'schedule': schedule[1],
-    })
+    return jsonify({'adopt': True, 'message': schedule[1]})
 
 
 @school_bus_bp.route('/passenger/get')
@@ -38,12 +35,9 @@ def get_passenger():
     """
     passenger = get_passenger_data(g.user.bus_session)
     if not passenger[0]:
-        return jsonify({'message': passenger[1]}), 500
+        return jsonify({'adopt': False, 'message': passenger[1]}), 500
 
-    return jsonify({
-        'message': 'success',
-        'passenger': passenger[1],
-    })
+    return jsonify({'adopt': True, 'message': passenger[1]})
 
 
 @school_bus_bp.route('/ticket/get')
@@ -58,7 +52,7 @@ def get_ticket():
     ticket_data = get_ticket_data(order_id, g.user.bus_session)
 
     if not ticket_data[0]:
-        return jsonify({'message': ticket_data[1]}), 500
+        return ticket_data[1], 500
 
     return render_template('html/bus_ticket.html', bus_data=ticket_data[1], ticket=ticket_data[2],
                            javascript=ticket_data[3])
@@ -76,12 +70,9 @@ def get_ticket_ids_bp():
     ticket_ids = get_ticket_ids(order_id, g.user.bus_session)
 
     if not ticket_ids[0]:
-        return jsonify({'message': ticket_ids[1]}), 500
+        return jsonify({'adopt': False, 'message': ticket_ids[1]}), 500
 
-    return jsonify({
-        'message': 'success',
-        'passenger': ticket_ids[1],
-    })
+    return jsonify({'adopt': True, 'message': ticket_ids[1]})
 
 
 @school_bus_bp.route('/ticket/delete', methods=['POST'])
@@ -98,9 +89,6 @@ def return_ticket_bp():
     post = return_ticket(order_id, ticket_id, g.user.bus_session)
 
     if not post[0]:
-        return jsonify({'message': post[1]}), 500
+        return jsonify({'adopt': False, 'message': post[1]}), 500
 
-    return jsonify({
-        'message': 'success',
-        'return_ticket': post[1],
-    })
+    return jsonify({'adopt': True, 'message': post[1]})

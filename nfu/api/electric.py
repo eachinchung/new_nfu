@@ -25,14 +25,14 @@ def get():
         electric = get_electric_data(g.user.room_id)
 
         if not electric[0]:
-            return jsonify({'message': electric[1]}), 500
+            return jsonify({'adopt': False, 'message': electric[1]}), 500
 
         # 并将电费数据写入数据库
         electric_data = Electric(room_id=g.user.room_id, value=electric[1], time=datetime.now())
         db.session.add(electric_data)
         db.session.commit()
 
-    return jsonify({'message': 'success', 'electric': electric_data.value})
+    return jsonify({'adopt': True, 'message': electric_data.value})
 
 
 @electric_bp.route('/create_order', methods=['POST'])
@@ -51,13 +51,15 @@ def create_order():
     order_data = order.create_order()
 
     if not order_data[0]:
-        return jsonify({'message': order_data[1]}), 500
+        return jsonify({'adopt': False, 'message': order_data[1]}), 500
 
     return jsonify({
-        'message': 'success',
-        'json': order_data[1],
-        'signature': order_data[2],
-        'electric_cookies': order_data[3]
+        'adopt': True,
+        'message': {
+            'json': order_data[1],
+            'signature': order_data[2],
+            'electric_cookies': order_data[3]
+        }
     })
 
 
