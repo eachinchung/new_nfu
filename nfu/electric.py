@@ -1,6 +1,6 @@
+from dataclasses import dataclass
 from json import decoder, loads
 from re import search
-from dataclasses import dataclass
 
 from requests import session
 
