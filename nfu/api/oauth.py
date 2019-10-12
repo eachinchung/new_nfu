@@ -104,7 +104,10 @@ def sign_up():
     user.set_password(password)  # 将教务系统密码默认为用户密码，并哈希加密
 
     db.session.add(user)
-    db.session.add(Power(id=user_id))  # 初始化权限，全部False
+    db.session.commit()
+
+    # 初始化权限，全部False
+    db.session.add(Power(id=user_id))
     db.session.commit()
 
     return jsonify({'adopt': True, 'message': 'success'})
