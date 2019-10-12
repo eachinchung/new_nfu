@@ -1,5 +1,5 @@
-from json import loads, decoder
-from re import search, findall, S
+from json import decoder, loads
+from re import S, findall, search
 
 from requests import session
 

@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 
 from nfu.email import send_validate_email
 from nfu.extensions import db
-from nfu.models import User, Power
+from nfu.models import Power, User
 from nfu.nfu import get_student_name
 from nfu.token import generate_token, validate_token
 

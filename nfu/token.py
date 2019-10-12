@@ -1,5 +1,6 @@
 from os import getenv
-from itsdangerous import TimedJSONWebSignatureSerializer, BadSignature, SignatureExpired
+
+from itsdangerous import BadSignature, SignatureExpired, TimedJSONWebSignatureSerializer
 
 
 def generate_token(data: dict, *, token_type: str = 'ACCESS_TOKEN', expires_in: int = 3600) -> tuple:

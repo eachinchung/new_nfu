@@ -1,4 +1,4 @@
-from flask import Blueprint, request, g, jsonify, render_template
+from flask import Blueprint, g, jsonify, render_template, request
 
 from nfu.decorators import check_access_token, check_power_school_bus
 from nfu.school_bus import get_bus_schedule, get_passenger_data, get_ticket_data, get_ticket_ids, return_ticket

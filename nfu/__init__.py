@@ -5,7 +5,7 @@ from nfu.api.electric import electric_bp
 from nfu.api.oauth import oauth_bp
 from nfu.api.school_bus import school_bus_bp
 from nfu.api.validate import validate_bp
-from nfu.extensions import db, mail, cors
+from nfu.extensions import cors, db, mail
 
 
 # 加载基本配置

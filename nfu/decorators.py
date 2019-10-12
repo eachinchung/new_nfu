@@ -1,6 +1,6 @@
 from functools import wraps
 
-from flask import request, jsonify, g
+from flask import g, jsonify, request
 
 from nfu.models import User
 from nfu.token import validate_token

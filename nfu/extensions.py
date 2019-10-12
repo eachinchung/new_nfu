@@ -5,4 +5,3 @@ from flask_sqlalchemy import SQLAlchemy
 cors = CORS()
 db = SQLAlchemy()
 mail = Mail()
-

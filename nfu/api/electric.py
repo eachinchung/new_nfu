@@ -1,11 +1,11 @@
 from datetime import datetime
 
-from flask import Blueprint, request, jsonify, make_response, redirect, g
+from flask import Blueprint, g, jsonify, make_response, redirect, request
 
 from nfu.decorators import check_access_token
-from nfu.electric import get_electric_data, ElectricPay
+from nfu.electric import ElectricPay, get_electric_data
 from nfu.extensions import db
-from nfu.models import Electric, Dormitory
+from nfu.models import Dormitory, Electric
 
 electric_bp = Blueprint('electric', __name__)
 
@@ -18,7 +18,7 @@ def get():
     :return: json
     """
 
-    electric_data = Electric.query.filter_by(room_id=g.user.room_id).first()
+    electric_data = Electric.query.filter_by(room_id=g.user.room_id).order_by(Electric.time.desc()).first()
 
     # 当数据库没有电费数据时，我们向安心付请求数据
     if electric_data is None:
