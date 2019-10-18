@@ -97,6 +97,18 @@ class ClassSchedule(db.Model):
     start_week = db.Column(db.Integer)
     end_week = db.Column(db.Integer)
 
+    def get_dict(self):
+        return {
+            'course_name': self.course_name,
+            'teacher': self.teacher,
+            'classroom': self.classroom,
+            'weekday': self.weekday,
+            'start_node': self.start_node,
+            'end_node': self.end_node,
+            'start_week': self.start_week,
+            'end_week': self.end_week
+        }
+
 
 # 车票订单
 class TicketOrder(db.Model):
