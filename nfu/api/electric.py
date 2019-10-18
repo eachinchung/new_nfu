@@ -10,7 +10,7 @@ from nfu.models import Dormitory, Electric
 electric_bp = Blueprint('electric', __name__)
 
 
-@electric_bp.route('/get')
+@electric_bp.route('/get', methods=['POST'])
 @check_access_token
 def get():
     """

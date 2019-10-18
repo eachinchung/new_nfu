@@ -8,7 +8,7 @@ from nfu.nfu import get_class_schedule, get_jw_token
 class_schedule_bp = Blueprint('class_schedule', __name__)
 
 
-@class_schedule_bp.route('/get')
+@class_schedule_bp.route('/get', methods=['POST'])
 @check_access_token
 def get():
     """

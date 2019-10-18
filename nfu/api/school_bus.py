@@ -25,7 +25,7 @@ def get_schedule():
     return jsonify({'adopt': True, 'message': schedule[1]})
 
 
-@school_bus_bp.route('/passenger/get')
+@school_bus_bp.route('/passenger/get', methods=['POST'])
 @check_access_token
 @check_power_school_bus
 def get_passenger():
@@ -38,24 +38,6 @@ def get_passenger():
         return jsonify({'adopt': False, 'message': passenger[1]}), 500
 
     return jsonify({'adopt': True, 'message': passenger[1]})
-
-
-@school_bus_bp.route('/ticket/get')
-@check_access_token
-@check_power_school_bus
-def get_ticket():
-    """
-    获取电子车票
-    :return:
-    """
-    order_id = request.args.get('order_id')
-    ticket_data = get_ticket_data(order_id, g.user.bus_session)
-
-    if not ticket_data[0]:
-        return ticket_data[1], 500
-
-    return render_template('html/bus_ticket.html', bus_data=ticket_data[1], ticket=ticket_data[2],
-                           javascript=ticket_data[3])
 
 
 @school_bus_bp.route('/ticket_id/get', methods=['POST'])
@@ -92,3 +74,25 @@ def return_ticket_bp():
         return jsonify({'adopt': False, 'message': post[1]}), 500
 
     return jsonify({'adopt': True, 'message': post[1]})
+
+
+@school_bus_bp.route('/ticket/get')
+@check_access_token
+@check_power_school_bus
+def get_ticket():
+    """
+    获取电子车票
+    :return:
+    """
+    order_id = request.args.get('order_id')
+    ticket_data = get_ticket_data(order_id, g.user.bus_session)
+
+    if not ticket_data[0]:
+        return ticket_data[1], 500
+
+    return render_template(
+        'html/bus_ticket.html',
+        bus_data=ticket_data[1],
+        ticket=ticket_data[2],
+        javascript=ticket_data[3]
+    )
