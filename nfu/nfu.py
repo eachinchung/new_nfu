@@ -27,15 +27,13 @@ def get_student_name(student_id: int, password: str) -> tuple:
     }
 
     try:
-        # 因为教务系统经常抽风，故设置1秒超时
-        response = http_session.post(url, data=data, timeout=1)
+        response = http_session.post(url, data=data, timeout=1)  # 因为教务系统经常抽风，故设置1秒超时
         token = loads(response.text)['msg']
-
-        if not token:
-            return False, '学号或密码错误!'
-
     except (OSError, decoder.JSONDecodeError):
         return False, '教务系统错误，请稍后再试'
+
+    if not token:
+        return False, '学号或密码错误!'
 
     url = 'http://ecampus.nfu.edu.cn:2929/jw-privilegei/User/r-getMyself'
     data = {'jwloginToken': token}
@@ -43,14 +41,13 @@ def get_student_name(student_id: int, password: str) -> tuple:
     try:
         response = http_session.post(url, data=data, timeout=1)
         name = loads(response.text)['msg']['name']
-
-        if not name:
-            return False, '教务系统错误，请稍后再试'
-
-        return True, name
-
     except (OSError, KeyError):
         return False, '教务系统错误，请稍后再试'
+
+    if not name:
+        return False, '没有获取到数据，请稍后再试'
+
+    return True, name
 
 
 def get_jw_token(student_id: int) -> tuple:
@@ -72,15 +69,13 @@ def get_jw_token(student_id: int) -> tuple:
     try:
         response = http_session.post(url, data=data, timeout=1)
         token = loads(response.text)['msg']
-
-        if not token:  # 如果教务系统反200，且获取不到 token，可能是学校修复了这个 bug。
-            return False, '不可预知错误，请稍后再试！'
-
     except (OSError, decoder.JSONDecodeError):
         return False, '教务系统错误，请稍后再试'
 
-    else:
-        return True, token
+    if not token:
+        return False, '不可预知错误，请稍后再试！'
+
+    return True, token
 
 
 def get_class_schedule(token: str, school_year: int, semester: int) -> tuple:
@@ -107,32 +102,30 @@ def get_class_schedule(token: str, school_year: int, semester: int) -> tuple:
     except (OSError, KeyError, decoder.JSONDecodeError):
         return False, '教务系统错误，请稍后再试'
 
-    else:
+    # 判断获取的数据是否是列表，如果不是列表，可能系统又炸了
+    if not isinstance(course_list, list):
+        return False, '教务系统错误，请稍后再试'
 
-        # 判断获取的数据是否是列表
-        if not isinstance(course_list, list):
-            return False, '教务系统错误，请稍后再试'
+    for course in course_list:
+        for merge in course['kbMergeList']:
 
-        for course in course_list:
-            for merge in course['kbMergeList']:
+            teacher = []
+            for teacher_list in merge['teacherList']:
+                teacher.append(teacher_list['xm'])
 
-                teacher = []
-                for teacher_list in merge['teacherList']:
-                    teacher.append(teacher_list['xm'])
+            course_data.append({
+                'course_name': course['name'],
+                'course_id': course['pkbdm'],
+                'teacher': teacher,
+                'classroom': merge['classroomList'][0]['jsmc'],
+                'weekday': merge['xq'],
+                'start_node': merge['qsj'],
+                'end_node': merge['jsj'],
+                'start_week': merge['qsz'],
+                'end_week': merge['jsz']
+            })
 
-                course_data.append({
-                    'course_name': course['name'],
-                    'course_id': course['pkbdm'],
-                    'teacher': teacher,
-                    'classroom': merge['classroomList'][0]['jsmc'],
-                    'weekday': merge['xq'],
-                    'start_node': merge['qsj'],
-                    'end_node': merge['jsj'],
-                    'start_week': merge['qsz'],
-                    'end_week': merge['jsz']
-                })
-
-        return True, course_data
+    return True, course_data
 
 
 def get_achievement_list(token: str, year: int, semester: int) -> tuple:
@@ -181,3 +174,49 @@ def get_achievement_list(token: str, year: int, semester: int) -> tuple:
 
     course_list['data'].append({'year': year, 'semester': semester, 'data': course})
     return True, course_list
+
+
+def get_total_achievement_point(token: str) -> tuple:
+    """
+    获取学分、成绩的总体情况
+    :param token:
+    :return:
+    """
+
+    url = 'http://ecampus.nfu.edu.cn:2929/jw-privilegei/User/r-getMyself'
+    http_session = session()
+    data = {'jwloginToken': token}
+
+    try:  # 先获取学生的真实id
+        response = http_session.post(url, data=data)
+        actual_id = loads(response.text)['msg']['actualId']
+
+    except (OSError, KeyError, decoder.JSONDecodeError):
+        return False, '教务系统错误，请稍后再试'
+
+    if not actual_id:
+        return False, '没有获取到该学生的真实id'
+
+    url = 'http://ecampus.nfu.edu.cn:2929/jw-amsi/AmsJxbXsZgcj/listXs'
+    data = {
+        'deleted': False,
+        'pageSize': 65535,
+        'id': actual_id,
+        'jwloginToken': token
+    }
+
+    try:
+        response = http_session.post(url, data=data)
+        data = loads(response.text)['msg']['list'][0]
+    except (OSError, KeyError, decoder.JSONDecodeError):
+        return False, '教务系统错误，请稍后再试'
+
+    if not data:
+        return False, '没有获取到数据，请稍后再试'
+
+    return True, {
+        'selected_credit': data['yxxf'],
+        'get_credit': data['yhdxf'],
+        'average_achievement': data['avg'],
+        'average_achievement_point': data['avgJd']
+    }
