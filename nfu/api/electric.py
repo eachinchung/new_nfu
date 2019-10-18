@@ -3,7 +3,7 @@ from datetime import datetime
 from flask import Blueprint, g, jsonify, make_response, redirect, request
 
 from nfu.decorators import check_access_token
-from nfu.electric import ElectricPay, get_electric_data
+from nfu.electric import ElectricPay, get_electric_data, get_electric_create_log
 from nfu.extensions import db
 from nfu.models import Dormitory, Electric
 
@@ -50,14 +50,30 @@ def analyse():
     electric_list = []
     for electric in electric_data:
         electric_list.append({
-            'date': electric.time,
+            'date': str(electric.time),
             'electric': electric.value
         })
 
     return jsonify({'adopt': True, 'message': electric_list})
 
 
-@electric_bp.route('/create_order', methods=['POST'])
+@electric_bp.route('/order/log', methods=['POST'])
+@check_access_token
+def create_log():
+    """
+    电费充值记录
+    :return:
+    """
+    page = request.form.get('page')
+    electric_create_log = get_electric_create_log(g.user.room_id, page)
+
+    if not electric_create_log[0]:
+        return jsonify({'adopt': False, 'message': electric_create_log[1]}), 500
+
+    return jsonify({'adopt': True, 'message': electric_create_log[1]})
+
+
+@electric_bp.route('/order/create', methods=['POST'])
 @check_access_token
 def create_order():
     """
@@ -85,7 +101,7 @@ def create_order():
     })
 
 
-@electric_bp.route('/pay_order')
+@electric_bp.route('/order/pay')
 @check_access_token
 def pay_order():
     """

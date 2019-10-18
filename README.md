@@ -46,7 +46,7 @@ API_URL=http://127.0.0.1:5000
 ### 电费模块
 - [x] 电费查询
 - [x] 电费充值
-- [ ] 电费充值记录
+- [x] 电费充值记录
 - [x] 微信支付接口
 - [x] 分析近15天电费
 
@@ -89,9 +89,11 @@ API_URL=http://127.0.0.1:5000
 
 分析近15天电费 `electric/analyse`
 
-创建电费充值订单 `electric/create_order`
+电费充值记录 `electric/order/log`
 
-跳转支付页面 `electric/pay_order`
+创建电费充值订单 `electric/order/create`
+
+跳转支付页面 `electric/order/pay`
 
 ### 校巴接口
 获取班车时刻表 `school_bus/schedule/get`

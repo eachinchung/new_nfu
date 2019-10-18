@@ -16,21 +16,45 @@ def get_electric_data(room: int) -> tuple:
 
     url = 'http://axf.nfu.edu.cn/electric/getData/getReserveAM'
     data = {'roomId': room}
+    http_session = session()
 
     try:
-        http_session = session()
         response = http_session.post(url, data=data, timeout=1)
     except OSError:
         return False, '安心付服务器错误'
-    else:
-        try:
-            electric_quantity = loads(response.text)
-            electric_quantity = electric_quantity['data']['remainPower']
-        except (KeyError, decoder.JSONDecodeError):
-            return False, '此宿舍无数据'
-        else:
-            electric_quantity = round(float(electric_quantity), 2)
-            return True, electric_quantity
+
+    try:
+        electric_quantity = loads(response.text)
+        electric_quantity = electric_quantity['data']['remainPower']
+    except (KeyError, decoder.JSONDecodeError):
+        return False, '此宿舍无数据'
+
+    electric_quantity = round(float(electric_quantity), 2)
+    return True, electric_quantity
+
+
+def get_electric_create_log(room_id: int, page_index: int) -> tuple:
+    """
+    电费充值记录
+    :param room_id:
+    :param page_index:
+    :return:
+    """
+    url = 'http://axf.nfu.edu.cn/electric/order/page'
+    data = {
+        'ammeterId': room_id,
+        'pageIndex': page_index,
+        'pageSize': 10
+    }
+    http_session = session()
+
+    try:
+        response = http_session.post(url, data=data, timeout=1)
+        electric_create = loads(response.text)['data']
+    except (OSError, KeyError, decoder.JSONDecodeError):
+        return False, '安心付服务器错误'
+
+    return True, electric_create
 
 
 @dataclass
