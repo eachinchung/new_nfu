@@ -71,7 +71,7 @@ create table class_schedule
     user_id     int(9)      not null,
     course_name varchar(50) not null,
     course_id   varchar(50) not null,
-    teacher     char(25)    not null,
+    teacher     json        not null,
     classroom   char(25)    not null,
     weekday     tinyint     not null,
     start_node  tinyint     not null,
