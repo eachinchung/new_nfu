@@ -1,6 +1,35 @@
-from json import decoder, loads
+from json import decoder, loads, dumps
 
 from requests import session
+
+
+def get_jw_token(student_id: int, password: str = '') -> tuple:
+    """
+    登陆教务系统
+    :param student_id: 学号，基于教务系统的Bug，登陆时，密码直接提交空字符串就可以了
+    :param password: 密码，默认为空字符串
+    :return: 一个元组，通常我规定第一个为bool，用来判定是否成功获取数据。
+    :raise OSError: 一般错误为超时，学校系统炸了，与我们无关
+    """
+
+    url = 'http://ecampus.nfu.edu.cn:2929/jw-privilegei/User/r-login'
+    http_session = session()
+    data = {
+        'username': student_id,
+        'password': password,
+        'rd': ''
+    }
+
+    try:
+        response = http_session.post(url, data=data, timeout=1)
+        token = loads(response.text)['msg']
+    except (OSError, decoder.JSONDecodeError):
+        return False, '教务系统错误，请稍后再试'
+
+    if not token:
+        return False, '学号或密码错误!'
+
+    return True, token
 
 
 def get_student_name(student_id: int, password: str) -> tuple:
@@ -18,25 +47,14 @@ def get_student_name(student_id: int, password: str) -> tuple:
     :raise OSError: 一般错误为超时，学校系统炸了，与我们无关
     """
 
-    url = 'http://ecampus.nfu.edu.cn:2929/jw-privilegei/User/r-login'
-    http_session = session()
-    data = {
-        'username': student_id,
-        'password': password,
-        'rd': ''
-    }
-
-    try:
-        response = http_session.post(url, data=data, timeout=1)  # 因为教务系统经常抽风，故设置1秒超时
-        token = loads(response.text)['msg']
-    except (OSError, decoder.JSONDecodeError):
-        return False, '教务系统错误，请稍后再试'
+    token = get_jw_token(student_id, password)
 
     if not token:
-        return False, '学号或密码错误!'
+        return False,token[1]
 
     url = 'http://ecampus.nfu.edu.cn:2929/jw-privilegei/User/r-getMyself'
-    data = {'jwloginToken': token}
+    data = {'jwloginToken': token[1]}
+    http_session = session()
 
     try:
         response = http_session.post(url, data=data, timeout=1)
@@ -48,34 +66,6 @@ def get_student_name(student_id: int, password: str) -> tuple:
         return False, '没有获取到数据，请稍后再试'
 
     return True, name
-
-
-def get_jw_token(student_id: int) -> tuple:
-    """
-    登陆教务系统
-    :param student_id: 学号，基于教务系统的Bug，登陆时，密码直接提交空字符串就可以了
-    :return: 一个元组，通常我规定第一个为bool，用来判定是否成功获取数据。
-    :raise OSError: 一般错误为超时，学校系统炸了，与我们无关
-    """
-
-    url = 'http://ecampus.nfu.edu.cn:2929/jw-privilegei/User/r-login'
-    http_session = session()
-    data = {
-        'username': student_id,
-        'password': '',
-        'rd': ''
-    }
-
-    try:
-        response = http_session.post(url, data=data, timeout=1)
-        token = loads(response.text)['msg']
-    except (OSError, decoder.JSONDecodeError):
-        return False, '教务系统错误，请稍后再试'
-
-    if not token:
-        return False, '不可预知错误，请稍后再试！'
-
-    return True, token
 
 
 def get_class_schedule(token: str, school_year: int, semester: int) -> tuple:
@@ -102,12 +92,12 @@ def get_class_schedule(token: str, school_year: int, semester: int) -> tuple:
     except (OSError, KeyError, decoder.JSONDecodeError):
         return False, '教务系统错误，请稍后再试'
 
-    # 判断获取的数据是否是列表，如果不是列表，可能系统又炸了
+    # 判断获取的数据是否是列表，如果不是列表，可能教务系统又炸了
     if not isinstance(course_list, list):
         return False, '教务系统错误，请稍后再试'
 
-    for course in course_list:
-        for merge in course['kbMergeList']:
+    for course in course_list:  # 循环所有课程
+        for merge in course['kbMergeList']:  # 课程可能有不同上课时间，循环取出
 
             teacher = []
             for teacher_list in merge['teacherList']:
@@ -116,7 +106,7 @@ def get_class_schedule(token: str, school_year: int, semester: int) -> tuple:
             course_data.append({
                 'course_name': course['name'],
                 'course_id': course['pkbdm'],
-                'teacher': teacher,
+                'teacher': dumps(teacher),
                 'classroom': merge['classroomList'][0]['jsmc'],
                 'weekday': merge['xq'],
                 'start_node': merge['qsj'],
