@@ -92,6 +92,7 @@ def get_class_schedule(token: str, school_year: int, semester: int) -> tuple:
     :param semester:
     :return:
     """
+    course_data = []
     url = 'http://ecampus.nfu.edu.cn:2929/jw-cssi/CssStudent/r-listJxb'
     http_session = session()
     data = {
@@ -106,9 +107,28 @@ def get_class_schedule(token: str, school_year: int, semester: int) -> tuple:
         return False, '教务系统错误，请稍后再试'
 
     else:
+
+        # 判断获取的数据是否是列表
         if not isinstance(course_list, list):
             return False, '教务系统错误，请稍后再试'
 
         for course in course_list:
             for merge in course['kbMergeList']:
-                pass
+
+                teacher = []
+                for teacher_list in merge['teacherList']:
+                    teacher.append(teacher_list['xm'])
+
+                course_data.append({
+                    'course_name': course['name'],
+                    'course_id': course['pkbdm'],
+                    'teacher': teacher,
+                    'classroom': merge['classroomList'][0]['jsmc'],
+                    'weekday': merge['xq'],
+                    'start_node': merge['qsj'],
+                    'end_node': merge['jsj'],
+                    'start_week': merge['qsz'],
+                    'end_week': merge['jsz']
+                })
+
+        return True, course_data
