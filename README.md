@@ -1,5 +1,5 @@
 # 南苑聚合
-出于水期末项目的考虑，我将会把南苑聚合重构，使其前后端分离，为安卓课程的期末项目做准备。
+南苑聚合的后端
 
 ## 计划完成模块
 ### 电费模块
@@ -60,3 +60,8 @@
 获取车票的id，用于退票 `school_bus/ticket_id/get`
 
 退票 `school_bus/ticket/delete`
+
+### 课程表接口
+获取课程表 `class_schedule/get`
+
+更新课程表 `class_schedule/update`
