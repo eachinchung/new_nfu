@@ -1,9 +1,9 @@
 from flask import Blueprint, g, jsonify
 
+from nfu.class_schedule_expand import db_init, db_update
 from nfu.decorators import check_access_token
-from nfu.extensions import db
 from nfu.models import ClassSchedule
-from nfu.nfu import get_class_schedule, get_jw_token
+from nfu.nfu import get_jw_token
 
 class_schedule_bp = Blueprint('class_schedule', __name__)
 
@@ -26,51 +26,43 @@ def get():
         semester=semester
     ).all()
 
-    if not class_schedule_db:
-        # 登陆教务系统，获取token
-        token = get_jw_token(g.user.id)
-
-        if not token[0]:
-            return jsonify({'adopt': False, 'message': token[1]}), 500
-
-        class_schedule_api = get_class_schedule(token[1], school_year, semester)
-
-        if not class_schedule_api[0]:
-            return jsonify({'adopt': False, 'message': class_schedule_api[1]}), 500
-
-        for course in class_schedule_api[1]:
-            db.session.add(
-                ClassSchedule(
-                    user_id=g.user.id,
-                    school_year=school_year,
-                    semester=semester,
-                    course_name=course['course_name'],
-                    course_id=course['course_id'],
-                    teacher=course['teacher'],
-                    classroom=course['classroom'],
-                    weekday=course['weekday'],
-                    start_node=course['start_node'],
-                    end_node=course['end_node'],
-                    start_week=course['start_week'],
-                    end_week=course['end_week']
-                )
-            )
-
-            class_schedule.append({
-                'course_name': course['course_name'],
-                'teacher': course['teacher'],
-                'classroom': course['classroom'],
-                'weekday': course['weekday'],
-                'start_node': course['start_node'],
-                'end_node': course['end_node'],
-                'start_week': course['start_week'],
-                'end_week': course['end_week']
-            })
-
-        db.session.commit()
-
-    else:
+    if class_schedule_db:  # 数据库中有缓存课程表
         for course in class_schedule_db:
             class_schedule.append(course.get_dict())
+        return jsonify({'adopt': True, 'message': class_schedule})
 
-    return jsonify({'adopt': True, 'message': class_schedule})
+    # 数据库没有缓存时
+    # 登陆教务系统，获取token
+    token = get_jw_token(g.user.id)
+    if not token[0]:
+        return jsonify({'adopt': False, 'message': token[1]}), 500
+
+    # 获取课程表，并写入数据库
+    class_schedule = db_init(token[1], school_year, semester)
+
+    if not class_schedule[0]:
+        return jsonify({'adopt': False, 'message': class_schedule[1]}), 500
+
+    return jsonify({'adopt': True, 'message': class_schedule[1]})
+
+
+@class_schedule_bp.route('/update', methods=['POST'])
+@check_access_token
+def update():
+    """
+    更新课程表数据
+    :return:
+    """
+    school_year = 2019
+    semester = 1
+
+    token = get_jw_token(g.user.id)
+    if not token[0]:
+        return jsonify({'adopt': False, 'message': token[1]}), 500
+
+    class_schedule_update = db_update(token[1], school_year, semester)
+
+    if not class_schedule_update[0]:
+        return jsonify({'adopt': False, 'message': class_schedule_update[1]}), 500
+
+    return jsonify({'adopt': True, 'message': '课程表更新成功'})

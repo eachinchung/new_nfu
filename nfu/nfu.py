@@ -118,17 +118,17 @@ def get_class_schedule(token: str, school_year: int, semester: int) -> tuple:
     return True, course_data
 
 
-def get_achievement_list(token: str, year: int, semester: int) -> tuple:
+def get_achievement_list(token: str, school_year: int, semester: int) -> tuple:
     """
     获取成绩单
     :param token:
-    :param year:
+    :param school_year:
     :param semester:
     :return:
     """
 
     course_list = {
-        'year': year,
+        'year': school_year,
         'semester': semester,
         'data': []
     }
@@ -139,7 +139,7 @@ def get_achievement_list(token: str, year: int, semester: int) -> tuple:
         'deleted': False,
         'pg': 1,
         'pageSize': 20,
-        'kkxn': year,
+        'kkxn': school_year,
         'xnxq': semester,
         'jwloginToken': token
     }
@@ -162,7 +162,7 @@ def get_achievement_list(token: str, year: int, semester: int) -> tuple:
     if not course:
         return False, '学校教务系统返回数据为空'
 
-    course_list['data'].append({'year': year, 'semester': semester, 'data': course})
+    course_list['data'].append({'year': school_year, 'semester': semester, 'data': course})
     return True, course_list
 
 
