@@ -35,6 +35,28 @@ def get():
     return jsonify({'adopt': True, 'message': electric_data.value})
 
 
+@electric_bp.route('/analyse', methods=['POST'])
+@check_access_token
+def analyse():
+    """
+    分析近15天电费
+    :return:
+    """
+    electric_data = Electric.query.filter_by(room_id=g.user.room_id).order_by(Electric.time.desc()).limit(15).all()
+
+    if electric_data is None:
+        return jsonify({'adopt': False, 'message': '当前宿舍没有电费数据'}), 500
+
+    electric_list = []
+    for electric in electric_data:
+        electric_list.append({
+            'date': electric.time,
+            'electric': electric.value
+        })
+
+    return jsonify({'adopt': True, 'message': electric_list})
+
+
 @electric_bp.route('/create_order', methods=['POST'])
 @check_access_token
 def create_order():
