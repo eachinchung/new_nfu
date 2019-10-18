@@ -66,6 +66,8 @@ class TotalAchievements(db.Model):
 class Achievement(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer)
+    school_year = db.Column(db.Integer)
+    semester = db.Column(db.Integer)
     course_type = db.Column(db.String)
     course_name = db.Column(db.String)
     course_id = db.Column(db.String)
@@ -83,6 +85,8 @@ class Achievement(db.Model):
 class ClassSchedule(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer)
+    school_year = db.Column(db.Integer)
+    semester = db.Column(db.Integer)
     course_name = db.Column(db.String)
     course_id = db.Column(db.String)
     teacher = db.Column(db.String)

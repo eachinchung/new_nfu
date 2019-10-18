@@ -50,6 +50,8 @@ create table achievement
 (
     id                     int primary key auto_increment,
     user_id                int(9)      not null,
+    school_year            int(4)      not null,
+    semester               tinyint     not null,
     course_type            char(15)    not null,
     course_name            varchar(50) not null,
     course_id              varchar(50) not null,
@@ -69,6 +71,8 @@ create table class_schedule
 (
     id          int         not null primary key auto_increment,
     user_id     int(9)      not null,
+    school_year int(4)      not null,
+    semester    tinyint     not null,
     course_name varchar(50) not null,
     course_id   varchar(50) not null,
     teacher     json        not null,
