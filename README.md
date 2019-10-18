@@ -1,6 +1,47 @@
 # 南苑聚合
 南苑聚合的后端
 
+## 项目使用说明
+### 需配置 env
+请在根目录创建 .env 文件
+
+```
+# 数据库链接
+# 例如: mysql+pymysql://root:123456@localhost:3306/nfu
+DATABASE_URL=xxxxxxx
+
+# 各种jwt的密钥(随机的字符串即可)
+ACCESS_TOKEN=xxxxxxx
+REFRESH_TOKEN=xxxxxxx
+EMAIL_TOKEN=xxxxxxx
+REFRESH_EMAIL_TOKEN=xxxxxxx
+
+# 邮箱信息
+MAIL_SERVER=smtp.exmail.qq.com
+MAIL_USERNAME=xxxxxxx
+MAIL_PASSWORD=xxxxxxx
+
+# host
+API_URL=http://127.0.0.1:5000
+```
+
+### pipenv
+本项目采用 pipenv 管理 第三方库
+
+没有装过 pipenv，请在根目录执行
+
+```
+➜ pip install pipenv
+➜ pipenv install
+```
+
+开始运行程序
+
+```
+➜ cd nfu 
+➜ pipenv run flask run
+```
+
 ## 计划完成模块
 ### 电费模块
 + 电费查询
