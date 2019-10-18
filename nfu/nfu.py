@@ -100,6 +100,7 @@ def get_class_schedule(token: str, school_year: int, semester: int) -> tuple:
         'xq': semester,
         'jwloginToken': token
     }
+
     try:
         response = http_session.post(url, data=data, timeout=1)
         course_list = loads(response.text)['msg']
@@ -132,3 +133,51 @@ def get_class_schedule(token: str, school_year: int, semester: int) -> tuple:
                 })
 
         return True, course_data
+
+
+def get_achievement_list(token: str, year: int, semester: int) -> tuple:
+    """
+    获取成绩单
+    :param token:
+    :param year:
+    :param semester:
+    :return:
+    """
+
+    course_list = {
+        'year': year,
+        'semester': semester,
+        'data': []
+    }
+
+    url = 'http://ecampus.nfu.edu.cn:2929/jw-amsi/AmsJxbXsZgcj/r-list'
+    http_session = session()
+    data = {
+        'deleted': False,
+        'pg': 1,
+        'pageSize': 20,
+        'kkxn': year,
+        'xnxq': semester,
+        'jwloginToken': token
+    }
+
+    try:
+        response = http_session.post(url, data=data, timeout=1)
+    except OSError:
+        return False, '教务系统错误，请稍后再试'
+
+    try:
+        course = loads(response.text)['msg']
+    except (KeyError, decoder.JSONDecodeError):
+        return False, '教务系统错误，请稍后再试'
+
+    try:
+        course = course['list']
+    except KeyError:
+        return False, course
+
+    if not course:
+        return False, '学校教务系统返回数据为空'
+
+    course_list['data'].append({'year': year, 'semester': semester, 'data': course})
+    return True, course_list
