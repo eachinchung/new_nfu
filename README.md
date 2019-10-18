@@ -87,6 +87,8 @@ API_URL=http://127.0.0.1:5000
 ### 电费接口
 获取宿舍电费 `electric/get`
 
+分析近15天电费 `electric/analyse`
+
 创建电费充值订单 `electric/create_order`
 
 跳转支付页面 `electric/pay_order`
