@@ -61,6 +61,14 @@ class TotalAchievements(db.Model):
     average_achievement = db.Column(db.Float)
     average_achievement_point = db.Column(db.Float)
 
+    def get_dict(self):
+        return {
+            'get_credit': self.get_credit,
+            'selected_credit ': self.selected_credit,
+            'average_achievement ': self.average_achievement,
+            'average_achievement_point': self.average_achievement_point
+        }
+
 
 # 成绩表
 class Achievement(db.Model):

@@ -10,7 +10,7 @@
 # 例如: mysql+pymysql://root:123456@localhost:3306/nfu
 DATABASE_URL=xxxxxxx
 
-# 各种jwt的密钥(随机的字符串即可)
+# 各种jwt的签名(随机的字符串即可)
 ACCESS_TOKEN=xxxxxxx
 REFRESH_TOKEN=xxxxxxx
 EMAIL_TOKEN=xxxxxxx
@@ -28,10 +28,10 @@ API_URL=http://127.0.0.1:5000
 ### pipenv
 本项目采用 pipenv 管理 第三方库
 
-没有装过 pipenv，请在根目录执行
+没有装过 pipenv，请在项目根目录执行
 
 ```
-➜ pip install pipenv
+➜ pip3 install pipenv
 ➜ pipenv install
 ```
 
@@ -57,6 +57,13 @@ API_URL=http://127.0.0.1:5000
 ### 课表模块
 - [x] 查询课表
 
+### 成绩模块
+- [x] 查询成绩
+- [x] 查看已选总学分
+- [x] 查看已修总学分
+- [x] 查看已平均绩点
+- [x] 查看已平均成绩
+
 ### 学分模块
 + 按照培养计划，对已修学分分类
 - [ ] 公共必修课
@@ -65,13 +72,6 @@ API_URL=http://127.0.0.1:5000
 - [ ] 专业方向课
 - [ ] 专业选修课
 - [ ] 成长必修课
-
-### 成绩模块
-- [x] 查询成绩
-- [ ] 查看已选总学分
-- [ ] 查看已修总学分
-- [ ] 查看已平均绩点
-- [ ] 查看已平均成绩
 
 ## API URI
 ### OAuth2 接口
@@ -110,3 +110,12 @@ API_URL=http://127.0.0.1:5000
 获取课程表 `class_schedule/get`
 
 更新课程表 `class_schedule/update`
+
+### 成绩接口
+获取成绩单 `achievement/get`
+
+更新成绩单 `achievement/update`
+
+查看总成绩信息 `achievement/total/get`
+
+更新总成绩信息 `achievement/total/update`
