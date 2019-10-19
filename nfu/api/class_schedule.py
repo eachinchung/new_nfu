@@ -3,7 +3,6 @@ from flask import Blueprint, g, jsonify
 from nfu.class_schedule_expand import db_init, db_update
 from nfu.decorators import check_access_token, get_config
 from nfu.models import ClassSchedule
-from nfu.nfu import get_jw_token
 
 class_schedule_bp = Blueprint('class_schedule', __name__)
 
@@ -14,6 +13,8 @@ class_schedule_bp = Blueprint('class_schedule', __name__)
 def get(school_year, semester):
     """
     获取课程表数据
+    :param school_year:
+    :param semester:
     :return:
     """
 
@@ -29,14 +30,8 @@ def get(school_year, semester):
             class_schedule.append(course.get_dict())
         return jsonify({'adopt': True, 'message': class_schedule})
 
-    # 数据库没有缓存时
-    # 登陆教务系统，获取token
-    token = get_jw_token(g.user.id)
-    if not token[0]:
-        return jsonify({'adopt': False, 'message': token[1]}), 500
-
     # 获取课程表，并写入数据库
-    class_schedule = db_init(token[1], school_year, semester)
+    class_schedule = db_init(g.user.id, school_year, semester)
     if not class_schedule[0]:
         return jsonify({'adopt': False, 'message': class_schedule[1]}), 500
 
@@ -49,14 +44,12 @@ def get(school_year, semester):
 def update(school_year, semester):
     """
     更新课程表数据
+    :param school_year:
+    :param semester:
     :return:
     """
 
-    token = get_jw_token(g.user.id)
-    if not token[0]:
-        return jsonify({'adopt': False, 'message': token[1]}), 500
-
-    class_schedule_update = db_update(token[1], school_year, semester)
+    class_schedule_update = db_update(g.user.id, school_year, semester)
     if not class_schedule_update[0]:
         return jsonify({'adopt': False, 'message': class_schedule_update[1]}), 500
 

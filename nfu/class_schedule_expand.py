@@ -2,36 +2,45 @@ from flask import g
 
 from nfu.extensions import db
 from nfu.models import ClassSchedule
-from nfu.nfu import get_class_schedule
+from nfu.nfu import get_class_schedule, get_jw_token
 
 
-def db_init(token: str, school_year: int, semester: int) -> tuple:
+def db_init(user_id: int, school_year: int, semester: int) -> tuple:
     """
     数据库没有课表数据时，调用此函数写入数据
-    :param token:
+    :param user_id:
     :param school_year:
     :param semester:
     :return:
     """
-    class_schedule_api = get_class_schedule(token, school_year, semester)
+
+    token = get_jw_token(user_id)
+    if not token[0]:
+        return False, token[1]
+
+    class_schedule_api = get_class_schedule(token[1], school_year, semester)
 
     if not class_schedule_api[0]:
         return False, class_schedule_api[1]
 
-    return True, __db_input(class_schedule_api[1], school_year, semester)
+    return True, __db_input(user_id, class_schedule_api[1], school_year, semester)
 
 
-def db_update(token: str, school_year: int, semester: int) -> tuple:
+def db_update(user_id: int, school_year: int, semester: int) -> tuple:
     """
     更新数据库中的课表数据
-    :param token:
+    :param user_id:
     :param school_year:
     :param semester:
     :return:
     """
 
+    token = get_jw_token(user_id)
+    if not token[0]:
+        return False, token[1]
+
     # 先尝试连接教务系统，看是否能获取课程数据
-    class_schedule_api = get_class_schedule(token, school_year, semester)
+    class_schedule_api = get_class_schedule(token[1], school_year, semester)
     if not class_schedule_api[0]:
         return False, class_schedule_api[1]
 
@@ -45,10 +54,10 @@ def db_update(token: str, school_year: int, semester: int) -> tuple:
         db.session.delete(course)
 
     db.session.commit()
-    return True, __db_input(class_schedule_api[1], school_year, semester)
+    return True, __db_input(user_id, class_schedule_api[1], school_year, semester)
 
 
-def __db_input(class_schedule_list: list, school_year: int, semester: int):
+def __db_input(user_id, class_schedule_list: list, school_year: int, semester: int):
     """
     把课程表写入数据库
     :param class_schedule_list:
@@ -60,7 +69,7 @@ def __db_input(class_schedule_list: list, school_year: int, semester: int):
     for course in class_schedule_list:
         db.session.add(
             ClassSchedule(
-                user_id=g.user.id,
+                user_id=user_id,
                 school_year=school_year,
                 semester=semester,
                 course_name=course['course_name'],
