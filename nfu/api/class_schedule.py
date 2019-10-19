@@ -53,4 +53,4 @@ def update(school_year, semester):
     if not class_schedule_update[0]:
         return jsonify({'adopt': False, 'message': class_schedule_update[1]}), 500
 
-    return jsonify({'adopt': True, 'message': '课程表更新成功'})
+    return jsonify({'adopt': True, 'message': class_schedule_update[1]})

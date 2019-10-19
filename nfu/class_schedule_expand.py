@@ -1,5 +1,3 @@
-from flask import g
-
 from nfu.extensions import db
 from nfu.models import ClassSchedule
 from nfu.nfu import get_class_schedule, get_jw_token
@@ -45,7 +43,7 @@ def db_update(user_id: int, school_year: int, semester: int) -> tuple:
         return False, class_schedule_api[1]
 
     class_schedule_db = ClassSchedule.query.filter_by(
-        user_id=g.user.id,
+        user_id=user_id,
         school_year=school_year,
         semester=semester
     ).all()
@@ -54,7 +52,8 @@ def db_update(user_id: int, school_year: int, semester: int) -> tuple:
         db.session.delete(course)
 
     db.session.commit()
-    return True, __db_input(user_id, class_schedule_api[1], school_year, semester)
+    __db_input(user_id, class_schedule_api[1], school_year, semester)
+    return True, '课程表更新成功'
 
 
 def __db_input(user_id, class_schedule_list: list, school_year: int, semester: int):
