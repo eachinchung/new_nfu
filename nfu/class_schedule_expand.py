@@ -52,8 +52,7 @@ def db_update(user_id: int, school_year: int, semester: int) -> tuple:
         db.session.delete(course)
 
     db.session.commit()
-    __db_input(user_id, class_schedule_api[1], school_year, semester)
-    return True, '课程表更新成功'
+    return True, __db_input(user_id, class_schedule_api[1], school_year, semester)
 
 
 def __db_input(user_id, class_schedule_list: list, school_year: int, semester: int):

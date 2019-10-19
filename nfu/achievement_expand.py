@@ -27,32 +27,57 @@ def db_init(user_id: int, school_year_now: int, semester_now: int):
     :param semester_now:
     :return:
     """
-    token = get_jw_token(user_id)
-    if not token[0]:
-        return False, token[1]
+    data = __get(user_id, school_year_now, semester_now)
+    if not data[0]:
+        return False, data[1]
 
-    school_year_list = __get_school_year_list(user_id, school_year_now, semester_now)
+    # 接下来把数据写入数据库
+    for datum in data[1]:
+        __db_input(
+            user_id,
+            datum['achievement_list'],
+            datum['school_year'],
+            datum['semester']
+        )
 
-    for school_year in school_year_list:
-        for semester in school_year_list[school_year]:
-            # 向教务系统请求数据
-            achievement_list = get_achievement_list(token[1], school_year, semester)
-            if not achievement_list[0]:
-                return False, achievement_list[1]
-
-            school_year_list[school_year][semester] = __db_input(
-                user_id,
-                achievement_list[1]['achievement_list'],
-                achievement_list[1]['school_year'],
-                achievement_list[1]['semester']
-            )
-
-    return True, school_year_list
+    return True, data[2]
 
 
 def db_update(user_id: int, school_year_now: int, semester_now: int):
     """
     更新成绩单
+    :param user_id:
+    :param school_year_now:
+    :param semester_now:
+    :return:
+    """
+    data = __get(user_id, school_year_now, semester_now)
+    if not data[0]:
+        return False, data[1]
+
+    # 从数据库删除已有的记录
+    achievement_db = Achievement.query.filter_by(user_id=user_id).all()
+
+    for course in achievement_db:
+        db.session.delete(course)
+
+    db.session.commit()
+
+    # 接下来把数据写入数据库
+    for datum in data[1]:
+        __db_input(
+            user_id,
+            datum['achievement_list'],
+            datum['school_year'],
+            datum['semester']
+        )
+
+    return True, data[2]
+
+
+def __get(user_id: int, school_year_now: int, semester_now: int):
+    """
+    向教务系统请求数据，
     :param user_id:
     :param school_year_now:
     :param semester_now:
@@ -75,24 +100,10 @@ def db_update(user_id: int, school_year_now: int, semester_now: int):
             # 把数据先用列表临时存储起来
             achievement_data.append(achievement_list[1])
 
-    # 从数据库删除已有的记录
-    achievement_db = Achievement.query.filter_by(user_id=user_id).all()
+            # 此数据，为接口返回的数据
+            school_year_list[school_year][semester] = __data_processing(achievement_list[1]['achievement_list'])
 
-    for course in achievement_db:
-        db.session.delete(course)
-
-    db.session.commit()
-
-    # 接下来把数据写入数据库
-    for datum in achievement_data:
-        __db_input(
-            user_id,
-            datum['achievement_list'],
-            datum['school_year'],
-            datum['semester']
-        )
-
-    return True, '成绩单更新成功'
+    return True, achievement_data, school_year_list
 
 
 def __get_school_year_list(user_id: int, school_year_now: int, semester_now: int):
@@ -170,4 +181,40 @@ def __db_input(user_id: int, achievement_list: list, school_year: int, semester:
         })
 
     db.session.commit()
+    return achievement
+
+
+def __data_processing(achievement_list: list):
+    """
+    处理爬取下来的数据
+    :param achievement_list:
+    :return:
+    """
+    achievement = []
+
+    for course in achievement_list:
+
+        # 判断该学生是否重考
+        try:
+            resit_exam_achievement_point = course['ckcj']
+        except KeyError:
+            resit_exam = False
+            resit_exam_achievement_point = None
+        else:
+            resit_exam = True
+
+        achievement.append({
+            'course_type': course['kcxz'],
+            'course_name': course['yjkcmc'],
+            'resit_exam': resit_exam,
+            'credit': course['kcxf'],
+            'achievement_point': course['jdVal'],
+            'final_achievements': course['qmcj'],
+            'total_achievements': course['zpcj'],
+            'midterm_achievements': course['qzcj'],
+            'practice_achievements': course['sjcj'],
+            'peacetime_achievements': course['pscj'],
+            'resit_exam_achievement_point': resit_exam_achievement_point
+        })
+
     return achievement
