@@ -35,7 +35,11 @@ def db_init(user_id: int, school_year_now: int, semester_now: int):
 
     for school_year in school_year_list:
         for semester in school_year_list[school_year]:
+            # 向教务系统请求数据
             achievement_list = get_achievement_list(token[1], school_year, semester)
+            if not achievement_list[0]:
+                return False, achievement_list[1]
+
             school_year_list[school_year][semester] = __db_input(
                 user_id,
                 achievement_list[1]['achievement_list'],
@@ -44,6 +48,44 @@ def db_init(user_id: int, school_year_now: int, semester_now: int):
             )
 
     return True, school_year_list
+
+
+def db_update(user_id: int, school_year_now: int, semester_now: int):
+    token = get_jw_token(user_id)
+    if not token[0]:
+        return False, token[1]
+
+    achievement_data = []  # 临时存储数据的列表
+    school_year_list = __get_school_year_list(user_id, school_year_now, semester_now)
+
+    for school_year in school_year_list:
+        for semester in school_year_list[school_year]:
+            # 向教务系统请求数据
+            achievement_list = get_achievement_list(token[1], school_year, semester)
+            if not achievement_list[0]:
+                return False, achievement_list[1]
+
+            # 把数据先用列表临时存储起来
+            achievement_data.append(achievement_list[1])
+
+    # 从数据库删除已有的记录
+    achievement_db = Achievement.query.filter_by(user_id=user_id).all()
+
+    for course in achievement_db:
+        db.session.delete(course)
+
+    db.session.commit()
+
+    # 接下来把数据写入数据库
+    for datum in achievement_data:
+        __db_input(
+            user_id,
+            datum['achievement_list'],
+            datum['school_year'],
+            datum['semester']
+        )
+
+    return True, '成绩单更新成功'
 
 
 def __get_school_year_list(user_id: int, school_year_now: int, semester_now: int):
