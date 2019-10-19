@@ -79,6 +79,22 @@ class Achievement(db.Model):
     midterm_achievements = db.Column(db.Float)
     practice_achievements = db.Column(db.Float)
     peacetime_achievements = db.Column(db.Float)
+    resit_exam_achievement_point = db.Column(db.Float)
+
+    def get_dict(self):
+        return {
+            'course_type': self.course_type,
+            'course_name': self.course_name,
+            'resit_exam': self.resit_exam,
+            'credit': self.credit,
+            'achievement_point': self.achievement_point,
+            'final_achievements': self.final_achievements,
+            'total_achievements': self.total_achievements,
+            'midterm_achievements': self.midterm_achievements,
+            'practice_achievements': self.practice_achievements,
+            'peacetime_achievements': self.peacetime_achievements,
+            'resit_exam_achievement_point': self.resit_exam_achievement_point
+        }
 
 
 # 课程表
