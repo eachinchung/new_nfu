@@ -50,7 +50,7 @@ def get_student_name(student_id: int, password: str) -> tuple:
     token = get_jw_token(student_id, password)
 
     if not token:
-        return False,token[1]
+        return False, token[1]
 
     url = 'http://ecampus.nfu.edu.cn:2929/jw-privilegei/User/r-getMyself'
     data = {'jwloginToken': token[1]}
@@ -118,7 +118,7 @@ def get_class_schedule(token: str, school_year: int, semester: int) -> tuple:
     return True, course_data
 
 
-def get_achievement_list(token: str, school_year: int, semester: int) -> tuple:
+def get_achievement_list(token: str, school_year: int, semester) -> tuple:
     """
     获取成绩单
     :param token:
@@ -128,9 +128,8 @@ def get_achievement_list(token: str, school_year: int, semester: int) -> tuple:
     """
 
     course_list = {
-        'year': school_year,
-        'semester': semester,
-        'data': []
+        'school_year': school_year,
+        'semester': semester
     }
 
     url = 'http://ecampus.nfu.edu.cn:2929/jw-amsi/AmsJxbXsZgcj/r-list'
@@ -162,7 +161,7 @@ def get_achievement_list(token: str, school_year: int, semester: int) -> tuple:
     if not course:
         return False, '学校教务系统返回数据为空'
 
-    course_list['data'].append({'year': school_year, 'semester': semester, 'data': course})
+    course_list['achievement_list'] = course
     return True, course_list
 
 
