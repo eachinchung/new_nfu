@@ -51,6 +51,13 @@ def db_init(user_id: int, school_year_now: int, semester_now: int):
 
 
 def db_update(user_id: int, school_year_now: int, semester_now: int):
+    """
+    更新成绩单
+    :param user_id:
+    :param school_year_now:
+    :param semester_now:
+    :return:
+    """
     token = get_jw_token(user_id)
     if not token[0]:
         return False, token[1]

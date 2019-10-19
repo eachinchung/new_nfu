@@ -33,6 +33,12 @@ def get(school_year, semester):
 @check_access_token
 @get_config
 def update(school_year, semester):
+    """
+    更新成绩单
+    :param school_year:
+    :param semester:
+    :return:
+    """
     achievement_update = db_update(g.user.id, school_year, semester)
     if not achievement_update[0]:
         return jsonify({'adopt': False, 'message': achievement_update[1]}), 500
