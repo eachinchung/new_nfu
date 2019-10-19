@@ -32,15 +32,16 @@ def db_init(user_id: int, school_year_now: int, semester_now: int):
         return False, data[1]
 
     # 接下来把数据写入数据库
-    for datum in data[1]:
-        __db_input(
-            user_id,
-            datum['achievement_list'],
-            datum['school_year'],
-            datum['semester']
-        )
+    for year in data[1]:
+        for semester in data[1][year]:
+            __db_input(
+                user_id,
+                data[1][year][semester],
+                year,
+                semester
+            )
 
-    return True, data[2]
+    return True, data[1]
 
 
 def db_update(user_id: int, school_year_now: int, semester_now: int):
@@ -64,15 +65,16 @@ def db_update(user_id: int, school_year_now: int, semester_now: int):
     db.session.commit()
 
     # 接下来把数据写入数据库
-    for datum in data[1]:
-        __db_input(
-            user_id,
-            datum['achievement_list'],
-            datum['school_year'],
-            datum['semester']
-        )
+    for year in data[1]:
+        for semester in data[1][year]:
+            __db_input(
+                user_id,
+                data[1][year][semester],
+                year,
+                semester
+            )
 
-    return True, data[2]
+    return True, data[1]
 
 
 def __get(user_id: int, school_year_now: int, semester_now: int):
@@ -87,7 +89,6 @@ def __get(user_id: int, school_year_now: int, semester_now: int):
     if not token[0]:
         return False, token[1]
 
-    achievement_data = []  # 临时存储数据的列表
     school_year_list = __get_school_year_list(user_id, school_year_now, semester_now)
 
     for school_year in school_year_list:
@@ -97,13 +98,10 @@ def __get(user_id: int, school_year_now: int, semester_now: int):
             if not achievement_list[0]:
                 return False, achievement_list[1]
 
-            # 把数据先用列表临时存储起来
-            achievement_data.append(achievement_list[1])
-
             # 此数据，为接口返回的数据
             school_year_list[school_year][semester] = __data_processing(achievement_list[1]['achievement_list'])
 
-    return True, achievement_data, school_year_list
+    return True, school_year_list
 
 
 def __get_school_year_list(user_id: int, school_year_now: int, semester_now: int):
@@ -136,23 +134,21 @@ def __db_input(user_id: int, achievement_list: list, school_year: int, semester:
     :param semester:
     :return:
     """
-    achievement = []
-
     for course in achievement_list:
         achievement_db = Achievement(
             user_id=user_id,
             school_year=school_year,
             semester=semester,
-            course_type=course['kcxz'],
-            course_name=course['yjkcmc'],
-            course_id=course['pkbdm'],
-            credit=course['kcxf'],
-            achievement_point=course['jdVal'],
-            final_achievements=course['qmcj'],
-            total_achievements=course['zpcj'],
-            midterm_achievements=course['qzcj'],
-            practice_achievements=course['sjcj'],
-            peacetime_achievements=course['pscj']
+            course_type=course['course_type'],
+            course_name=course['course_name'],
+            course_id=course['course_id'],
+            credit=course['credit'],
+            achievement_point=course['achievement_point'],
+            final_achievements=course['final_achievements'],
+            total_achievements=course['total_achievements'],
+            midterm_achievements=course['midterm_achievements'],
+            practice_achievements=course['practice_achievements'],
+            peacetime_achievements=course['peacetime_achievements']
         )
 
         # 判断该学生是否重考
@@ -166,22 +162,7 @@ def __db_input(user_id: int, achievement_list: list, school_year: int, semester:
 
         db.session.add(achievement_db)
 
-        achievement.append({
-            'course_type': course['kcxz'],
-            'course_name': course['yjkcmc'],
-            'resit_exam': achievement_db.resit_exam,
-            'credit': course['kcxf'],
-            'achievement_point': course['jdVal'],
-            'final_achievements': course['qmcj'],
-            'total_achievements': course['zpcj'],
-            'midterm_achievements': course['qzcj'],
-            'practice_achievements': course['sjcj'],
-            'peacetime_achievements': course['pscj'],
-            'resit_exam_achievement_point': achievement_db.resit_exam_achievement_point
-        })
-
     db.session.commit()
-    return achievement
 
 
 def __data_processing(achievement_list: list):
@@ -206,6 +187,7 @@ def __data_processing(achievement_list: list):
         achievement.append({
             'course_type': course['kcxz'],
             'course_name': course['yjkcmc'],
+            'course_id': course['pkbdm'],
             'resit_exam': resit_exam,
             'credit': course['kcxf'],
             'achievement_point': course['jdVal'],

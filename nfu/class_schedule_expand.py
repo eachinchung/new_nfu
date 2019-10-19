@@ -84,6 +84,7 @@ def __db_input(user_id, class_schedule_list: list, school_year: int, semester: i
 
         class_schedule.append({
             'course_name': course['course_name'],
+            'course_id': course['course_id'],
             'teacher': course['teacher'],
             'classroom': course['classroom'],
             'weekday': course['weekday'],

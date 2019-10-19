@@ -93,6 +93,7 @@ class Achievement(db.Model):
         return {
             'course_type': self.course_type,
             'course_name': self.course_name,
+            'course_id': self.course_id,
             'resit_exam': self.resit_exam,
             'credit': self.credit,
             'achievement_point': self.achievement_point,
@@ -124,6 +125,7 @@ class ClassSchedule(db.Model):
     def get_dict(self):
         return {
             'course_name': self.course_name,
+            'course_id': self.course_id,
             'teacher': self.teacher,
             'classroom': self.classroom,
             'weekday': self.weekday,
