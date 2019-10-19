@@ -1,5 +1,6 @@
 from flask import Flask, jsonify
 
+from nfu.api.achievement import achievement_bp
 from nfu.api.class_schedule import class_schedule_bp
 from nfu.api.electric import electric_bp
 from nfu.api.oauth import oauth_bp
@@ -9,7 +10,7 @@ from nfu.extensions import cors, db, mail
 
 
 # 加载基本配置
-def create_app():
+def create_app() -> Flask:
     app = Flask('nfu')
     app.config.from_pyfile('settings.py')
 
@@ -21,6 +22,7 @@ def create_app():
 
 # 加载蓝本
 def register_blueprints(app) -> None:
+    app.register_blueprint(achievement_bp, url_prefix='/achievement')
     app.register_blueprint(class_schedule_bp, url_prefix='/class_schedule')
     app.register_blueprint(electric_bp, url_prefix='/electric')
     app.register_blueprint(oauth_bp, url_prefix='/oauth')
