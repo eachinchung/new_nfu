@@ -1,6 +1,6 @@
 from nfu.extensions import db
 from nfu.models import Achievement
-from nfu.nfu import get_achievement_list, get_jw_token
+from nfu.expand.nfu import get_achievement_list, get_jw_token
 
 
 def db_get(achievement_db, user_id: int, school_year_now: int, semester_now: int) -> dict:

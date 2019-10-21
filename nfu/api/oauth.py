@@ -1,10 +1,10 @@
 from flask import Blueprint, jsonify, request
 
-from nfu.email import send_validate_email
+from nfu.expand.email import send_validate_email
 from nfu.extensions import db
 from nfu.models import Power, User
-from nfu.nfu import get_student_name
-from nfu.token import generate_token, validate_token
+from nfu.expand.nfu import get_student_name
+from nfu.expand.token import generate_token, validate_token
 
 oauth_bp = Blueprint('oauth', __name__)
 

@@ -1,6 +1,6 @@
 from flask import Blueprint, g, jsonify
 
-from nfu.class_schedule_expand import db_init, db_update
+from nfu.expand.class_schedule import db_init, db_update
 from nfu.decorators import check_access_token, get_config
 from nfu.models import ClassSchedule
 

@@ -1,7 +1,7 @@
 from flask import Blueprint, g, jsonify, render_template, request
 
 from nfu.decorators import check_access_token, check_power_school_bus
-from nfu.school_bus import get_bus_schedule, get_passenger_data, get_ticket_data, get_ticket_ids, return_ticket
+from nfu.expand.school_bus import get_bus_schedule, get_passenger_data, get_ticket_data, get_ticket_ids, return_ticket
 
 school_bus_bp = Blueprint('school_bus', __name__)
 

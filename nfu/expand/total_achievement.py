@@ -1,5 +1,5 @@
 from nfu.models import TotalAchievements
-from nfu.nfu import get_jw_token, get_total_achievement_point
+from nfu.expand.nfu import get_jw_token, get_total_achievement_point
 from nfu.extensions import db
 
 

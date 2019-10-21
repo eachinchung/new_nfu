@@ -1,9 +1,9 @@
 from flask import Blueprint, g, jsonify
 
-from nfu.achievement_expand import db_get, db_init, db_update
+from nfu.expand.achievement import db_get, db_init, db_update
 from nfu.decorators import check_access_token, get_config
 from nfu.models import Achievement, TotalAchievements
-from nfu.total_achievement_expand import db_init_total, db_update_total
+from nfu.expand.total_achievement import db_init_total, db_update_total
 
 achievement_bp = Blueprint('achievement', __name__)
 

@@ -3,7 +3,7 @@ from functools import wraps
 from flask import g, jsonify, request
 
 from nfu.models import User
-from nfu.token import validate_token
+from nfu.expand.token import validate_token
 
 
 def get_config(func):

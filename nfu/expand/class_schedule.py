@@ -1,6 +1,6 @@
 from nfu.extensions import db
 from nfu.models import ClassSchedule
-from nfu.nfu import get_class_schedule, get_jw_token
+from nfu.expand.nfu import get_class_schedule, get_jw_token
 
 
 def db_init(user_id: int, school_year: int, semester: int) -> tuple:

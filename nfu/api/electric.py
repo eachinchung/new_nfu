@@ -3,7 +3,7 @@ from datetime import datetime
 from flask import Blueprint, g, jsonify, make_response, redirect, request
 
 from nfu.decorators import check_access_token
-from nfu.electric import ElectricPay, get_electric_data, get_electric_create_log
+from nfu.expand.electric import ElectricPay, get_electric_data, get_electric_create_log
 from nfu.extensions import db
 from nfu.models import Dormitory, Electric
 
