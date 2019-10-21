@@ -1,3 +1,5 @@
+from json import loads
+
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from nfu.extensions import db
@@ -126,7 +128,7 @@ class ClassSchedule(db.Model):
         return {
             'course_name': self.course_name,
             'course_id': self.course_id,
-            'teacher': self.teacher,
+            'teacher': loads(self.teacher),
             'classroom': self.classroom,
             'weekday': self.weekday,
             'start_node': self.start_node,

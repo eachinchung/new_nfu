@@ -56,4 +56,5 @@ def update(school_year, semester):
     except NFUError as err:
         return jsonify({'adopt': False, 'message': err.message}), 500
     else:
+        print(class_schedule_update)
         return jsonify({'adopt': True, 'message': class_schedule_update})

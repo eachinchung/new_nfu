@@ -1,3 +1,5 @@
+from json import dumps
+
 from nfu.extensions import db
 from nfu.models import ClassSchedule
 from nfu.expand.nfu import get_class_schedule, get_jw_token
@@ -63,7 +65,7 @@ def __db_input(user_id, class_schedule_list: list, school_year: int, semester: i
                 semester=semester,
                 course_name=course['course_name'],
                 course_id=course['course_id'],
-                teacher=course['teacher'],
+                teacher=dumps(course['teacher']),
                 classroom=course['classroom'],
                 weekday=course['weekday'],
                 start_node=course['start_node'],
