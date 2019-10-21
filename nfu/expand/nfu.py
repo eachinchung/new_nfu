@@ -2,6 +2,8 @@ from json import decoder, loads, dumps
 
 from requests import session
 
+from nfu.NFUError import NFUError
+
 
 def get_jw_token(student_id: int, password: str = '') -> str:
     """
@@ -24,10 +26,10 @@ def get_jw_token(student_id: int, password: str = '') -> str:
         response = http_session.post(url, data=data, timeout=1)
         token = loads(response.text)['msg']
     except (OSError, decoder.JSONDecodeError):
-        raise LookupError('教务系统错误，请稍后再试')
+        raise NFUError('教务系统错误，请稍后再试')
 
     if not token:
-        raise LookupError('学号或密码错误!')
+        raise NFUError('学号或密码错误!')
 
     return token
 
@@ -47,10 +49,7 @@ def get_student_name(student_id: int, password: str) -> str:
     :raise OSError: 一般错误为超时，学校系统炸了，与我们无关
     """
 
-    try:
-        token = get_jw_token(student_id, password)
-    except LookupError as err:
-        raise LookupError(str(err))
+    token = get_jw_token(student_id, password)
 
     url = 'http://ecampus.nfu.edu.cn:2929/jw-privilegei/User/r-getMyself'
     data = {'jwloginToken': token[1]}

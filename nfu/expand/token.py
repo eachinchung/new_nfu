@@ -2,6 +2,8 @@ from os import getenv
 
 from itsdangerous import BadSignature, SignatureExpired, TimedJSONWebSignatureSerializer
 
+from nfu.NFUError import NFUError
+
 
 def generate_token(data: dict, *, token_type: str = 'ACCESS_TOKEN', expires_in: int = 3600) -> tuple:
     """
@@ -27,8 +29,8 @@ def validate_token(token: str, token_type: str = 'ACCESS_TOKEN') -> dict:
     try:
         data = s.loads(token)
     except SignatureExpired:
-        raise ValueError('签名已过期')
+        raise NFUError('签名已过期')
     except BadSignature:
-        raise ValueError('签名错误')
+        raise NFUError('签名错误')
     else:
         return data

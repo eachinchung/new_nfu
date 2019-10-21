@@ -2,15 +2,17 @@ from datetime import datetime
 
 from flask import Blueprint, g, jsonify, make_response, redirect, request
 
-from nfu.decorators import check_access_token
-from nfu.expand.electric import ElectricPay, get_electric_data, get_electric_create_log
+from nfu.common import check_access_token
+from nfu.expand.electric import ElectricPay, get_electric_create_log, get_electric_data
+from nfu.expand.token import validate_token
 from nfu.extensions import db
 from nfu.models import Dormitory, Electric
+from nfu.NFUError import NFUError
 
 electric_bp = Blueprint('electric', __name__)
 
 
-@electric_bp.route('/get', methods=['POST'])
+@electric_bp.route('/get')
 @check_access_token
 def get():
     """
@@ -35,7 +37,7 @@ def get():
     return jsonify({'adopt': True, 'message': electric_data.value})
 
 
-@electric_bp.route('/analyse', methods=['POST'])
+@electric_bp.route('/analyse')
 @check_access_token
 def analyse():
     """
@@ -108,6 +110,14 @@ def pay_order():
     跳转支付页面
     :return:
     """
+    token = request.args.get('token')
+
+    # 验证 token 是否通过
+    try:
+        validate_token(token)
+    except NFUError as err:
+        return jsonify({'adopt': False, 'message': err.message}), 403
+
     json_data = request.args.get('json')
     signature = request.args.get('signature')
     electric_cookies = request.args.get('electric_cookies')

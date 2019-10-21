@@ -2,6 +2,7 @@ from functools import wraps
 
 from flask import g, jsonify, request
 
+from nfu.NFUError import NFUError
 from nfu.models import User
 from nfu.expand.token import validate_token
 
@@ -37,16 +38,14 @@ def check_access_token(func):
 
     @wraps(func)
     def wrapper(*args, **kw):
-        token = request.values.get('access_token')
 
-        if token is None:
-            return jsonify({'message': '没有访问权限'}), 403
+        token = get_token()
 
         # 验证 token 是否通过
         try:
-            validate = validate_token(token, 'REFRESH_TOKEN')
-        except ValueError as err:
-            return jsonify({'adopt': False, 'message': str(err)}), 403
+            validate = validate_token(token)
+        except NFUError as err:
+            return jsonify({'adopt': False, 'message': err.message}), 403
 
         g.user = User.query.get(validate['id'])
         g.user_power = validate
@@ -72,3 +71,20 @@ def check_power_school_bus(func):
         return func(*args, **kw)
 
     return wrapper
+
+
+def get_token():
+    """
+    从请求头获取token
+    :return:
+    """
+
+    try:
+        token_type, token = request.headers['Authorization'].split(None, 1)
+    except (KeyError, ValueError):
+        return jsonify({'message': '没有访问权限'}), 403
+
+    if token_type is None or token_type.lower() != 'bearer':
+        return jsonify({'message': 'The token type must be bearer.'}), 403
+
+    return token

@@ -1,16 +1,18 @@
 from flask import Blueprint, jsonify, request
 
+from nfu.common import get_token
 from nfu.expand.email import send_validate_email
-from nfu.extensions import db
-from nfu.models import Power, User
 from nfu.expand.nfu import get_student_name
 from nfu.expand.token import generate_token, validate_token
+from nfu.extensions import db
+from nfu.models import Power, User
+from nfu.NFUError import NFUError
 
 oauth_bp = Blueprint('oauth', __name__)
 
 
 @oauth_bp.route('/token/get', methods=['POST'])
-def get_token():
+def get_token_bp():
     """
     登陆接口，获取令牌
     return: json
@@ -96,8 +98,8 @@ def sign_up():
     # 如果正确获得学生姓名，默认代表该用户拥有该账号合法性
     try:
         name = get_student_name(user_id, password)
-    except LookupError as err:
-        return jsonify({'adopt': False, 'message': str(err)}), 403
+    except NFUError as err:
+        return jsonify({'adopt': False, 'message': err.message}), 403
 
     token = generate_token({'id': user_id}, token_type='EMAIL_TOKEN')
     send_validate_email(email, name, user_id, token)
@@ -115,18 +117,17 @@ def sign_up():
     return jsonify({'adopt': True, 'message': 'success'})
 
 
-@oauth_bp.route('/refresh_validate_email', methods=['POST'])
+@oauth_bp.route('/refresh_validate_email')
 def refresh_validate_email():
     """
     重新发送激活邮件
     :return: json
     """
-    token = request.form.get('refresh_validate_email_token')
-
+    token = get_token()
     try:
         validate = validate_token(token, 'REFRESH_EMAIL_TOKEN')
-    except ValueError as err:
-        return jsonify({'adopt': False, 'message': str(err)}), 403
+    except NFUError as err:
+        return jsonify({'adopt': False, 'message': err.message}), 403
 
     user_power = Power.query.get(validate['id'])
 
