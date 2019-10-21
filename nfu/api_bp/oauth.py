@@ -56,14 +56,15 @@ def refresh_token():
     :return: json
     """
     token = request.form.get('refresh_token')
-    validate = validate_token(token, 'REFRESH_TOKEN')
 
-    # 令牌验证不通过
-    if not validate[0]:
-        return jsonify({'adopt': False, 'message': validate[1]}), 403
+    # 验证 token 是否通过
+    try:
+        validate = validate_token(token, 'REFRESH_TOKEN')
+    except ValueError as err:
+        return jsonify({'adopt': False, 'message': str(err)}), 403
 
-    user = User.query.get(validate[1]['user_id'])
-    user_power = Power.query.get(validate[1]['user_id'])
+    user = User.query.get(validate['user_id'])
+    user_power = Power.query.get(validate['user_id'])
 
     if user is None:
         return jsonify({'adopt': False, 'message': '账号不存在'}), 500
@@ -93,14 +94,15 @@ def sign_up():
         return jsonify({'adopt': False, 'message': '该账号已存在'}), 500
 
     # 如果正确获得学生姓名，默认代表该用户拥有该账号合法性
-    name = get_student_name(user_id, password)
-    if not name[0]:
-        return jsonify({'adopt': False, 'message': name[1]}), 500
+    try:
+        name = get_student_name(user_id, password)
+    except LookupError as err:
+        return jsonify({'adopt': False, 'message': str(err)}), 403
 
     token = generate_token({'id': user_id}, token_type='EMAIL_TOKEN')
-    send_validate_email(email, name[1], user_id, token)
+    send_validate_email(email, name, user_id, token)
 
-    user = User(id=user_id, name=name[1], room_id=room_id, email=email)
+    user = User(id=user_id, name=name, room_id=room_id, email=email)
     user.set_password(password)  # 将教务系统密码默认为用户密码，并哈希加密
 
     db.session.add(user)
@@ -120,13 +122,13 @@ def refresh_validate_email():
     :return: json
     """
     token = request.form.get('refresh_validate_email_token')
-    validate = validate_token(token, 'REFRESH_EMAIL_TOKEN')
 
-    # 令牌验证不通过
-    if not validate[0]:
-        return jsonify({'adopt': False, 'message': validate[1]}), 403
+    try:
+        validate = validate_token(token, 'REFRESH_EMAIL_TOKEN')
+    except ValueError as err:
+        return jsonify({'adopt': False, 'message': str(err)}), 403
 
-    user_power = Power.query.get(validate[1]['id'])
+    user_power = Power.query.get(validate['id'])
 
     if user_power is None:
         return jsonify({'adopt': False, 'message': '账号不存在'}), 500
@@ -134,6 +136,6 @@ def refresh_validate_email():
     if user_power.validate_email:
         return jsonify({'adopt': False, 'message': '该账号已激活'}), 500
 
-    token = generate_token({'id': validate[1]['id']}, token_type='EMAIL_TOKEN')
-    send_validate_email(validate[1]['email'], validate[1]['name'], validate[1]['id'], token)
+    token = generate_token({'id': validate['id']}, token_type='EMAIL_TOKEN')
+    send_validate_email(validate['email'], validate['name'], validate['id'], token)
     return jsonify({'adopt': True, 'message': 'success'})

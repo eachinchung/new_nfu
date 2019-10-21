@@ -3,12 +3,12 @@ from json import decoder, loads, dumps
 from requests import session
 
 
-def get_jw_token(student_id: int, password: str = '') -> tuple:
+def get_jw_token(student_id: int, password: str = '') -> str:
     """
     登陆教务系统
     :param student_id: 学号，基于教务系统的Bug，登陆时，密码直接提交空字符串就可以了
     :param password: 密码，默认为空字符串
-    :return: 一个元组，通常我规定第一个为bool，用来判定是否成功获取数据。
+    :return token:
     :raise OSError: 一般错误为超时，学校系统炸了，与我们无关
     """
 
@@ -24,15 +24,15 @@ def get_jw_token(student_id: int, password: str = '') -> tuple:
         response = http_session.post(url, data=data, timeout=1)
         token = loads(response.text)['msg']
     except (OSError, decoder.JSONDecodeError):
-        return False, '教务系统错误，请稍后再试'
+        raise LookupError('教务系统错误，请稍后再试')
 
     if not token:
-        return False, '学号或密码错误!'
+        raise LookupError('学号或密码错误!')
 
-    return True, token
+    return token
 
 
-def get_student_name(student_id: int, password: str) -> tuple:
+def get_student_name(student_id: int, password: str) -> str:
     """
     与教务系统校对账号密码，并获取学生姓名
 
@@ -43,14 +43,14 @@ def get_student_name(student_id: int, password: str) -> tuple:
 
     :param student_id: 学号
     :param password: 教务系统的密码
-    :return: 一个元组，通常我规定第一个为bool，用来判定是否成功获取数据。
+    :return name:
     :raise OSError: 一般错误为超时，学校系统炸了，与我们无关
     """
 
-    token = get_jw_token(student_id, password)
-
-    if not token:
-        return False, token[1]
+    try:
+        token = get_jw_token(student_id, password)
+    except LookupError as err:
+        raise LookupError(str(err))
 
     url = 'http://ecampus.nfu.edu.cn:2929/jw-privilegei/User/r-getMyself'
     data = {'jwloginToken': token[1]}
@@ -60,12 +60,12 @@ def get_student_name(student_id: int, password: str) -> tuple:
         response = http_session.post(url, data=data, timeout=1)
         name = loads(response.text)['msg']['name']
     except (OSError, KeyError):
-        return False, '教务系统错误，请稍后再试'
+        raise LookupError('教务系统错误，请稍后再试')
 
     if not name:
-        return False, '没有获取到数据，请稍后再试'
+        raise LookupError('没有获取到数据，请稍后再试')
 
-    return True, name
+    return name
 
 
 def get_class_schedule(token: str, school_year: int, semester: int) -> tuple:

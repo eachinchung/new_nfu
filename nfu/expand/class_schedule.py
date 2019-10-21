@@ -12,11 +12,12 @@ def db_init(user_id: int, school_year: int, semester: int) -> tuple:
     :return:
     """
 
-    token = get_jw_token(user_id)
-    if not token[0]:
-        return False, token[1]
+    try:
+        token = get_jw_token(user_id)
+    except LookupError as err:
+        raise LookupError(str(err))
 
-    class_schedule_api = get_class_schedule(token[1], school_year, semester)
+    class_schedule_api = get_class_schedule(token, school_year, semester)
 
     if not class_schedule_api[0]:
         return False, class_schedule_api[1]
@@ -33,12 +34,13 @@ def db_update(user_id: int, school_year: int, semester: int) -> tuple:
     :return:
     """
 
-    token = get_jw_token(user_id)
-    if not token[0]:
-        return False, token[1]
+    try:
+        token = get_jw_token(user_id)
+    except LookupError as err:
+        raise LookupError(str(err))
 
     # 先尝试连接教务系统，看是否能获取课程数据
-    class_schedule_api = get_class_schedule(token[1], school_year, semester)
+    class_schedule_api = get_class_schedule(token, school_year, semester)
     if not class_schedule_api[0]:
         return False, class_schedule_api[1]
 

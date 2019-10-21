@@ -85,16 +85,17 @@ def __get(user_id: int, school_year_now: int, semester_now: int):
     :param semester_now:
     :return:
     """
-    token = get_jw_token(user_id)
-    if not token[0]:
-        return False, token[1]
+    try:
+        token = get_jw_token(user_id)
+    except LookupError as err:
+        raise LookupError(str(err))
 
     school_year_list = __get_school_year_list(user_id, school_year_now, semester_now)
 
     for school_year in school_year_list:
         for semester in school_year_list[school_year]:
             # 向教务系统请求数据
-            achievement_list = get_achievement_list(token[1], school_year, semester)
+            achievement_list = get_achievement_list(token, school_year, semester)
             if not achievement_list[0]:
                 return False, achievement_list[1]
 

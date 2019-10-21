@@ -43,12 +43,13 @@ def check_access_token(func):
             return jsonify({'message': '没有访问权限'}), 403
 
         # 验证 token 是否通过
-        validate = validate_token(token)
-        if not validate[0]:
-            return jsonify({'message': validate[1]}), 403
+        try:
+            validate = validate_token(token, 'REFRESH_TOKEN')
+        except ValueError as err:
+            return jsonify({'adopt': False, 'message': str(err)}), 403
 
-        g.user = User.query.get(validate[1]['id'])
-        g.user_power = validate[1]
+        g.user = User.query.get(validate['id'])
+        g.user_power = validate
 
         return func(*args, **kw)
 

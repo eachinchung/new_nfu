@@ -16,7 +16,7 @@ def generate_token(data: dict, *, token_type: str = 'ACCESS_TOKEN', expires_in: 
     return token
 
 
-def validate_token(token: str, token_type: str = 'ACCESS_TOKEN') -> tuple:
+def validate_token(token: str, token_type: str = 'ACCESS_TOKEN') -> dict:
     """
     验证令牌
     :param token: 令牌
@@ -27,8 +27,8 @@ def validate_token(token: str, token_type: str = 'ACCESS_TOKEN') -> tuple:
     try:
         data = s.loads(token)
     except SignatureExpired:
-        return False, '签名已过期'
+        raise ValueError('签名已过期')
     except BadSignature:
-        return False, '签名错误'
+        raise ValueError('签名错误')
     else:
-        return True, data
+        return data

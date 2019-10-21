@@ -26,11 +26,12 @@ def db_update_total(user_id: int):
 
 
 def __get(user_id: int) -> tuple:
-    token = get_jw_token(user_id)
-    if not token[0]:
-        return False, token[1]
+    try:
+        token = get_jw_token(user_id)
+    except LookupError as err:
+        raise LookupError(str(err))
 
-    total_achievement = get_total_achievement_point(token[1])
+    total_achievement = get_total_achievement_point(token)
     if total_achievement[0]:
         return True, total_achievement[1]
 
