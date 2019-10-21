@@ -1,11 +1,11 @@
 from flask import Flask, jsonify
 
-from nfu.api.achievement import achievement_bp
-from nfu.api.class_schedule import class_schedule_bp
-from nfu.api.electric import electric_bp
-from nfu.api.oauth import oauth_bp
-from nfu.api.school_bus import school_bus_bp
-from nfu.api.validate import validate_bp
+from nfu.api_bp.achievement import achievement_bp
+from nfu.api_bp.class_schedule import class_schedule_bp
+from nfu.api_bp.electric import electric_bp
+from nfu.api_bp.oauth import oauth_bp
+from nfu.api_bp.school_bus import school_bus_bp
+from nfu.api_bp.validate import validate_bp
 from nfu.extensions import cors, db, mail
 
 
