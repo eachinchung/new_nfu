@@ -24,13 +24,13 @@ def get():
 
     # 当数据库没有电费数据时，我们向安心付请求数据
     if electric_data is None:
-        electric = get_electric_data(g.user.room_id)
-
-        if not electric[0]:
-            return jsonify({'adopt': False, 'message': electric[1]}), 500
+        try:
+            electric = get_electric_data(g.user.room_id)
+        except NFUError as err:
+            return jsonify({'adopt': False, 'message': err.message}), 500
 
         # 并将电费数据写入数据库
-        electric_data = Electric(room_id=g.user.room_id, value=electric[1], time=datetime.now())
+        electric_data = Electric(room_id=g.user.room_id, value=electric, time=datetime.now())
         db.session.add(electric_data)
         db.session.commit()
 
@@ -67,12 +67,13 @@ def create_log():
     :return:
     """
     page = request.form.get('page')
-    electric_create_log = get_electric_create_log(g.user.room_id, page)
 
-    if not electric_create_log[0]:
-        return jsonify({'adopt': False, 'message': electric_create_log[1]}), 500
-
-    return jsonify({'adopt': True, 'message': electric_create_log[1]})
+    try:
+        electric_create_log = get_electric_create_log(g.user.room_id, page)
+    except NFUError as err:
+        return jsonify({'adopt': False, 'message': err.message}), 500
+    else:
+        return jsonify({'adopt': True, 'message': electric_create_log})
 
 
 @electric_bp.route('/order/create', methods=['POST'])
@@ -88,23 +89,23 @@ def create_order():
 
     order = ElectricPay(
         amount, g.user.id, g.user.name, g.user.room_id, dormitory.building, dormitory.floor, dormitory.room)
-    order_data = order.create_order()
 
-    if not order_data[0]:
-        return jsonify({'adopt': False, 'message': order_data[1]}), 500
+    try:
+        order_data = order.create_order()
+    except NFUError as err:
+        return jsonify({'adopt': False, 'message': err.message}), 500
 
     return jsonify({
         'adopt': True,
         'message': {
-            'json': order_data[1],
-            'signature': order_data[2],
-            'electric_cookies': order_data[3]
+            'json': order_data[0],
+            'signature': order_data[1],
+            'electric_cookies': order_data[2]
         }
     })
 
 
 @electric_bp.route('/order/pay')
-@check_access_token
 def pay_order():
     """
     跳转支付页面
@@ -113,13 +114,13 @@ def pay_order():
 
     json_data = request.args.get('json')
     signature = request.args.get('signature')
+    electric_cookies = request.args.get('electric_cookies')
 
     try:
         validate_token(request.args.get('token'))
     except NFUError as err:
         return jsonify({'adopt': False, 'message': err.message}), 403
 
-    electric_cookies = request.args.get('electric_cookies')
     url = "http://nfu.zhihuianxin.net/school_paycgi_wxpay/paycgi_upw?json=" + json_data + "&signature=" + signature
     response = make_response(redirect(url))
     response.set_cookie('JSESSIONID', electric_cookies)

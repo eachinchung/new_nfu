@@ -4,8 +4,10 @@ from re import search
 
 from requests import session
 
+from nfu.NFUError import NFUError
 
-def get_electric_data(room: int) -> tuple:
+
+def get_electric_data(room: int) -> float:
     """
     获取宿舍电费
 
@@ -21,19 +23,19 @@ def get_electric_data(room: int) -> tuple:
     try:
         response = http_session.post(url, data=data, timeout=1)
     except OSError:
-        return False, '安心付服务器错误'
+        raise NFUError('安心付服务器错误')
 
     try:
         electric_quantity = loads(response.text)
         electric_quantity = electric_quantity['data']['remainPower']
     except (KeyError, decoder.JSONDecodeError):
-        return False, '此宿舍无数据'
+        raise NFUError('此宿舍无数据')
 
     electric_quantity = round(float(electric_quantity), 2)
-    return True, electric_quantity
+    return electric_quantity
 
 
-def get_electric_create_log(room_id: int, page_index: int) -> tuple:
+def get_electric_create_log(room_id: int, page_index: int) -> dict:
     """
     电费充值记录
     :param room_id:
@@ -52,9 +54,9 @@ def get_electric_create_log(room_id: int, page_index: int) -> tuple:
         response = http_session.post(url, data=data, timeout=1)
         electric_create = loads(response.text)['data']
     except (OSError, KeyError, decoder.JSONDecodeError):
-        return False, '安心付服务器错误'
+        raise NFUError('安心付服务器错误')
 
-    return True, electric_create
+    return electric_create
 
 
 @dataclass
@@ -101,16 +103,16 @@ class ElectricPay:
         try:
             response = self.__http_session.post(url, data=data, timeout=1)
         except OSError:
-            return False, '与安心付服务器连接超时，请稍后再试'
+            raise NFUError('与安心付服务器连接超时，请稍后再试')
 
         try:
             # 尝试获取签名
             json_data = search(r'name="json" value=.+', response.text).group()[19:-4]
             signature = search(r'name="signature" value=.+', response.text).group()[24:-4]
         except AttributeError:
-            return False, '与安心付服务器连接超时，请稍后再试'
+            raise NFUError('与安心付服务器连接超时，请稍后再试')
 
-        return True, json_data, signature
+        return json_data, signature
 
     def __set_wechat_pay(self, json_data, signature):
         """
@@ -142,7 +144,7 @@ class ElectricPay:
             # 向安心付接口 post 订单数据，无需返回值
             self.__http_session.post(url, data=data, headers=header)
         except OSError:
-            return False, '与安心付服务器连接超时，请稍后再试'
+            raise NFUError('与安心付服务器连接超时，请稍后再试')
 
         url = 'http://nfu.zhihuianxin.net/paycenter/payGateway_web'
         data = {'payChannel': 'WxPay'}
@@ -151,26 +153,16 @@ class ElectricPay:
         try:
             response = self.__http_session.post(url, data=data, headers=header)
         except OSError:
-            return False, '与安心付服务器连接超时，请稍后再试'
+            raise NFUError('与安心付服务器连接超时，请稍后再试')
 
         try:
             json_data = search(r'name="json" value=.+', response.text).group()[19:-5]
             signature = search(r'name="signature" value=.+', response.text).group()[24:-5]
         except AttributeError:
-            return False, '与安心付服务器连接超时，请稍后再试'
+            raise NFUError('与安心付服务器连接超时，请稍后再试')
 
-        return True, json_data, signature, self.__http_session.cookies.get_dict()['JSESSIONID']
+        return json_data, signature, self.__http_session.cookies.get_dict()['JSESSIONID']
 
     def create_order(self):
         ready_pay = self.__ready_pay()
-
-        # 如果安心付，服务器错误，直接返回上层数据
-        if not ready_pay[0]:
-            return ready_pay
-
-        set_wechat_pay = self.__set_wechat_pay(ready_pay[1], ready_pay[2])
-
-        if set_wechat_pay[0]:
-            return set_wechat_pay
-
-        return False, '与安心付服务器连接超时，请稍后再试'
+        return self.__set_wechat_pay(ready_pay[0], ready_pay[1])
