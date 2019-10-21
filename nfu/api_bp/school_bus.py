@@ -1,7 +1,10 @@
 from flask import Blueprint, g, jsonify, render_template, request
 
+from nfu.NFUError import NFUError
 from nfu.common import check_access_token, check_power_school_bus
 from nfu.expand.school_bus import get_bus_schedule, get_passenger_data, get_ticket_data, get_ticket_ids, return_ticket
+from nfu.expand.token import validate_token
+from nfu.models import User
 
 school_bus_bp = Blueprint('school_bus', __name__)
 
@@ -25,7 +28,7 @@ def get_schedule():
     return jsonify({'adopt': True, 'message': schedule[1]})
 
 
-@school_bus_bp.route('/passenger/get', methods=['POST'])
+@school_bus_bp.route('/passenger/get')
 @check_access_token
 @check_power_school_bus
 def get_passenger():
@@ -77,15 +80,23 @@ def return_ticket_bp():
 
 
 @school_bus_bp.route('/ticket/get')
-@check_access_token
-@check_power_school_bus
 def get_ticket():
     """
     获取电子车票
     :return:
     """
+
+    try:
+        token_data = validate_token(request.args.get('token'))
+    except NFUError as err:
+        return jsonify({'adopt': False, 'message': err.message}), 403
+
+    if not token_data['school_bus']:
+        return jsonify({'message': '没有访问权限'}), 403
+
+    user = User.query.get(token_data['id'])
     order_id = request.args.get('order_id')
-    ticket_data = get_ticket_data(order_id, g.user.bus_session)
+    ticket_data = get_ticket_data(order_id, user.bus_session)
 
     if not ticket_data[0]:
         return ticket_data[1], 500
