@@ -67,7 +67,7 @@ def get_student_name(student_id: int, password: str) -> str:
     return name
 
 
-def get_class_schedule(token: str, school_year: int, semester: int) -> tuple:
+def get_class_schedule(token: str, school_year: int, semester: int) -> list:
     """
     向教务系统请求课程表数据
 
@@ -89,11 +89,11 @@ def get_class_schedule(token: str, school_year: int, semester: int) -> tuple:
         response = http_session.post(url, data=data, timeout=1)
         course_list = loads(response.text)['msg']
     except (OSError, KeyError, decoder.JSONDecodeError):
-        return False, '教务系统错误，请稍后再试'
+        raise NFUError('教务系统错误，请稍后再试')
 
     # 判断获取的数据是否是列表，如果不是列表，可能教务系统又炸了
     if not isinstance(course_list, list):
-        return False, '教务系统错误，请稍后再试'
+        raise NFUError('教务系统错误，请稍后再试')
 
     for course in course_list:  # 循环所有课程
         for merge in course['kbMergeList']:  # 课程可能有不同上课时间，循环取出
@@ -114,7 +114,7 @@ def get_class_schedule(token: str, school_year: int, semester: int) -> tuple:
                 'end_week': merge['jsz']
             })
 
-    return True, course_data
+    return course_data
 
 
 def get_achievement_list(token: str, school_year: int, semester) -> tuple:

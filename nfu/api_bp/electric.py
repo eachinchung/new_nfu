@@ -110,16 +110,15 @@ def pay_order():
     跳转支付页面
     :return:
     """
-    token = request.args.get('token')
-
-    # 验证 token 是否通过
-    try:
-        validate_token(token)
-    except NFUError as err:
-        return jsonify({'adopt': False, 'message': err.message}), 403
 
     json_data = request.args.get('json')
     signature = request.args.get('signature')
+
+    try:
+        validate_token(request.args.get('token'))
+    except NFUError as err:
+        return jsonify({'adopt': False, 'message': err.message}), 403
+
     electric_cookies = request.args.get('electric_cookies')
     url = "http://nfu.zhihuianxin.net/school_paycgi_wxpay/paycgi_upw?json=" + json_data + "&signature=" + signature
     response = make_response(redirect(url))

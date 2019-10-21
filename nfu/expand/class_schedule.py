@@ -3,7 +3,7 @@ from nfu.models import ClassSchedule
 from nfu.expand.nfu import get_class_schedule, get_jw_token
 
 
-def db_init(user_id: int, school_year: int, semester: int) -> tuple:
+def db_init(user_id: int, school_year: int, semester: int):
     """
     数据库没有课表数据时，调用此函数写入数据
     :param user_id:
@@ -12,20 +12,14 @@ def db_init(user_id: int, school_year: int, semester: int) -> tuple:
     :return:
     """
 
-    try:
-        token = get_jw_token(user_id)
-    except LookupError as err:
-        raise LookupError(str(err))
+    token = get_jw_token(user_id)
 
     class_schedule_api = get_class_schedule(token, school_year, semester)
 
-    if not class_schedule_api[0]:
-        return False, class_schedule_api[1]
-
-    return True, __db_input(user_id, class_schedule_api[1], school_year, semester)
+    return __db_input(user_id, class_schedule_api, school_year, semester)
 
 
-def db_update(user_id: int, school_year: int, semester: int) -> tuple:
+def db_update(user_id: int, school_year: int, semester: int):
     """
     更新数据库中的课表数据
     :param user_id:
@@ -34,15 +28,10 @@ def db_update(user_id: int, school_year: int, semester: int) -> tuple:
     :return:
     """
 
-    try:
-        token = get_jw_token(user_id)
-    except LookupError as err:
-        raise LookupError(str(err))
+    token = get_jw_token(user_id)
 
     # 先尝试连接教务系统，看是否能获取课程数据
     class_schedule_api = get_class_schedule(token, school_year, semester)
-    if not class_schedule_api[0]:
-        return False, class_schedule_api[1]
 
     class_schedule_db = ClassSchedule.query.filter_by(
         user_id=user_id,
@@ -54,7 +43,7 @@ def db_update(user_id: int, school_year: int, semester: int) -> tuple:
         db.session.delete(course)
 
     db.session.commit()
-    return True, __db_input(user_id, class_schedule_api[1], school_year, semester)
+    return __db_input(user_id, class_schedule_api, school_year, semester)
 
 
 def __db_input(user_id, class_schedule_list: list, school_year: int, semester: int):
