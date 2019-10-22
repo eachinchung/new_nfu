@@ -3,8 +3,10 @@ from re import S, findall, search
 
 from requests import session
 
+from nfu.NFUError import NFUError
 
-def get_bus_schedule(route_id: int, date: list, bus_session: str) -> tuple:
+
+def get_bus_schedule(route_id: int, date: list, bus_session: str) -> dict:
     """
     若日期在车票预售期内，获取班车时刻表。
 
@@ -37,12 +39,12 @@ def get_bus_schedule(route_id: int, date: list, bus_session: str) -> tuple:
         response = http_session.get(url, params=params, headers=headers)
         data = loads(search(r'var msg = .+', response.text).group()[10:-1])
     except (OSError, AttributeError, decoder.JSONDecodeError):
-        return False, '学校车票系统错误，请稍后再试'
+        raise NFUError('学校车票系统错误，请稍后再试')
     else:
-        return True, data
+        return data
 
 
-def get_passenger_data(bus_session: str) -> tuple:
+def get_passenger_data(bus_session: str) -> list:
     """
     获取乘车人数据
     同样，数据都会在页面直接返回。
@@ -57,17 +59,22 @@ def get_passenger_data(bus_session: str) -> tuple:
         response = http_session.get(url, headers=headers)
         passenger = loads(search(r'var passenger = .+', response.text).group()[16:-1])
     except (OSError, AttributeError, decoder.JSONDecodeError):
-        return False, '学校车票系统错误，请稍后再试'
+        raise NFUError('学校车票系统错误，请稍后再试')
     else:
-        return True, passenger
+        return passenger
 
 
-def create_order(passenger_ids: str, connect_id: int, schedule_id: int, date: str, take_station: str, bus_session: str):
+def create_order(passenger_ids: str, connect_id: int, schedule_id: int, date: str, take_station: str,
+                 bus_session: str) -> dict:
     """
     创建车票订单
 
     若返回成功，我们就成功抢到票票了。此时前往支付宝就可以看到票。
     当然，我们同时返回了订单数据，此数据可以直接唤醒支付宝的支付功能。
+
+    支付成功，校巴系统返回实例：
+    {"code": "10000", "msg": "Success", "out_trade_no": "1155720191002201122528248",
+    "trade_no": "2019100222001417680577082241", "order_id": "527469"}
 
     支付宝H5开发文档，支付篇：
     https://myjsapi.alipay.com/alipayjsapi/util/pay/tradepay.html
@@ -106,22 +113,19 @@ def create_order(passenger_ids: str, connect_id: int, schedule_id: int, date: st
         response = http_session.post(url, data=data, headers=headers)
         response = loads(response.text)
     except (OSError, decoder.JSONDecodeError):
-        return False, '学校车票系统错误，请稍后再试'
+        raise NFUError('学校车票系统错误，请稍后再试')
 
-    if not response['code'] == '1000':
-        return False, response['desc']
+    if not response['code'] == '10000':
+        raise NFUError(response['desc'], code=response['code'])
 
-    # 支付成功，校巴返回实例：
-    # {"code": "10000", "msg": "Success", "out_trade_no": "1155720191002201122528248",
-    # "trade_no": "2019100222001417680577082241", "order_id": "527469"}
-    return True, {
+    return {
         'trade_no': response['trade_no'],
         'out_trade_no': response['out_trade_no'],
         'order_id': response['order_id']
     }
 
 
-def get_ticket_data(order_id: int, bus_session: str):
+def get_ticket_data(order_id: int, bus_session: str) -> tuple:
     """
     获取电子票的数据
 
@@ -159,7 +163,7 @@ def get_ticket_data(order_id: int, bus_session: str):
         javascript = search(r'<script>.+</script>', response.text, S).group()
 
     except (OSError, AttributeError):
-        return False, '学校车票系统错误，请稍后再试'
+        raise NFUError('学校车票系统错误，请稍后再试')
 
     ticket_ids = findall(r'<p class="erwei_num">电子票号：.+', response.text)
     passengers = findall(r'<p class="erwei_num erwei_c"..style="text-align: center;text-indent:0.2.+', response.text)
@@ -174,10 +178,10 @@ def get_ticket_data(order_id: int, bus_session: str):
             'seat': seats[i][:-1]
         })
 
-    return True, bus_data, ticket, javascript
+    return bus_data, ticket, javascript
 
 
-def get_ticket_ids(order_id: int, bus_session: str):
+def get_ticket_ids(order_id: int, bus_session: str) -> list:
     """
     因为一个订单里面可能有多张车票，所以我们爬取一下车票号
 
@@ -193,7 +197,7 @@ def get_ticket_ids(order_id: int, bus_session: str):
     try:
         response = http_session.get(url, params={'order_id': order_id}, headers=headers)
     except OSError:
-        return False, '学校车票系统错误，请稍后再试'
+        raise NFUError('学校车票系统错误，请稍后再试')
 
     ticket_list = []
     ticket_data = findall(r'<span class="title_name title_w">.+\n.+\n.+\n.+\n.+', response.text)
@@ -203,7 +207,7 @@ def get_ticket_ids(order_id: int, bus_session: str):
         try:
             name = search(r'w">.+<s', ticket).group()[3:-9]
         except AttributeError:
-            return False, '学校车票系统错误，请稍后再试'
+            raise NFUError('学校车票系统错误，请稍后再试')
 
         try:
             ticket_id = search(r', \d+', ticket).group()[2:]
@@ -219,10 +223,10 @@ def get_ticket_ids(order_id: int, bus_session: str):
                 'ticket_id': ticket_id
             })
 
-    return True, ticket_list
+    return ticket_list
 
 
-def return_ticket(order_id: int, ticket_id: int, bus_session: str):
+def return_ticket(order_id: int, ticket_id: int, bus_session: str) -> str:
     """
     退票
 
@@ -245,6 +249,6 @@ def return_ticket(order_id: int, ticket_id: int, bus_session: str):
         response = http_session.post(url, data=data, headers=headers)
         response = loads(response.text)
     except (OSError, decoder.JSONDecodeError):
-        return False, '学校车票系统错误，请稍后再试'
-    else:
-        return True, response['desc']
+        raise NFUError('学校车票系统错误，请稍后再试')
+
+    return response['desc']
