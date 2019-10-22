@@ -23,10 +23,10 @@ def get_token_bp():
     # 首先验证账号是否存在
     user = User.query.get(user_id)
     if user is None:
-        return jsonify({'adopt': False, 'message': '账号不存在。'}), 500
+        return jsonify({'adopt': False, 'code': 1002, 'message': '账号不存在。'}), 500
 
     if not user.validate_password(password):
-        return jsonify({'adopt': False, 'message': '密码错误'}), 500
+        return jsonify({'adopt': False, 'code': 1003, 'message': '密码错误'}), 500
 
     # 验证账号是否激活，若账号未激活，往后操作无意义
     user_power = Power.query.get(user_id)
@@ -38,6 +38,7 @@ def get_token_bp():
         }
         return jsonify({
             'adopt': False,
+            'code': 1001,
             'message': '账号暂未激活。',
             'refresh_email_token': generate_token(data, token_type='REFRESH_EMAIL_TOKEN')
         })

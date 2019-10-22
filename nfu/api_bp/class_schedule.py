@@ -36,8 +36,8 @@ def get(school_year, semester):
         class_schedule = db_init(g.user.id, school_year, semester)
     except NFUError as err:
         return jsonify({'adopt': False, 'message': err.message}), 500
-    else:
-        return jsonify({'adopt': True, 'message': class_schedule})
+
+    return jsonify({'adopt': True, 'message': class_schedule})
 
 
 @class_schedule_bp.route('/update')
@@ -55,5 +55,5 @@ def update(school_year, semester):
         class_schedule_update = db_update(g.user.id, school_year, semester)
     except NFUError as err:
         return jsonify({'adopt': False, 'message': err.message}), 500
-    else:
-        return jsonify({'adopt': True, 'message': class_schedule_update})
+
+    return jsonify({'adopt': True, 'message': class_schedule_update})

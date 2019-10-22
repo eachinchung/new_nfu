@@ -117,7 +117,7 @@ def get_class_schedule(token: str, school_year: int, semester: int) -> list:
     return course_data
 
 
-def get_achievement_list(token: str, school_year: int, semester) -> tuple:
+def get_achievement_list(token: str, school_year: int, semester) -> dict:
     """
     获取成绩单
     :param token:
@@ -145,26 +145,26 @@ def get_achievement_list(token: str, school_year: int, semester) -> tuple:
     try:
         response = http_session.post(url, data=data, timeout=1)
     except OSError:
-        return False, '教务系统错误，请稍后再试'
+        raise NFUError('教务系统错误，请稍后再试')
 
     try:
         course = loads(response.text)['msg']
     except (KeyError, decoder.JSONDecodeError):
-        return False, '教务系统错误，请稍后再试'
+        raise NFUError('教务系统错误，请稍后再试')
 
     try:
         course = course['list']
     except KeyError:
-        return False, course
+        raise NFUError(course)
 
     if not course:
-        return False, '学校教务系统返回数据为空'
+        raise NFUError('学校教务系统返回数据为空')
 
     course_list['achievement_list'] = course
-    return True, course_list
+    return course_list
 
 
-def get_total_achievement_point(token: str) -> tuple:
+def get_total_achievement_point(token: str) -> dict:
     """
     获取学分、成绩的总体情况
     :param token:
@@ -180,10 +180,10 @@ def get_total_achievement_point(token: str) -> tuple:
         actual_id = loads(response.text)['msg']['actualId']
 
     except (OSError, KeyError, decoder.JSONDecodeError):
-        return False, '教务系统错误，请稍后再试'
+        raise NFUError('教务系统错误，请稍后再试')
 
     if not actual_id:
-        return False, '没有获取到该学生的真实id'
+        raise NFUError('没有获取到该学生的真实id')
 
     url = 'http://ecampus.nfu.edu.cn:2929/jw-amsi/AmsJxbXsZgcj/listXs'
     data = {
@@ -197,12 +197,12 @@ def get_total_achievement_point(token: str) -> tuple:
         response = http_session.post(url, data=data)
         data = loads(response.text)['msg']['list'][0]
     except (OSError, KeyError, decoder.JSONDecodeError):
-        return False, '教务系统错误，请稍后再试'
+        raise NFUError('教务系统错误，请稍后再试')
 
     if not data:
-        return False, '没有获取到数据，请稍后再试'
+        raise NFUError('没有获取到数据，请稍后再试')
 
-    return True, {
+    return {
         'selected_credit': data['yxxf'],
         'get_credit': data['yhdxf'],
         'average_achievement': data['avg'],

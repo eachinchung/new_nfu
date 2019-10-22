@@ -19,7 +19,7 @@ def db_get(achievement_db, user_id: int, school_year_now: int, semester_now: int
     return achievement
 
 
-def db_init(user_id: int, school_year_now: int, semester_now: int):
+def db_init(user_id: int, school_year_now: int, semester_now: int) -> dict:
     """
     从教务系统获取成绩单，并写入数据库
     :param user_id:
@@ -28,23 +28,21 @@ def db_init(user_id: int, school_year_now: int, semester_now: int):
     :return:
     """
     data = __get(user_id, school_year_now, semester_now)
-    if not data[0]:
-        return False, data[1]
 
     # 接下来把数据写入数据库
-    for year in data[1]:
-        for semester in data[1][year]:
+    for year in data:
+        for semester in data[year]:
             __db_input(
                 user_id,
-                data[1][year][semester],
+                data[year][semester],
                 year,
                 semester
             )
 
-    return True, data[1]
+    return data
 
 
-def db_update(user_id: int, school_year_now: int, semester_now: int):
+def db_update(user_id: int, school_year_now: int, semester_now: int) -> dict:
     """
     更新成绩单
     :param user_id:
@@ -53,8 +51,6 @@ def db_update(user_id: int, school_year_now: int, semester_now: int):
     :return:
     """
     data = __get(user_id, school_year_now, semester_now)
-    if not data[0]:
-        return False, data[1]
 
     # 从数据库删除已有的记录
     achievement_db = Achievement.query.filter_by(user_id=user_id).all()
@@ -65,19 +61,19 @@ def db_update(user_id: int, school_year_now: int, semester_now: int):
     db.session.commit()
 
     # 接下来把数据写入数据库
-    for year in data[1]:
-        for semester in data[1][year]:
+    for year in data:
+        for semester in data[year]:
             __db_input(
                 user_id,
-                data[1][year][semester],
+                data[year][semester],
                 year,
                 semester
             )
 
-    return True, data[1]
+    return data
 
 
-def __get(user_id: int, school_year_now: int, semester_now: int):
+def __get(user_id: int, school_year_now: int, semester_now: int) -> dict:
     """
     向教务系统请求数据，
     :param user_id:
@@ -85,10 +81,8 @@ def __get(user_id: int, school_year_now: int, semester_now: int):
     :param semester_now:
     :return:
     """
-    try:
-        token = get_jw_token(user_id)
-    except LookupError as err:
-        raise LookupError(str(err))
+
+    token = get_jw_token(user_id)
 
     school_year_list = __get_school_year_list(user_id, school_year_now, semester_now)
 
@@ -96,16 +90,13 @@ def __get(user_id: int, school_year_now: int, semester_now: int):
         for semester in school_year_list[school_year]:
             # 向教务系统请求数据
             achievement_list = get_achievement_list(token, school_year, semester)
-            if not achievement_list[0]:
-                return False, achievement_list[1]
-
             # 此数据，为接口返回的数据
-            school_year_list[school_year][semester] = __data_processing(achievement_list[1]['achievement_list'])
+            school_year_list[school_year][semester] = __data_processing(achievement_list['achievement_list'])
 
-    return True, school_year_list
+    return school_year_list
 
 
-def __get_school_year_list(user_id: int, school_year_now: int, semester_now: int):
+def __get_school_year_list(user_id: int, school_year_now: int, semester_now: int) -> dict:
     """
     获取当前所有有成绩的学年
     :param user_id:
@@ -126,7 +117,7 @@ def __get_school_year_list(user_id: int, school_year_now: int, semester_now: int
     return school_year_list
 
 
-def __db_input(user_id: int, achievement_list: list, school_year: int, semester: int):
+def __db_input(user_id: int, achievement_list: list, school_year: int, semester: int) -> None:
     """
     往数据库写入数据
     :param user_id:
@@ -166,7 +157,7 @@ def __db_input(user_id: int, achievement_list: list, school_year: int, semester:
     db.session.commit()
 
 
-def __data_processing(achievement_list: list):
+def __data_processing(achievement_list: list) -> list:
     """
     处理爬取下来的数据
     :param achievement_list:
