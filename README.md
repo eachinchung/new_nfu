@@ -125,3 +125,7 @@ API_URL=http://127.0.0.1:5000
 查看总成绩信息 `achievement/total/get`
 
 更新总成绩信息 `achievement/total/update`
+
+## 开源协议
+
+本项目基于 [MIT](https://zh.wikipedia.org/wiki/MIT%E8%A8%B1%E5%8F%AF%E8%AD%89) 协议，请自由地享受和参与开源。
