@@ -51,6 +51,10 @@ def get_passenger():
 @check_access_token
 @check_power_school_bus
 def create_order_bp():
+    """
+    买票
+    :return:
+    """
     passenger_ids = request.form.get('passenger_ids')
     connect_id = request.form.get('connect_id')
     schedule_id = request.form.get('schedule_id')
