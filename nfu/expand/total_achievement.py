@@ -4,10 +4,21 @@ from nfu.extensions import db
 
 
 def db_init_total(user_id: int) -> dict:
-    return __get(user_id)
+    """
+    向教务系统请求数据并写入数据库
+    :param user_id:
+    :return:
+    """
+    data = __get(user_id)
+    return __db_input(user_id, data)
 
 
 def db_update_total(user_id: int) -> dict:
+    """
+    更新数据库的数据
+    :param user_id:
+    :return:
+    """
     # 向教务系统请求数据
     data = __get(user_id)
 
@@ -19,10 +30,21 @@ def db_update_total(user_id: int) -> dict:
 
 
 def __get(user_id: int) -> dict:
+    """
+    向教务系统请求数据
+    :param user_id:
+    :return:
+    """
     return get_total_achievement_point(get_jw_token(user_id))
 
 
 def __db_input(user_id: int, total_achievement) -> dict:
+    """
+    把数据写入数据库
+    :param user_id:
+    :param total_achievement:
+    :return:
+    """
     db.session.add(
         TotalAchievements(
             id=user_id,
