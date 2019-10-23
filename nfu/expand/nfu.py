@@ -50,19 +50,18 @@ def get_student_name(student_id: int, password: str) -> str:
     """
 
     token = get_jw_token(student_id, password)
-
     url = 'http://ecampus.nfu.edu.cn:2929/jw-privilegei/User/r-getMyself'
-    data = {'jwloginToken': token[1]}
+    data = {'jwloginToken': token}
     http_session = session()
 
     try:
         response = http_session.post(url, data=data, timeout=1)
         name = loads(response.text)['msg']['name']
     except (OSError, KeyError):
-        raise LookupError('教务系统错误，请稍后再试')
+        raise NFUError('教务系统错误，请稍后再试')
 
     if not name:
-        raise LookupError('没有获取到数据，请稍后再试')
+        raise NFUError('没有获取到数据，请稍后再试')
 
     return name
 

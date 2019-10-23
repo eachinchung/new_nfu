@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify
 
+from nfu.NFUError import NFUError
 from nfu.extensions import db
 from nfu.models import Power
 from nfu.expand.token import validate_token
@@ -15,17 +16,16 @@ def email(token: str):
     :param token: 激活邮箱的token
     :return: json
     """
-    validate = validate_token(token, 'EMAIL_TOKEN')
-
-    # 验证 token 是否通过
-    if not validate[0]:
-        return jsonify({'adopt': False, 'message': validate[1]}), 403
+    try:
+        validate = validate_token(token, 'EMAIL_TOKEN')
+    except NFUError as err:
+        return jsonify({'adopt': False, 'message': err.message})
 
     # 获取用户权限表
     # 验证邮箱是否激活
-    user_power = Power.query.get(validate[1]['id'])
+    user_power = Power.query.get(validate['id'])
     if user_power.validate_email:
-        return jsonify({'adopt': False, 'message': '该账号已激活'}), 500
+        return jsonify({'adopt': False, 'message': '该账号已激活'})
 
     user_power.validate_email = True
     db.session.add(user_power)
