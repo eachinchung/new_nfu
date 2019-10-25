@@ -58,13 +58,13 @@ def get_token_bp():
     })
 
 
-@oauth_bp.route('/token/refresh', methods=['POST'])
+@oauth_bp.route('/token/refresh')
 def refresh_token():
     """
     刷新令牌
     :return: json
     """
-    token = request.form.get('refresh_token')
+    token = get_token()
 
     # 验证 token 是否通过
     try:
@@ -72,8 +72,8 @@ def refresh_token():
     except ValueError as err:
         return jsonify({'adopt': False, 'message': str(err)})
 
-    user = User.query.get(validate['user_id'])
-    user_power = Power.query.get(validate['user_id'])
+    user = User.query.get(validate['id'])
+    user_power = Power.query.get(validate['id'])
 
     if user is None:
         return jsonify({'adopt': False, 'message': '账号不存在'})
