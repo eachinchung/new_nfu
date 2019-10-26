@@ -45,7 +45,7 @@ def check_access_token(func):
         try:
             validate = validate_token(token)
         except NFUError as err:
-            return jsonify({'adopt': False, 'message': err.message}), 403
+            return jsonify({'adopt': False, 'message': err.message, 'code': err.code})
 
         g.user = User.query.get(validate['id'])
         g.user_power = validate
@@ -66,7 +66,7 @@ def check_power_school_bus(func):
     @wraps(func)
     def wrapper(*args, **kw):
         if not g.user_power['school_bus']:
-            return jsonify({'message': '没有访问权限'}), 403
+            return jsonify({'message': '没有访问权限'})
 
         return func(*args, **kw)
 
@@ -82,9 +82,9 @@ def get_token():
     try:
         token_type, token = request.headers['Authorization'].split(None, 1)
     except (KeyError, ValueError):
-        return jsonify({'message': '没有访问权限'}), 403
+        return jsonify({'message': '没有访问权限'})
 
     if token_type is None or token_type.lower() != 'bearer':
-        return jsonify({'message': 'The token type must be bearer.'}), 403
+        return jsonify({'message': '没有访问权限'})
 
     return token

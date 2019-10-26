@@ -29,8 +29,8 @@ def validate_token(token: str, token_type: str = 'ACCESS_TOKEN') -> dict:
     try:
         data = s.loads(token)
     except SignatureExpired:
-        raise NFUError('签名已过期')
+        raise NFUError('签名已过期', code=1001)
     except BadSignature:
-        raise NFUError('签名错误')
+        raise NFUError('签名错误', code=1002)
     else:
         return data
