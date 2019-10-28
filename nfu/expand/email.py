@@ -53,4 +53,5 @@ def send_validate_email(to: str, name: str, user_id: int, token) -> None:
     """
     url = getenv('API_URL') + '/validate/email/' + token
     body = render_template('email/validate_email.txt', name=name, user_id=user_id, url=url)
-    send_email('请验证您的邮箱地址', to, body)
+    html = render_template('email/validate_email.html', name=name, user_id=user_id, url=url)
+    send_email('请验证您的邮箱地址', to, body, html)

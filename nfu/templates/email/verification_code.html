@@ -17,13 +17,12 @@
     <br style="line-height: 5px">
     <div style="padding: 0 10px 0 10px">
         <h3>你好，{{ name }}。</h3>
-        <p>感谢您注册南苑聚合平台。</p>
-        <p>您的账号为：{{ user_id }}</p>
-        <br style="line-height: 5px">
-        <p>请点击以下链接激活账号：</p>
-        <p><a href="{{ url }}">{{ url }}</a></p>
-        <br style="line-height: 5px">
-        <p>如果以上链接无法点击，请将上面的地址复制到你的浏览器的地址栏进入南苑聚合平台。 （该链接1小时内有效）</p>
+        <p>您正在进行邮箱验证，本次请求的验证码为：</p>
+        <br>
+        <b style="color: #05A3EB;font-size: 22px">{{ code }}</b>
+        <br>
+        <br>
+        <p>(为了保障您帐号的安全性，请在5分钟内完成验证。)</p>
     </div>
     <br><br>
     <p align="center" style="font-size: 15px;line-height: 5px;color: #727272">
