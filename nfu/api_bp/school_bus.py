@@ -25,7 +25,7 @@ def get_schedule():
         route_id = int(data['route_id'])
         date = data['date']
     except (TypeError, ValueError):
-        return jsonify({'adopt': False, 'message': '服务器内部错误'}), 500
+        return jsonify({'adopt': False, 'message': '服务器内部错误'})
 
     try:
         schedule = school_bus.get_bus_schedule(route_id, date, g.user.bus_session)
@@ -47,7 +47,7 @@ def get_passenger():
     try:
         passenger = school_bus.get_passenger_data(g.user.bus_session)
     except NFUError as err:
-        return jsonify({'adopt': False, 'message': err.message}), 500
+        return jsonify({'adopt': False, 'message': err.message})
 
     return jsonify({'adopt': True, 'message': passenger})
 
@@ -69,12 +69,12 @@ def create_order_bp():
         take_station = data['take_station']
         bus_session = g.user.bus_session
     except ValueError:
-        return jsonify({'adopt': False, 'message': '服务器内部错误'}), 500
+        return jsonify({'adopt': False, 'message': '服务器内部错误'})
 
     try:
         order = school_bus.create_order(passenger_ids, connect_id, schedule_id, date, take_station, bus_session)
     except NFUError as err:
-        return jsonify({'adopt': False, 'message': err.message, 'code': err.code}), 500
+        return jsonify({'adopt': False, 'message': err.message, 'code': err.code})
 
     return jsonify({'adopt': True, 'message': order})
 
@@ -87,11 +87,16 @@ def get_ticket_ids_bp():
     获取车票的id，用于退票
     :return:
     """
+    try:
+        data = loads(request.get_data().decode("utf-8"))
+        order_id = data['order_id']
+    except ValueError:
+        return jsonify({'adopt': False, 'message': '服务器内部错误'})
 
     try:
-        ticket_ids = school_bus.get_ticket_ids(request.form.get('order_id'), g.user.bus_session)
+        ticket_ids = school_bus.get_ticket_ids(order_id, g.user.bus_session)
     except NFUError as err:
-        return jsonify({'adopt': False, 'message': err.message}), 500
+        return jsonify({'adopt': False, 'message': err.message})
     return jsonify({'adopt': True, 'message': ticket_ids})
 
 
@@ -103,13 +108,18 @@ def return_ticket_bp():
     退票
     :return:
     """
-    order_id = request.form.get('order_id')
-    ticket_id = request.form.get('ticket_id')
+
+    try:
+        data = loads(request.get_data().decode("utf-8"))
+        order_id = data['order_id']
+        ticket_id = data['ticket_id']
+    except ValueError:
+        return jsonify({'adopt': False, 'message': '服务器内部错误'})
 
     try:
         post = school_bus.return_ticket(order_id, ticket_id, g.user.bus_session)
     except NFUError as err:
-        return jsonify({'adopt': False, 'message': err.message}), 500
+        return jsonify({'adopt': False, 'message': err.message})
 
     return jsonify({'adopt': True, 'message': post})
 
@@ -124,10 +134,10 @@ def get_ticket():
     try:
         token_data = validate_token(request.args.get('token'))
     except NFUError as err:
-        return jsonify({'adopt': False, 'message': err.message}), 403
+        return jsonify({'adopt': False, 'message': err.message})
 
     if not token_data['school_bus']:
-        return jsonify({'message': '没有访问权限'}), 403
+        return jsonify({'message': '没有访问权限'})
 
     user = User.query.get(token_data['id'])
     order_id = request.args.get('order_id')
@@ -135,7 +145,7 @@ def get_ticket():
     try:
         ticket_data = school_bus.get_ticket_data(order_id, user.bus_session)
     except NFUError as err:
-        return jsonify({'adopt': False, 'message': err.message}), 500
+        return jsonify({'adopt': False, 'message': err.message})
 
     return render_template(
         'html/bus_ticket.html',
@@ -154,11 +164,9 @@ def alipay():
     try:
         token_data = validate_token(request.args.get('token'))
     except NFUError as err:
-        return jsonify({'adopt': False, 'message': err.message}), 403
+        return jsonify({'adopt': False, 'message': err.message})
 
     if not token_data['school_bus']:
-        return jsonify({'message': '没有访问权限'}), 403
+        return jsonify({'message': '没有访问权限'})
 
-    trade_no = request.args.get('trade_no')
-
-    return render_template('html/alipay.html', trade_no=trade_no)
+    return render_template('html/alipay.html', trade_no=request.args.get('trade_no'))
