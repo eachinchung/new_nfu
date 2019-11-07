@@ -4,18 +4,14 @@ url = "https://mirrors.aliyun.com/pypi/simple"
 verify_ssl = true
 
 [packages]
-cryptography = "*"
 flask = "*"
 flask-cors = "*"
 flask-mail = "*"
 flask-sqlalchemy = "*"
-pymysql = "*"
 python-dotenv = "*"
 requests = "*"
+mysql-connector-python = "*"
 
 [dev-packages]
 flake8 = "*"
 autopep8 = "*"
-
-[requires]
-python_version = "3.7"
