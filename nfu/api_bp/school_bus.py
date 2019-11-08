@@ -1,4 +1,4 @@
-from json import loads
+from json import loads, dumps
 
 from flask import Blueprint, g, jsonify, render_template, request
 
@@ -63,7 +63,8 @@ def create_order_bp():
     try:
         data = loads(request.get_data().decode("utf-8"))
         passenger_ids = data['passenger_ids']
-        connect_id = data['connect_id']
+        connect_id = data['passenger_ids'][0]
+        passenger_ids = dumps(passenger_ids)[1:-1]
         schedule_id = data['schedule_id']
         date = data['date']
         take_station = data['take_station']
