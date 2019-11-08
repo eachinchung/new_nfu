@@ -1,6 +1,7 @@
 from json import loads, dumps
+from os import getenv
 
-from flask import Blueprint, g, jsonify, render_template, request
+from flask import Blueprint, g, jsonify, render_template, request, send_file
 
 from nfu.NFUError import NFUError
 from nfu.common import check_access_token, check_power_school_bus
@@ -165,9 +166,21 @@ def alipay():
     try:
         token_data = validate_token(request.args.get('token'))
     except NFUError as err:
-        return jsonify({'adopt': False, 'message': err.message})
+        return render_template('html/alipay_err.html', err=err.message)
 
     if not token_data['school_bus']:
         return jsonify({'message': '没有访问权限'})
 
     return render_template('html/alipay.html', trade_no=request.args.get('trade_no'))
+
+
+@school_bus_bp.route('/alipay/qrcode')
+def alipay_qrcode():
+    """
+    二维码生成
+    :return:
+    """
+    url = 'alipays://platformapi/startapp?appId=20000067&url=' + getenv(
+        'API_URL') + '/school_bus/alipay?token=' + request.args.get(
+        'token') + '&trade_no=' + request.args.get('trade_no')
+    return send_file(school_bus.get_qrcode(url=url), mimetype='image/png')

@@ -1,6 +1,8 @@
+from io import BytesIO
 from json import decoder, loads
 from re import S, findall, search
 
+import qrcode
 from requests import session
 
 from nfu.NFUError import NFUError
@@ -252,3 +254,25 @@ def return_ticket(order_id: int, ticket_id: int, bus_session: str) -> str:
         raise NFUError('学校车票系统错误，请稍后再试')
 
     return response['desc']
+
+
+def get_qrcode(url):
+    """
+    根据传入的url 生成 二维码对象
+    :param url:
+    :return:
+    """
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10,
+        border=4
+    )
+
+    qr.add_data(url)
+    qr.make(fit=True)
+    img = qr.make_image()
+    byte_io = BytesIO()
+    img.save(byte_io, 'PNG')
+    byte_io.seek(0)
+    return byte_io

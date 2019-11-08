@@ -11,6 +11,8 @@ flask-sqlalchemy = "*"
 python-dotenv = "*"
 requests = "*"
 mysql-connector-python = "*"
+qrcode = "*"
+pillow = "*"
 
 [dev-packages]
 flake8 = "*"
