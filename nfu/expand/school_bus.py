@@ -1,6 +1,8 @@
 from io import BytesIO
 from json import decoder, loads
+from os import getenv
 from re import S, findall, search
+from urllib.parse import quote
 
 import qrcode
 from requests import session
@@ -256,7 +258,7 @@ def return_ticket(order_id: int, ticket_id: int, bus_session: str) -> str:
     return response['desc']
 
 
-def get_qrcode(url):
+def get_qrcode(url: str) -> BytesIO:
     """
     根据传入的url 生成 二维码对象
     :param url:
@@ -276,3 +278,13 @@ def get_qrcode(url):
     img.save(byte_io, 'PNG')
     byte_io.seek(0)
     return byte_io
+
+
+def get_alipays_url(trade_no: int):
+    """
+    返回唤醒alipay的url
+    :param trade_no:
+    :return:
+    """
+    url = getenv('API_URL') + '/school_bus/alipay?trade_no=' + trade_no
+    return 'alipays://platformapi/startapp?appId=20000067&url=' + quote(url, 'utf-8')

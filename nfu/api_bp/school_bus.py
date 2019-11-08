@@ -78,7 +78,12 @@ def create_order_bp():
     except NFUError as err:
         return jsonify({'adopt': False, 'message': err.message, 'code': err.code})
 
-    return jsonify({'adopt': True, 'message': order})
+    return jsonify({
+        'adopt': True,
+        'message': order,
+        'alipays_url': school_bus.get_alipays_url(order['trade_no']),
+        'alipays_qr_url': getenv('API_URL') + '/school_bus/alipay/qrcode?trade_no=' + order['trade_no']
+    })
 
 
 @school_bus_bp.route('/ticket_id/get', methods=['POST'])
@@ -163,14 +168,6 @@ def alipay():
     调起支付宝支付
     :return:
     """
-    try:
-        token_data = validate_token(request.args.get('token'))
-    except NFUError as err:
-        return render_template('html/alipay_err.html', err=err.message)
-
-    if not token_data['school_bus']:
-        return jsonify({'message': '没有访问权限'})
-
     return render_template('html/alipay.html', trade_no=request.args.get('trade_no'))
 
 
@@ -180,7 +177,5 @@ def alipay_qrcode():
     二维码生成
     :return:
     """
-    url = 'alipays://platformapi/startapp?appId=20000067&url=' + getenv(
-        'API_URL') + '/school_bus/alipay?token=' + request.args.get(
-        'token') + '&trade_no=' + request.args.get('trade_no')
-    return send_file(school_bus.get_qrcode(url=url), mimetype='image/png')
+    alipays_url = school_bus.get_alipays_url(request.args.get('trade_no'))
+    return send_file(school_bus.get_qrcode(url=alipays_url), mimetype='image/png')
