@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify
 
 from nfu.NFUError import NFUError
+from nfu.common import get_token
 from nfu.extensions import db
 from nfu.models import Power
 from nfu.expand.token import validate_token
@@ -8,16 +9,15 @@ from nfu.expand.token import validate_token
 validate_bp = Blueprint('validate', __name__)
 
 
-@validate_bp.route('/email/<string:token>')
-def email(token: str):
+@validate_bp.route('/email')
+def email():
     """
     验证邮箱合法性，并激活账号
     因为有账号才能拿到token，故不考虑，账号不存在的情况
-    :param token: 激活邮箱的token
     :return: json
     """
     try:
-        validate = validate_token(token, 'EMAIL_TOKEN')
+        validate = validate_token(get_token(), 'EMAIL_TOKEN')
     except NFUError as err:
         return jsonify({'adopt': False, 'message': err.message})
 

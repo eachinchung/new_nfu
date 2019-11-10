@@ -51,7 +51,7 @@ def send_validate_email(to: str, name: str, user_id: int, token) -> None:
     :param token: 激活邮箱的token
     :return:
     """
-    url = getenv('API_URL') + '/validate/email/' + token
+    url = getenv('FRONT_END_URL') + '/activation?token=' + token
     body = render_template('email/validate_email.txt', name=name, user_id=user_id, url=url)
     html = render_template('email/validate_email.html', name=name, user_id=user_id, url=url)
     send_email('请验证您的邮箱地址', to, body, html)

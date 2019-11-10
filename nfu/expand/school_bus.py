@@ -258,6 +258,25 @@ def return_ticket(order_id: int, ticket_id: int, bus_session: str) -> str:
     return response['desc']
 
 
+def get_not_used_order(bus_session: str, order_type: int = 0, page: int = 1):
+    url = 'http://nfuedu.zftcloud.com/campusbus_index/order/refresh.html'
+    http_session = session()
+    headers = {'Cookie': bus_session}
+
+    data = {
+        'type': order_type,
+        'page': page
+    }
+
+    try:
+        response = http_session.post(url, data=data, headers=headers)
+        response = loads(response.text)
+    except (OSError, decoder.JSONDecodeError):
+        raise NFUError('学校车票系统错误，请稍后再试')
+
+    return response
+
+
 def get_qrcode(url: str) -> BytesIO:
     """
     根据传入的url 生成 二维码对象
@@ -286,5 +305,5 @@ def get_alipays_url(trade_no: int):
     :param trade_no:
     :return:
     """
-    url = getenv('API_URL') + '/school_bus/alipay?trade_no=' + trade_no
+    url = getenv('API_URL') + '/school-bus/alipay?trade_no=' + trade_no
     return 'alipays://platformapi/startapp?appId=20000067&url=' + quote(url, 'utf-8')

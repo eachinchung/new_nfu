@@ -6,13 +6,14 @@ from flask import Blueprint, g, jsonify, render_template, request, send_file
 from nfu.NFUError import NFUError
 from nfu.common import check_access_token, check_power_school_bus
 from nfu.expand import school_bus
+from nfu.expand.school_bus import get_not_used_order
 from nfu.expand.token import validate_token
 from nfu.models import User
 
 school_bus_bp = Blueprint('school_bus', __name__)
 
 
-@school_bus_bp.route('/schedule/get', methods=['POST'])
+@school_bus_bp.route('/schedule', methods=['POST'])
 @check_access_token
 @check_power_school_bus
 def get_schedule():
@@ -36,7 +37,7 @@ def get_schedule():
     return jsonify({'adopt': True, 'message': schedule})
 
 
-@school_bus_bp.route('/passenger/get')
+@school_bus_bp.route('/passenger')
 @check_access_token
 @check_power_school_bus
 def get_passenger():
@@ -59,6 +60,16 @@ def get_passenger():
 def create_order_bp():
     """
     买票
+    {
+        "adopt": true,
+        "alipays_qr_url": "http://192.168.1.2:5000/school-bus/alipay/qrcode?trade_no=2019111122001456425713897899",
+        "alipays_url": "alipays://platformapi/startapp?appId=20000067&url=http%3A%2F%2F192.168.1.2%3A5000%2Fschool-bus%2Falipay%3Ftrade_no%3D2019111122001456425713897899",
+        "message": {
+            "order_id": "604453",
+            "out_trade_no": "1155720191111021050884217",
+            "trade_no": "2019111122001456425713897899"
+        }
+    }
     :return:
     """
     try:
@@ -82,11 +93,11 @@ def create_order_bp():
         'adopt': True,
         'message': order,
         'alipays_url': school_bus.get_alipays_url(order['trade_no']),
-        'alipays_qr_url': getenv('API_URL') + '/school_bus/alipay/qrcode?trade_no=' + order['trade_no']
+        'alipays_qr_url': getenv('API_URL') + '/school-bus/alipay/qrcode?trade_no=' + order['trade_no']
     })
 
 
-@school_bus_bp.route('/ticket_id/get', methods=['POST'])
+@school_bus_bp.route('/ticket-id', methods=['POST'])
 @check_access_token
 @check_power_school_bus
 def get_ticket_ids_bp():
@@ -131,7 +142,21 @@ def return_ticket_bp():
     return jsonify({'adopt': True, 'message': post})
 
 
-@school_bus_bp.route('/ticket/get')
+@school_bus_bp.route('/order/not-used')
+@check_access_token
+@check_power_school_bus
+def not_used_order():
+    """
+    获取待乘车的订单
+    :return:
+    """
+    try:
+        return jsonify({'adopt': True, 'message': get_not_used_order(g.user.bus_session)})
+    except NFUError as err:
+        return jsonify({'adopt': False, 'message': err.message})
+
+
+@school_bus_bp.route('/ticket')
 def get_ticket():
     """
     获取电子车票
