@@ -39,11 +39,9 @@ def check_access_token(func):
     @wraps(func)
     def wrapper(*args, **kw):
 
-        token = get_token()
-
         # 验证 token 是否通过
         try:
-            validate = validate_token(token)
+            validate = validate_token(get_token())
         except NFUError as err:
             return jsonify({'adopt': False, 'message': err.message, 'code': err.code})
 
@@ -82,9 +80,9 @@ def get_token():
     try:
         token_type, token = request.headers['Authorization'].split(None, 1)
     except (KeyError, ValueError):
-        return jsonify({'message': '没有访问权限'})
+        raise NFUError('没有访问权限')
 
-    if token_type is None or token_type.lower() != 'bearer':
-        return jsonify({'message': '没有访问权限'})
+    if token == 'null' or token_type.lower() != 'bearer':
+        raise NFUError('没有访问权限')
 
     return token

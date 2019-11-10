@@ -64,11 +64,10 @@ def refresh_token():
     刷新令牌
     :return: json
     """
-    token = get_token()
 
     # 验证 token 是否通过
     try:
-        validate = validate_token(token, 'REFRESH_TOKEN')
+        validate = validate_token(get_token(), 'REFRESH_TOKEN')
     except ValueError as err:
         return jsonify({'adopt': False, 'message': str(err)})
 
@@ -138,9 +137,9 @@ def refresh_validate_email():
     重新发送激活邮件
     :return: json
     """
-    token = get_token()
+
     try:
-        validate = validate_token(token, 'REFRESH_EMAIL_TOKEN')
+        validate = validate_token(get_token(), 'REFRESH_EMAIL_TOKEN')
     except NFUError as err:
         return jsonify({'adopt': False, 'message': err.message})
 
