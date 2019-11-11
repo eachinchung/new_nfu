@@ -12,7 +12,7 @@ from nfu.NFUError import NFUError
 electric_bp = Blueprint('electric', __name__)
 
 
-@electric_bp.route('/get')
+@electric_bp.route('/')
 @check_access_token
 def get():
     """

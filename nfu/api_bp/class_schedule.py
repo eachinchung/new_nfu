@@ -8,7 +8,7 @@ from nfu.models import ClassSchedule
 class_schedule_bp = Blueprint('class_schedule', __name__)
 
 
-@class_schedule_bp.route('/get')
+@class_schedule_bp.route('/')
 @check_access_token
 @get_config
 def get(school_year, semester):

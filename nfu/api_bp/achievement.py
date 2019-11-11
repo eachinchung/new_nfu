@@ -9,7 +9,7 @@ from nfu.expand.total_achievement import db_init_total, db_update_total
 achievement_bp = Blueprint('achievement', __name__)
 
 
-@achievement_bp.route('/get')
+@achievement_bp.route('/')
 @check_access_token
 @get_config
 def get(school_year, semester):
@@ -50,7 +50,7 @@ def update(school_year, semester):
     return jsonify({'adopt': True, 'message': achievement_update})
 
 
-@achievement_bp.route('/total/get')
+@achievement_bp.route('/total')
 @check_access_token
 def get_total():
     """
@@ -70,7 +70,7 @@ def get_total():
     return jsonify({'adopt': True, 'message': total_achievement})
 
 
-@achievement_bp.route('/total/update')
+@achievement_bp.route('/update/total')
 @check_access_token
 def update_total():
     """

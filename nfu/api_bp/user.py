@@ -9,7 +9,7 @@ from nfu.models import Dormitory
 user_bp = Blueprint('user', __name__)
 
 
-@user_bp.route('/get')
+@user_bp.route('/')
 @check_access_token
 def get_user():
     """
@@ -25,7 +25,7 @@ def get_user():
     })
 
 
-@user_bp.route('/dormitory/update', methods=['POST'])
+@user_bp.route('/update/dormitory', methods=['POST'])
 @check_access_token
 def update_dormitory():
     """
