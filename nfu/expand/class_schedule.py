@@ -15,9 +15,7 @@ def db_init(user_id: int, school_year: int, semester: int):
     """
 
     token = get_jw_token(user_id)
-
     class_schedule_api = get_class_schedule(token, school_year, semester)
-
     return __db_input(user_id, class_schedule_api, school_year, semester)
 
 
