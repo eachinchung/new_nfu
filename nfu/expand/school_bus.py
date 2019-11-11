@@ -76,21 +76,8 @@ def create_order(passenger_ids: str, connect_id: int, schedule_id: int, date: st
     若返回成功，我们就成功抢到票票了。此时前往支付宝就可以看到票。
     当然，我们同时返回了订单数据，此数据可以直接唤醒支付宝的支付功能。
 
-    支付成功，校巴系统返回实例：
-    {"code": "10000", "msg": "Success", "out_trade_no": "1155720191002201122528248",
-    "trade_no": "2019100222001417680577082241", "order_id": "527469"}
-
     支付宝H5开发文档，支付篇：
     https://myjsapi.alipay.com/alipayjsapi/util/pay/tradepay.html
-
-    校巴订单详情页：http://nfuedu.zftcloud.com/campusbus_index/order/order_detail/id/订单号.html
-    校巴电子票页面：http://nfuedu.zftcloud.com/campusbus_index/order/ticket.html?order_id=订单号
-
-    校巴获取订单接口：
-        - URL：http://nfuedu.zftcloud.com/campusbus_index/order/refresh.html
-        - body：
-                type: 标签页 0.待乘车 1.待付款 3.全部
-                page: 默认为 1 就好
 
     :param passenger_ids: 乘客id
     :param connect_id: 联系人id
@@ -258,14 +245,20 @@ def return_ticket(order_id: int, ticket_id: int, bus_session: str) -> str:
     return response['desc']
 
 
-def get_not_used_order(bus_session: str, order_type: int = 0, page: int = 1):
+def get_not_used_order(bus_session: str, order_type: int = 0) -> list:
+    """
+    获取待乘车订单
+    :param bus_session:
+    :param order_type: 标签页 0.待乘车 1.待付款 3.全部
+    :return:
+    """
     url = 'http://nfuedu.zftcloud.com/campusbus_index/order/refresh.html'
     http_session = session()
     headers = {'Cookie': bus_session}
 
     data = {
         'type': order_type,
-        'page': page
+        'page': 1
     }
 
     try:
@@ -299,7 +292,7 @@ def get_qrcode(url: str) -> BytesIO:
     return byte_io
 
 
-def get_alipays_url(trade_no: int):
+def get_alipays_url(trade_no: int) -> str:
     """
     返回唤醒alipay的url
     :param trade_no:
