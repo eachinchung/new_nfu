@@ -60,16 +60,6 @@ def get_passenger():
 def create_order_bp():
     """
     买票
-    {
-        "adopt": true,
-        "alipays_qr_url": "http://192.168.1.2:5000/school-bus/alipay/qrcode?trade_no=2019111122001456425713897899",
-        "alipays_url": "alipays://platformapi/startapp?appId=20000067&url=http%3A%2F%2F192.168.1.2%3A5000%2Fschool-bus%2Falipay%3Ftrade_no%3D2019111122001456425713897899",
-        "message": {
-            "order_id": "604453",
-            "out_trade_no": "1155720191111021050884217",
-            "trade_no": "2019111122001456425713897899"
-        }
-    }
     :return:
     """
     try:

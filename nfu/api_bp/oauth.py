@@ -13,7 +13,7 @@ from nfu.NFUError import NFUError
 oauth_bp = Blueprint('oauth', __name__)
 
 
-@oauth_bp.route('/token/get', methods=['POST'])
+@oauth_bp.route('/token', methods=['POST'])
 def get_token_bp():
     """
     登陆接口，获取令牌
@@ -86,7 +86,7 @@ def refresh_token():
     })
 
 
-@oauth_bp.route('/sign_up', methods=['POST'])
+@oauth_bp.route('/sign-up', methods=['POST'])
 def sign_up():
     """
     注册接口
@@ -131,7 +131,7 @@ def sign_up():
     return jsonify({'adopt': True, 'message': 'success'})
 
 
-@oauth_bp.route('/refresh_validate_email')
+@oauth_bp.route('/resend/validate-email')
 def refresh_validate_email():
     """
     重新发送激活邮件
