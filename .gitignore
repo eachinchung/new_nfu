@@ -3,6 +3,7 @@
 .env
 __pycache__
 .vscode
+.DS_Store
 
 # 此为私人cdn加速文件
 bus_ticket_cdn.html

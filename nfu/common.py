@@ -2,9 +2,9 @@ from functools import wraps
 
 from flask import g, jsonify, request
 
-from nfu.NFUError import NFUError
-from nfu.models import User
 from nfu.expand.token import validate_token
+from nfu.models import User
+from nfu.NFUError import NFUError
 
 
 def get_config(func):

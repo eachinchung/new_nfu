@@ -1,9 +1,9 @@
 from flask import Blueprint, g, jsonify
 
-from nfu.NFUError import NFUError
-from nfu.expand.class_schedule import db_init, db_update
 from nfu.common import check_access_token, get_config
+from nfu.expand.class_schedule import db_init, db_update
 from nfu.models import ClassSchedule
+from nfu.NFUError import NFUError
 
 class_schedule_bp = Blueprint('class_schedule', __name__)
 

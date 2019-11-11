@@ -1,8 +1,8 @@
 from json import dumps
 
+from nfu.expand.nfu import get_class_schedule, get_jw_token
 from nfu.extensions import db
 from nfu.models import ClassSchedule
-from nfu.expand.nfu import get_class_schedule, get_jw_token
 
 
 def db_init(user_id: int, school_year: int, semester: int):

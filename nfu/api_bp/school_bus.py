@@ -1,14 +1,14 @@
-from json import loads, dumps
+from json import dumps, loads
 from os import getenv
 
 from flask import Blueprint, g, jsonify, render_template, request, send_file
 
-from nfu.NFUError import NFUError
 from nfu.common import check_access_token, check_power_school_bus
 from nfu.expand import school_bus
 from nfu.expand.school_bus import get_not_used_order
 from nfu.expand.token import validate_token
 from nfu.models import User
+from nfu.NFUError import NFUError
 
 school_bus_bp = Blueprint('school_bus', __name__)
 

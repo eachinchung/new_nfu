@@ -1,6 +1,6 @@
-from nfu.models import TotalAchievements
 from nfu.expand.nfu import get_jw_token, get_total_achievement_point
 from nfu.extensions import db
+from nfu.models import TotalAchievements
 
 
 def db_init_total(user_id: int) -> dict:

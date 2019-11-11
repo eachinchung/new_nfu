@@ -1,9 +1,9 @@
 from json import loads
 
-from flask import Blueprint, jsonify, g, request
+from flask import Blueprint, g, jsonify, request
 
-from nfu.extensions import db
 from nfu.common import check_access_token
+from nfu.extensions import db
 from nfu.models import Dormitory
 
 user_bp = Blueprint('user', __name__)
