@@ -30,11 +30,9 @@ def get_schedule():
         return jsonify({'adopt': False, 'message': '服务器内部错误'})
 
     try:
-        schedule = school_bus.get_bus_schedule(route_id, date, g.user.bus_session)
+        return jsonify({'adopt': True, 'message': school_bus.get_bus_schedule(route_id, date, g.user.bus_session)})
     except NFUError as err:
         return jsonify({'adopt': False, 'message': err.message})
-
-    return jsonify({'adopt': True, 'message': schedule})
 
 
 @school_bus_bp.route('/passenger')
@@ -47,11 +45,9 @@ def get_passenger():
     """
 
     try:
-        passenger = school_bus.get_passenger_data(g.user.bus_session)
+        return jsonify({'adopt': True, 'message': school_bus.get_passenger_data(g.user.bus_session)})
     except NFUError as err:
         return jsonify({'adopt': False, 'message': err.message})
-
-    return jsonify({'adopt': True, 'message': passenger})
 
 
 @school_bus_bp.route('/order/create', methods=['POST'])
@@ -102,10 +98,9 @@ def get_ticket_ids_bp():
         return jsonify({'adopt': False, 'message': '服务器内部错误'})
 
     try:
-        ticket_ids = school_bus.get_ticket_ids(order_id, g.user.bus_session)
+        return jsonify({'adopt': True, 'message': school_bus.get_ticket_ids(order_id, g.user.bus_session)})
     except NFUError as err:
         return jsonify({'adopt': False, 'message': err.message})
-    return jsonify({'adopt': True, 'message': ticket_ids})
 
 
 @school_bus_bp.route('/ticket/delete', methods=['POST'])
@@ -156,10 +151,10 @@ def get_ticket():
     try:
         token_data = validate_token(request.args.get('token'))
     except NFUError as err:
-        return jsonify({'adopt': False, 'message': err.message})
+        return render_template('html/err.html', err=err.message)
 
     if not token_data['school_bus']:
-        return jsonify({'message': '没有访问权限'})
+        return render_template('html/err.html', err='没有访问权限')
 
     user = User.query.get(token_data['id'])
     order_id = request.args.get('order_id')
