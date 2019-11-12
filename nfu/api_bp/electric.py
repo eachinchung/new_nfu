@@ -1,4 +1,5 @@
 from datetime import datetime
+from json import loads
 
 from flask import Blueprint, g, jsonify, make_response, redirect, request
 
@@ -12,7 +13,7 @@ from nfu.NFUError import NFUError
 electric_bp = Blueprint('electric', __name__)
 
 
-@electric_bp.route('/')
+@electric_bp.route('/get')
 @check_access_token
 def get():
     """
@@ -27,7 +28,7 @@ def get():
         try:
             electric = get_electric_data(g.user.room_id)
         except NFUError as err:
-            return jsonify({'adopt': False, 'message': err.message}), 500
+            return jsonify({'adopt': False, 'message': err.message})
 
         # 并将电费数据写入数据库
         electric_data = Electric(room_id=g.user.room_id, value=electric, time=datetime.now())
@@ -47,7 +48,7 @@ def analyse():
     electric_data = Electric.query.filter_by(room_id=g.user.room_id).order_by(Electric.time.desc()).limit(15).all()
 
     if electric_data is None:
-        return jsonify({'adopt': False, 'message': '当前宿舍没有电费数据'}), 500
+        return jsonify({'adopt': False, 'message': '当前宿舍没有电费数据'})
 
     electric_list = []
     for electric in electric_data:
@@ -66,14 +67,16 @@ def create_log():
     电费充值记录
     :return:
     """
-    page = request.form.get('page')
+    try:
+        data = loads(request.get_data().decode("utf-8"))
+        page = data['page']
+    except ValueError:
+        return jsonify({'adopt': False, 'message': '服务器内部错误'})
 
     try:
-        electric_create_log = get_electric_create_log(g.user.room_id, page)
+        return jsonify({'adopt': True, 'message': get_electric_create_log(g.user.room_id, page)})
     except NFUError as err:
-        return jsonify({'adopt': False, 'message': err.message}), 500
-    else:
-        return jsonify({'adopt': True, 'message': electric_create_log})
+        return jsonify({'adopt': False, 'message': err.message})
 
 
 @electric_bp.route('/order/create', methods=['POST'])
@@ -84,8 +87,12 @@ def create_order():
     :return: json 跳转支付页面所必须的数据
     """
 
-    amount = request.form.get('amount')
-    dormitory = Dormitory.query.get(g.user.room_id)
+    try:
+        data = loads(request.get_data().decode("utf-8"))
+        amount = data['amount']
+        dormitory = Dormitory.query.get(g.user.room_id)
+    except ValueError:
+        return jsonify({'adopt': False, 'message': '服务器内部错误'})
 
     order = ElectricPay(
         amount, g.user.id, g.user.name, g.user.room_id, dormitory.building, dormitory.floor, dormitory.room)
@@ -93,7 +100,7 @@ def create_order():
     try:
         order_data = order.create_order()
     except NFUError as err:
-        return jsonify({'adopt': False, 'message': err.message}), 500
+        return jsonify({'adopt': False, 'message': err.message})
 
     return jsonify({
         'adopt': True,
@@ -115,7 +122,7 @@ def pay_order():
     try:
         validate_token(request.args.get('token'))
     except NFUError as err:
-        return jsonify({'adopt': False, 'message': err.message}), 403
+        return jsonify({'adopt': False, 'message': err.message})
 
     json_data = request.args.get('json')
     signature = request.args.get('signature')

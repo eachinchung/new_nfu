@@ -204,12 +204,12 @@ def get_ticket_ids(order_id: int, bus_session: str) -> list:
             ticket_id = search(r', \d+', ticket).group()[2:]
         except AttributeError:
             ticket_list.append({
-                'code': 1001,
+                'code': '1001',
                 'name': name
             })
         else:
             ticket_list.append({
-                'code': 1000,
+                'code': '1000',
                 'name': name,
                 'ticket_id': ticket_id
             })

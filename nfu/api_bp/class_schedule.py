@@ -8,7 +8,7 @@ from nfu.NFUError import NFUError
 class_schedule_bp = Blueprint('class_schedule', __name__)
 
 
-@class_schedule_bp.route('/')
+@class_schedule_bp.route('/get')
 @check_access_token
 @get_config
 def get(school_year, semester):
@@ -27,17 +27,17 @@ def get(school_year, semester):
     ).all()
 
     if class_schedule_db:  # 数据库中有缓存课程表
+
         for course in class_schedule_db:
             class_schedule.append(course.get_dict())
+
         return jsonify({'adopt': True, 'message': class_schedule})
 
     # 获取课程表，并写入数据库
     try:
-        class_schedule = db_init(g.user.id, school_year, semester)
+        return jsonify({'adopt': True, 'message': db_init(g.user.id, school_year, semester)})
     except NFUError as err:
         return jsonify({'adopt': False, 'message': err.message}), 500
-
-    return jsonify({'adopt': True, 'message': class_schedule})
 
 
 @class_schedule_bp.route('/update')
@@ -52,8 +52,6 @@ def update(school_year, semester):
     """
 
     try:
-        class_schedule_update = db_update(g.user.id, school_year, semester)
+        return jsonify({'adopt': True, 'message': db_update(g.user.id, school_year, semester)})
     except NFUError as err:
         return jsonify({'adopt': False, 'message': err.message}), 500
-
-    return jsonify({'adopt': True, 'message': class_schedule_update})

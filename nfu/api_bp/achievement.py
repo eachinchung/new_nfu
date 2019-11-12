@@ -9,7 +9,7 @@ from nfu.NFUError import NFUError
 achievement_bp = Blueprint('achievement', __name__)
 
 
-@achievement_bp.route('/')
+@achievement_bp.route('/get')
 @check_access_token
 @get_config
 def get(school_year, semester):
@@ -25,11 +25,9 @@ def get(school_year, semester):
         return jsonify({'adopt': True, 'message': db_get(achievement_db, g.user.id, school_year, semester)})
 
     try:
-        achievement = db_init(g.user.id, school_year, semester)
+        return jsonify({'adopt': True, 'message': db_init(g.user.id, school_year, semester)})
     except NFUError as err:
-        return jsonify({'adopt': False, 'message': err.message}), 500
-
-    return jsonify({'adopt': True, 'message': achievement})
+        return jsonify({'adopt': False, 'message': err.message})
 
 
 @achievement_bp.route('/update')
@@ -45,7 +43,7 @@ def update(school_year, semester):
     try:
         achievement_update = db_update(g.user.id, school_year, semester)
     except NFUError as err:
-        return jsonify({'adopt': False, 'message': err.message}), 500
+        return jsonify({'adopt': False, 'message': err.message})
 
     return jsonify({'adopt': True, 'message': achievement_update})
 
@@ -65,7 +63,7 @@ def get_total():
     try:
         total_achievement = db_init_total(g.user.id)
     except NFUError as err:
-        return jsonify({'adopt': False, 'message': err.message}), 500
+        return jsonify({'adopt': False, 'message': err.message})
 
     return jsonify({'adopt': True, 'message': total_achievement})
 
@@ -80,6 +78,6 @@ def update_total():
     try:
         achievement_update = db_update_total(g.user.id)
     except NFUError as err:
-        return jsonify({'adopt': False, 'message': err.message}), 500
+        return jsonify({'adopt': False, 'message': err.message})
 
     return jsonify({'adopt': True, 'message': achievement_update})

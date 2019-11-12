@@ -157,7 +157,7 @@ def get_ticket():
         return render_template('html/err.html', err='没有访问权限')
 
     user = User.query.get(token_data['id'])
-    order_id = request.args.get('order_id')
+    order_id = request.args.get('order-id')
 
     try:
         ticket_data = school_bus.get_ticket_data(order_id, user.bus_session)
