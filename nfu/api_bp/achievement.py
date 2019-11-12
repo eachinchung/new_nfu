@@ -21,6 +21,8 @@ def get(school_year, semester):
     """
 
     achievement_db = Achievement.query.filter_by(user_id=g.user.id).all()
+
+    # 数据库存在成绩数据
     if achievement_db:
         return jsonify({'adopt': True, 'message': db_get(achievement_db, g.user.id, school_year, semester)})
 
@@ -41,11 +43,9 @@ def update(school_year, semester):
     :return:
     """
     try:
-        achievement_update = db_update(g.user.id, school_year, semester)
+        return jsonify({'adopt': True, 'message': db_update(g.user.id, school_year, semester)})
     except NFUError as err:
         return jsonify({'adopt': False, 'message': err.message})
-
-    return jsonify({'adopt': True, 'message': achievement_update})
 
 
 @achievement_bp.route('/total')
@@ -57,15 +57,15 @@ def get_total():
     """
 
     achievement_db = TotalAchievements.query.get(g.user.id)
+
+    # 数据库存在数据
     if achievement_db:
         return jsonify({'adopt': True, 'message': achievement_db.get_dict()})
 
     try:
-        total_achievement = db_init_total(g.user.id)
+        return jsonify({'adopt': True, 'message': db_init_total(g.user.id)})
     except NFUError as err:
         return jsonify({'adopt': False, 'message': err.message})
-
-    return jsonify({'adopt': True, 'message': total_achievement})
 
 
 @achievement_bp.route('/update/total')
@@ -76,8 +76,6 @@ def update_total():
     :return:
     """
     try:
-        achievement_update = db_update_total(g.user.id)
+        return jsonify({'adopt': True, 'message': db_update_total(g.user.id)})
     except NFUError as err:
         return jsonify({'adopt': False, 'message': err.message})
-
-    return jsonify({'adopt': True, 'message': achievement_update})
