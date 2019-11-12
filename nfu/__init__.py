@@ -1,3 +1,9 @@
+"""
+    :author: Eachin Chung (钟予乾)
+    :url: https://www.eachin-life.com
+    :copyright: © 2019 Eachin Chung
+    :license: MIT, see LICENSE for more details.
+"""
 from flask import Flask, jsonify
 
 from nfu.api_bp.achievement import achievement_bp
