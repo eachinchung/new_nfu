@@ -120,11 +120,9 @@ def return_ticket_bp():
         return jsonify({'adopt': False, 'message': '服务器内部错误'})
 
     try:
-        post = school_bus.return_ticket(order_id, ticket_id, g.user.bus_session)
+        return jsonify({'adopt': True, 'message': school_bus.return_ticket(order_id, ticket_id, g.user.bus_session)})
     except NFUError as err:
         return jsonify({'adopt': False, 'message': err.message})
-
-    return jsonify({'adopt': True, 'message': post})
 
 
 @school_bus_bp.route('/order/not-used')

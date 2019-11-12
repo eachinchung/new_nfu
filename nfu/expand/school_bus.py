@@ -242,6 +242,9 @@ def return_ticket(order_id: int, ticket_id: int, bus_session: str) -> str:
     except (OSError, decoder.JSONDecodeError):
         raise NFUError('学校车票系统错误，请稍后再试')
 
+    if response['code'] != '0000':
+        raise NFUError(response['desc'])
+
     return response['desc']
 
 
