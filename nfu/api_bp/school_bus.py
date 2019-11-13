@@ -73,17 +73,17 @@ def create_order_bp():
     try:
         order = school_bus.create_order(passenger_ids, connect_id, schedule_id, date, take_station, bus_session)
     except NFUError as err:
-        return jsonify({'adopt': False, 'message': err.message, 'code': err.code})
+        return jsonify({'adopt': False, 'message': err.message, 'busCode': err.code})
 
     return jsonify({
         'adopt': True,
         'message': order,
         'alipays_url': school_bus.get_alipays_url(order['trade_no']),
-        'alipays_qr_url': getenv('API_URL') + '/school-bus/alipay/qrcode?trade_no=' + order['trade_no']
+        'alipays_qr_url': getenv('API_URL') + '/schoolBus/alipay/qrcode?tradeNo=' + order['trade_no']
     })
 
 
-@school_bus_bp.route('/ticket-id', methods=['POST'])
+@school_bus_bp.route('/ticketId', methods=['POST'])
 @check_access_token
 @check_power_school_bus
 def get_ticket_ids_bp():
@@ -125,7 +125,7 @@ def return_ticket_bp():
         return jsonify({'adopt': False, 'message': err.message})
 
 
-@school_bus_bp.route('/order/not-used')
+@school_bus_bp.route('/order/notUsed')
 @check_access_token
 @check_power_school_bus
 def not_used_order():
@@ -176,7 +176,7 @@ def alipay():
     调起支付宝支付
     :return:
     """
-    return render_template('html/alipay.html', trade_no=request.args.get('trade_no'))
+    return render_template('html/alipay.html', trade_no=request.args.get('tradeNo'))
 
 
 @school_bus_bp.route('/alipay/qrcode')
@@ -185,5 +185,5 @@ def alipay_qrcode():
     二维码生成
     :return:
     """
-    alipays_url = school_bus.get_alipays_url(request.args.get('trade_no'))
+    alipays_url = school_bus.get_alipays_url(request.args.get('tradeNo'))
     return send_file(school_bus.get_qrcode(url=alipays_url), mimetype='image/png')
