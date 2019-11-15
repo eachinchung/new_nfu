@@ -23,7 +23,7 @@ def get_jw_token(student_id: int, password: str = '') -> str:
     }
 
     try:
-        response = http_session.post(url, data=data, timeout=1)
+        response = http_session.post(url, data=data, timeout=5)
         token = loads(response.text)['msg']
     except (OSError, decoder.JSONDecodeError):
         raise NFUError('教务系统错误，请稍后再试')
@@ -55,7 +55,7 @@ def get_student_name(student_id: int, password: str) -> str:
     http_session = session()
 
     try:
-        response = http_session.post(url, data=data, timeout=1)
+        response = http_session.post(url, data=data, timeout=5)
         name = loads(response.text)['msg']['name']
     except (OSError, KeyError):
         raise NFUError('教务系统错误，请稍后再试')
@@ -85,7 +85,7 @@ def get_class_schedule(token: str, school_year: int, semester: int) -> list:
     }
 
     try:
-        response = http_session.post(url, data=data, timeout=1)
+        response = http_session.post(url, data=data, timeout=5)
         course_list = loads(response.text)['msg']
     except (OSError, KeyError, decoder.JSONDecodeError):
         raise NFUError('教务系统错误，请稍后再试')
@@ -142,7 +142,7 @@ def get_achievement_list(token: str, school_year: int, semester) -> dict:
     }
 
     try:
-        response = http_session.post(url, data=data, timeout=1)
+        response = http_session.post(url, data=data, timeout=5)
     except OSError:
         raise NFUError('教务系统错误，请稍后再试')
 
@@ -175,7 +175,7 @@ def get_total_achievement_point(token: str) -> dict:
     data = {'jwloginToken': token}
 
     try:  # 先获取学生的真实id
-        response = http_session.post(url, data=data)
+        response = http_session.post(url, data=data, timeout=5)
         actual_id = loads(response.text)['msg']['actualId']
 
     except (OSError, KeyError, decoder.JSONDecodeError):
@@ -193,7 +193,7 @@ def get_total_achievement_point(token: str) -> dict:
     }
 
     try:
-        response = http_session.post(url, data=data)
+        response = http_session.post(url, data=data, timeout=5)
         data = loads(response.text)['msg']['list'][0]
     except (OSError, KeyError, decoder.JSONDecodeError):
         raise NFUError('教务系统错误，请稍后再试')
