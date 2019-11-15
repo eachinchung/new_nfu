@@ -135,22 +135,15 @@ def __db_input(user_id: int, achievement_list: list, school_year: int, semester:
             course_name=course['course_name'],
             course_id=course['course_id'],
             credit=course['credit'],
+            resit_exam=course['resit_exam'],
             achievement_point=course['achievement_point'],
             final_achievements=course['final_achievements'],
             total_achievements=course['total_achievements'],
             midterm_achievements=course['midterm_achievements'],
             practice_achievements=course['practice_achievements'],
-            peacetime_achievements=course['peacetime_achievements']
+            peacetime_achievements=course['peacetime_achievements'],
+            resit_exam_achievement_point=course['resit_exam_achievement_point']
         )
-
-        # 判断该学生是否重考
-        try:
-            achievement_db.resit_exam_achievement_point = course['ckcj']
-        except KeyError:
-            achievement_db.resit_exam = False
-            achievement_db.resit_exam_achievement_point = None
-        else:
-            achievement_db.resit_exam = True
 
         db.session.add(achievement_db)
 
