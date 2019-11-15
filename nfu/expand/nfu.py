@@ -8,7 +8,7 @@ from nfu.NFUError import NFUError
 def get_jw_token(student_id: int, password: str = '') -> str:
     """
     登陆教务系统
-    :param student_id: 学号，基于教务系统的Bug，登陆时，密码直接提交空字符串就可以了
+    :param student_id: 学号
     :param password: 密码，默认为空字符串
     :return token:
     :raise OSError: 一般错误为超时，学校系统炸了，与我们无关
