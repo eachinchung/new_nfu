@@ -11,7 +11,6 @@ def get_jw_token(student_id: int, password: str = '') -> str:
     :param student_id: 学号
     :param password: 密码，默认为空字符串
     :return token:
-    :raise OSError: 一般错误为超时，学校系统炸了，与我们无关
     """
 
     url = 'http://ecampus.nfu.edu.cn:2929/jw-privilegei/User/r-login'
@@ -46,7 +45,6 @@ def get_student_name(student_id: int, password: str) -> str:
     :param student_id: 学号
     :param password: 教务系统的密码
     :return name:
-    :raise OSError: 一般错误为超时，学校系统炸了，与我们无关
     """
 
     token = get_jw_token(student_id, password)
