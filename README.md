@@ -7,14 +7,13 @@
 
 ```
 # 数据库链接
-# 例如: mysql+pymysql://root:123456@localhost:3306/nfu
+# 例如: mysql+mysqlconnector://root:123456@localhost:3306/nfu
 DATABASE_URL=xxxxxxx
 
 # 各种jwt的签名(随机的字符串即可)
 ACCESS_TOKEN=xxxxxxx
 REFRESH_TOKEN=xxxxxxx
 EMAIL_TOKEN=xxxxxxx
-REFRESH_EMAIL_TOKEN=xxxxxxx
 
 # 邮箱信息
 MAIL_SERVER=smtp.exmail.qq.com
@@ -23,6 +22,7 @@ MAIL_PASSWORD=xxxxxxx
 
 # host
 API_URL=http://127.0.0.1:5000
+FRONT_END_URL=http://127.0.0.1:8080
 ```
 
 ### pipenv
