@@ -15,6 +15,9 @@ ACCESS_TOKEN=xxxxxxx
 REFRESH_TOKEN=xxxxxxx
 EMAIL_TOKEN=xxxxxxx
 
+# Redis 密码
+REDIS_PASSWORD=
+
 # 邮箱信息
 MAIL_SERVER=smtp.exmail.qq.com
 MAIL_USERNAME=xxxxxxx
