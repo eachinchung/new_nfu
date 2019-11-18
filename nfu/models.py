@@ -1,6 +1,6 @@
 from json import loads
 
-from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.security import check_password_hash
 
 from nfu.extensions import db
 
@@ -14,29 +14,8 @@ class User(db.Model):
     email = db.Column(db.String)
     bus_session = db.Column(db.String)
 
-    # 出于用户隐私保护，用户密码我们将采用哈希加密
-    def set_password(self, password):
-        self.password = generate_password_hash(password)
-
     def validate_password(self, password):
         return check_password_hash(self.password, password)
-
-
-# 权限表
-class Power(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    validate_email = db.Column(db.Boolean, default=False)
-    school_bus = db.Column(db.Boolean, default=False)
-    admin = db.Column(db.Boolean, default=False)
-
-    # 返回权限字典
-    def get_dict(self):
-        return {
-            'id': self.id,
-            'validateEmail': self.validate_email,
-            'schoolBus': self.school_bus,
-            'admin': self.admin
-        }
 
 
 # 宿舍表

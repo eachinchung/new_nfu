@@ -31,6 +31,7 @@ def send_email(subject: str, to: str, body: str, html: str = None) -> None:
     app = current_app._get_current_object()
     message = Message(subject, recipients=[to])
     message.body = body
+
     # 为增加代码的复用性，我们支持发送纯文本邮件
     if html is not None:
         message.html = html
