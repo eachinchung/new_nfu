@@ -34,7 +34,7 @@ def activation():
     try:  # 从 Redis 读取注册信息
         name = r.hget(validate['id'], 'name').decode('UTF-8')
         password = r.hget(validate['id'], 'password').decode('UTF-8')
-        room_id = r.hget(validate['id'], 'room_id').decode('UTF-8')
+        room_id = r.hget(validate['id'], 'roomId').decode('UTF-8')
         email = r.hget(validate['id'], 'email').decode('UTF-8')
     except AttributeError:
         return jsonify({'code': '2000', 'message': '注册信息已过期'})

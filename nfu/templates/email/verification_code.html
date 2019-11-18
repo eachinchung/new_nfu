@@ -1,33 +1,48 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="zh-cmn-Hans">
-
 <head>
   <title>南苑聚合</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 </head>
 
-<body>
-<div style="width: 580px; padding: 20px;background: #f8f8f8;border-radius:5px">
-  <img style="height: 55px" src="https://static.eachin-life.com/img/nfu_logo.png" alt="南苑聚合">
-  <hr>
-  <br style="line-height: 5px">
-  <div style="padding: 0 10px 0 10px">
-    <h3>你好，{{ name }}。</h3>
-    <p>您正在进行邮箱验证，本次请求的验证码为：</p>
-    <br>
-    <b style="color: #05A3EB;font-size: 22px">{{ code }}</b>
-    <br>
-    <br>
-    <p>(为了保障您帐号的安全性，请在5分钟内完成验证。)</p>
-  </div>
-  <br><br>
-  <p align="center" style="font-size: 15px;line-height: 5px;color: #727272">
-    Copyright © 2019 nfu.kaimon.cn All Rights Reserved.
-  </p>
-  <br>
-</div>
+
+<body style="margin: 0; padding: 0;">
+　
+<table cellpadding="0" cellspacing="0" width="600px" style="background: #f8f8f8;padding: 25px">
+  <tr>
+    <td style="border-bottom:1px solid #b2b2b2">
+      <img style="height: 55px;padding-top: 5px;padding-left: 5px;padding-bottom: 5px"
+           src="https://static.eachin-life.com/img/nfu_logo.png" alt="南苑聚合">
+    </td>
+  </tr>
+  <tr>
+    <td style="padding-left: 15px;padding-top: 30px;padding-bottom: 15px;font-size: 22px">
+      <b>你好，{{ name }}。</b>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding-left: 15px;padding-top: 5px">
+      您正在进行邮箱验证，本次请求的验证码为：
+    </td>
+  </tr>
+  <tr>
+    <td style="padding-left: 15px;padding-top: 25px;padding-bottom: 25px">
+      <b style="color: #05A3EB;font-size: 22px">{{ code }}</b>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding-left: 15px;">
+      (为了保障您帐号的安全性，请在5分钟内完成验证。)
+    </td>
+  </tr>
+  <tr>
+    <td style="padding-top: 40px;text-align: center;color: #727272">
+      Copyright © 2019 nfu.kaimon.cn All Rights Reserved.
+    </td>
+  </tr>
+</table>
 </body>
 
 </html>
