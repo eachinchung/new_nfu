@@ -39,7 +39,7 @@ def activation() -> jsonify:
         room_id = r.hget(validate['id'], 'roomId').decode('UTF-8')
         email = r.hget(validate['id'], 'email').decode('UTF-8')
     except AttributeError:
-        return jsonify({'code': '2000', 'message': '注册信息已过期'})
+        return jsonify({'code': '2000', 'message': '该链接已失效'})
 
     # 删除缓存中的数据
     r.delete(validate['id'])
@@ -60,7 +60,7 @@ def get_verification_code() -> jsonify:
     :return:
     """
     r = Redis(host='localhost', password=getenv('REDIS_PASSWORD'), port=6379)
-    r.set(g.user.id, randint(100000, 999999), ex=600)
+    r.set(g.user.id, randint(100000, 999999), ex=300)
 
     return jsonify({'code': '1000', 'message': 'success'})
 
@@ -81,8 +81,12 @@ def verification_code() -> jsonify:
 
     r = Redis(host='localhost', password=getenv('REDIS_PASSWORD'), port=6379)
 
-    if int(r.get(g.user.id)) == code:
-        return jsonify({'code': '1000', 'message': 'success'})
+    try:
+        if int(r.get(g.user.id)) == code:
+            return jsonify({'code': '1000', 'message': 'success'})
 
-    else:
-        return jsonify({'code': '2000', 'message': '验证码错误'})
+        else:
+            return jsonify({'code': '2000', 'message': '验证码错误'})
+
+    except TypeError:
+        return jsonify({'code': '2000', 'message': '验证码已过期'})
