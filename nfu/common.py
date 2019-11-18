@@ -46,7 +46,6 @@ def check_access_token(func):
             return jsonify({'code': err.code, 'message': err.message})
 
         g.user = User.query.get(validate['id'])
-        g.user_power = validate
 
         return func(*args, **kw)
 
@@ -63,10 +62,12 @@ def check_power_school_bus(func):
 
     @wraps(func)
     def wrapper(*args, **kw):
-        if not g.user_power['school_bus']:
+
+        if g.user.bus_session is None:
             return jsonify({'message': '没有访问权限'})
 
-        return func(*args, **kw)
+        else:
+            return func(*args, **kw)
 
     return wrapper
 

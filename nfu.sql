@@ -10,15 +10,6 @@ create table user
     bus_session varchar(50)  null
 );
 
-create table power
-(
-    id             int(9)     not null primary key,
-    validate_email tinyint(1) not null,
-    school_bus     tinyint(1) not null,
-    admin          tinyint(1) not null,
-    foreign key (id) references user (id) on delete cascade on update cascade
-);
-
 create table dormitory
 (
     id       int(8)   not null primary key,

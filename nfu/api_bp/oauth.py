@@ -1,13 +1,15 @@
 from json import loads
+from os import getenv
 
 from flask import Blueprint, jsonify, request
+from redis import Redis
+from werkzeug.security import generate_password_hash
 
 from nfu.common import get_token
 from nfu.expand.email import send_validate_email
 from nfu.expand.nfu import get_student_name
 from nfu.expand.token import generate_token, validate_token
-from nfu.extensions import db
-from nfu.models import Power, User
+from nfu.models import User
 from nfu.NFUError import NFUError
 
 oauth_bp = Blueprint('oauth', __name__)
@@ -28,31 +30,27 @@ def get_token_bp():
 
     # 首先验证账号是否存在
     user = User.query.get(user_id)
-    if user is None:
-        return jsonify({'code': '0002', 'message': '账号不存在'})
+
+    if user is None:  # 当MySql为空时
+
+        # 查看缓存是否有已注册的信息
+        r = Redis(host='localhost', password=getenv('REDIS_PASSWORD'), port=6379)
+
+        if r.hget(user_id, 'name') is None:
+            return jsonify({'code': '0001', 'message': '账号暂未激活'})
+
+        else:
+            return jsonify({'code': '0002', 'message': '账号不存在'})
 
     if not user.validate_password(data['password']):
         return jsonify({'code': '0003', 'message': '密码错误'})
 
-    # 验证账号是否激活，若账号未激活，往后操作无意义
-    user_power = Power.query.get(user_id)
-    if not user_power.validate_email:
-        data = {
-            'id': user.id,
-            'name': user.name,
-            'email': user.email,
-        }
-        return jsonify({
-            'code': '0001',
-            'message': '账号暂未激活。',
-            'refresh_email_token': generate_token(data, token_type='REFRESH_EMAIL_TOKEN')
-        })
-
+    token_data = {'id': user.id}
     return jsonify({
         'code': '1000',
         'message': {
-            'access_token': generate_token(user_power.get_dict()),
-            'refresh_token': generate_token({'id': user.id}, token_type='REFRESH_TOKEN', expires_in=2592000)
+            'access_token': generate_token(token_data),
+            'refresh_token': generate_token(token_data, token_type='REFRESH_TOKEN', expires_in=2592000)
         }
     })
 
@@ -71,16 +69,16 @@ def refresh_token():
         return jsonify({'code': '2000', 'message': str(err)})
 
     user = User.query.get(validate['id'])
-    user_power = Power.query.get(validate['id'])
 
     if user is None:
         return jsonify({'code': '2000', 'message': '账号不存在'})
 
+    token_data = {'id': user.id}
     return jsonify({
         'code': '1000',
         'message': {
-            'access_token': generate_token(user_power.get_dict()),
-            'refresh_token': generate_token({'id': user.id}, token_type='REFRESH_TOKEN', expires_in=2592000)
+            'access_token': generate_token(token_data),
+            'refresh_token': generate_token(token_data, token_type='REFRESH_TOKEN', expires_in=2592000)
         }
     })
 
@@ -117,39 +115,16 @@ def sign_up():
     token = generate_token({'id': user_id}, token_type='EMAIL_TOKEN')
     send_validate_email(email, name, user_id, token)
 
-    user = User(id=user_id, name=name, room_id=room_id, email=email)
-    user.set_password(password)  # 将教务系统密码默认为用户密码，并哈希加密
+    # 把帐号资料写入缓存
+    r = Redis(host='localhost', password=getenv('REDIS_PASSWORD'), port=6379)
+    r.hmset(user_id, {
+        'name': name,
+        'password': generate_password_hash(password),
+        'roomId': room_id,
+        'email': email
+    })
 
-    db.session.add(user)
-    db.session.commit()
+    # 设置缓存一小时过期
+    r.expire(user_id, 3600)
 
-    # 初始化权限，全部False
-    db.session.add(Power(id=user_id))
-    db.session.commit()
-
-    return jsonify({'code': '1000', 'message': 'success'})
-
-
-@oauth_bp.route('/resend/validateEmail')
-def refresh_validate_email():
-    """
-    重新发送激活邮件
-    :return: json
-    """
-
-    try:
-        validate = validate_token(get_token(), 'REFRESH_EMAIL_TOKEN')
-    except NFUError as err:
-        return jsonify({'code': err.code, 'message': err.message})
-
-    user_power = Power.query.get(validate['id'])
-
-    if user_power is None:
-        return jsonify({'code': '2000', 'message': '账号不存在'})
-
-    if user_power.validate_email:
-        return jsonify({'code': '2000', 'message': '该账号已激活'})
-
-    token = generate_token({'id': validate['id']}, token_type='EMAIL_TOKEN')
-    send_validate_email(validate['email'], validate['name'], validate['id'], token)
     return jsonify({'code': '1000', 'message': 'success'})
