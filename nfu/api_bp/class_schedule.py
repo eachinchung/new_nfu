@@ -31,13 +31,13 @@ def get(school_year, semester):
         for course in class_schedule_db:
             class_schedule.append(course.get_dict())
 
-        return jsonify({'adopt': True, 'message': class_schedule})
+        return jsonify({'code': '1000', 'message': class_schedule})
 
     # 获取课程表，并写入数据库
     try:
-        return jsonify({'adopt': True, 'message': db_init(g.user.id, school_year, semester)})
+        return jsonify({'code': '1000', 'message': db_init(g.user.id, school_year, semester)})
     except NFUError as err:
-        return jsonify({'adopt': False, 'message': err.message})
+        return jsonify({'code': err.code, 'message': err.message})
 
 
 @class_schedule_bp.route('/update')
@@ -52,6 +52,6 @@ def update(school_year, semester):
     """
 
     try:
-        return jsonify({'adopt': True, 'message': db_update(g.user.id, school_year, semester)})
+        return jsonify({'code': '1000', 'message': db_update(g.user.id, school_year, semester)})
     except NFUError as err:
-        return jsonify({'adopt': False, 'message': err.message})
+        return jsonify({'code': err.code, 'message': err.message})

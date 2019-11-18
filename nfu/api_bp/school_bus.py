@@ -24,15 +24,15 @@ def get_schedule():
 
     try:
         data = loads(request.get_data().decode("utf-8"))
-        route_id = int(data['route_id'])
+        route_id = int(data['routeId'])
         date = data['date']
     except (TypeError, ValueError):
-        return jsonify({'adopt': False, 'message': '服务器内部错误'})
+        return jsonify({'code': '2000', 'message': '服务器内部错误'})
 
     try:
-        return jsonify({'adopt': True, 'message': school_bus.get_bus_schedule(route_id, date, g.user.bus_session)})
+        return jsonify({'code': '1000', 'message': school_bus.get_bus_schedule(route_id, date, g.user.bus_session)})
     except NFUError as err:
-        return jsonify({'adopt': False, 'message': err.message})
+        return jsonify({'code': err.code, 'message': err.message})
 
 
 @school_bus_bp.route('/passenger')
@@ -45,9 +45,9 @@ def get_passenger():
     """
 
     try:
-        return jsonify({'adopt': True, 'message': school_bus.get_passenger_data(g.user.bus_session)})
+        return jsonify({'code': '1000', 'message': school_bus.get_passenger_data(g.user.bus_session)})
     except NFUError as err:
-        return jsonify({'adopt': False, 'message': err.message})
+        return jsonify({'code': err.code, 'message': err.message})
 
 
 @school_bus_bp.route('/order/create', methods=['POST'])
@@ -60,23 +60,23 @@ def create_order_bp():
     """
     try:
         data = loads(request.get_data().decode("utf-8"))
-        passenger_ids = data['passenger_ids']
-        connect_id = data['passenger_ids'][0]
+        passenger_ids = data['passengerIds']
+        connect_id = data['passengerIds'][0]
         passenger_ids = dumps(passenger_ids)[1:-1]
-        schedule_id = data['schedule_id']
+        schedule_id = data['scheduleId']
         date = data['date']
-        take_station = data['take_station']
+        take_station = data['takeStation']
         bus_session = g.user.bus_session
     except ValueError:
-        return jsonify({'adopt': False, 'message': '服务器内部错误'})
+        return jsonify({'code': '2000', 'message': '服务器内部错误'})
 
     try:
         order = school_bus.create_order(passenger_ids, connect_id, schedule_id, date, take_station, bus_session)
     except NFUError as err:
-        return jsonify({'adopt': False, 'message': err.message, 'busCode': err.code})
+        return jsonify({'code': err.code, 'message': err.message, 'busCode': err.code})
 
     return jsonify({
-        'adopt': True,
+        'code': '1000',
         'message': order,
         'alipays_url': school_bus.get_alipays_url(order['trade_no']),
         'alipays_qr_url': getenv('API_URL') + '/schoolBus/alipay/qrcode?tradeNo=' + order['trade_no']
@@ -92,15 +92,15 @@ def get_ticket_ids_bp():
     :return:
     """
     try:
-        data = loads(request.get_data().decode("utf-8"))
-        order_id = data['order_id']
+        data = loads(request.get_data().decode('utf-8'))
+        order_id = data['orderId']
     except ValueError:
-        return jsonify({'adopt': False, 'message': '服务器内部错误'})
+        return jsonify({'code': '2000', 'message': '服务器内部错误'})
 
     try:
-        return jsonify({'adopt': True, 'message': school_bus.get_ticket_ids(order_id, g.user.bus_session)})
+        return jsonify({'code': '1000', 'message': school_bus.get_ticket_ids(order_id, g.user.bus_session)})
     except NFUError as err:
-        return jsonify({'adopt': False, 'message': err.message})
+        return jsonify({'code': err.code, 'message': err.message})
 
 
 @school_bus_bp.route('/ticket/delete', methods=['POST'])
@@ -113,16 +113,16 @@ def return_ticket_bp():
     """
 
     try:
-        data = loads(request.get_data().decode("utf-8"))
+        data = loads(request.get_data().decode('utf-8'))
         order_id = data['order_id']
         ticket_id = data['ticket_id']
     except ValueError:
-        return jsonify({'adopt': False, 'message': '服务器内部错误'})
+        return jsonify({'code': '2000', 'message': '服务器内部错误'})
 
     try:
-        return jsonify({'adopt': True, 'message': school_bus.return_ticket(order_id, ticket_id, g.user.bus_session)})
+        return jsonify({'code': '1000', 'message': school_bus.return_ticket(order_id, ticket_id, g.user.bus_session)})
     except NFUError as err:
-        return jsonify({'adopt': False, 'message': err.message})
+        return jsonify({'code': err.code, 'message': err.message})
 
 
 @school_bus_bp.route('/order/notUsed')
@@ -134,9 +134,9 @@ def not_used_order():
     :return:
     """
     try:
-        return jsonify({'adopt': True, 'message': get_not_used_order(g.user.bus_session)})
+        return jsonify({'code': '1000', 'message': get_not_used_order(g.user.bus_session)})
     except NFUError as err:
-        return jsonify({'adopt': False, 'message': err.message})
+        return jsonify({'code': err.code, 'message': err.message})
 
 
 @school_bus_bp.route('/ticket')
@@ -160,7 +160,7 @@ def get_ticket():
     try:
         ticket_data = school_bus.get_ticket_data(order_id, user.bus_session)
     except NFUError as err:
-        return jsonify({'adopt': False, 'message': err.message})
+        return render_template('html/err.html', err=err.message)
 
     return render_template(
         'html/bus_ticket.html',

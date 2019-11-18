@@ -2,14 +2,14 @@ from json import loads
 from os import getenv
 from random import randint
 
-from flask import Blueprint, jsonify, g, request
+from flask import Blueprint, g, jsonify, request
 from redis import Redis
 
-from nfu.common import get_token, check_access_token
+from nfu.common import check_access_token, get_token
 from nfu.expand.token import validate_token
 from nfu.extensions import db
-from nfu.NFUError import NFUError
 from nfu.models import User
+from nfu.NFUError import NFUError
 
 validate_bp = Blueprint('validate', __name__)
 
@@ -34,10 +34,10 @@ def activation() -> jsonify:
     r = Redis(host='localhost', password=getenv('REDIS_PASSWORD'), port=6379)
 
     try:  # 从 Redis 读取注册信息
-        name = r.hget(validate['id'], 'name').decode('UTF-8')
-        password = r.hget(validate['id'], 'password').decode('UTF-8')
-        room_id = r.hget(validate['id'], 'roomId').decode('UTF-8')
-        email = r.hget(validate['id'], 'email').decode('UTF-8')
+        name = r.hget(validate['id'], 'name').decode('utf-8')
+        password = r.hget(validate['id'], 'password').decode('utf-8')
+        room_id = r.hget(validate['id'], 'roomId').decode('utf-8')
+        email = r.hget(validate['id'], 'email').decode('utf-8')
     except AttributeError:
         return jsonify({'code': '2000', 'message': '该链接已失效'})
 
@@ -74,7 +74,7 @@ def verification_code() -> jsonify:
     """
 
     try:
-        data = loads(request.get_data().decode("utf-8"))
+        data = loads(request.get_data().decode('utf-8'))
         code = int(data['verificationCode'])
     except (TypeError, ValueError):
         return jsonify({'adopt': False, 'message': '服务器内部错误'})

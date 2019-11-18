@@ -18,6 +18,7 @@ def get_user():
     """
     dormitory = Dormitory.query.get(g.user.room_id)
     return jsonify({
+        'code': '1000',
         'id': g.user.id,
         'name': g.user.name,
         'email': g.user.email,
@@ -32,10 +33,10 @@ def update_dormitory():
     更新宿舍信息
     :return:
     """
-    data = loads(request.get_data().decode("utf-8"))
+    data = loads(request.get_data().decode('utf-8'))
     room_id = int(data['room_id'])
     g.user.room_id = room_id
     db.session.add(g.user)
     db.session.commit()
 
-    return jsonify({'adopt': True, 'message': 'success'})
+    return jsonify({'code': '1000', 'message': 'success'})

@@ -23,8 +23,8 @@ def get_token_bp():
     """
 
     try:
-        data = loads(request.get_data().decode("utf-8"))
-        user_id = int(data['user_id'])
+        data = loads(request.get_data().decode('utf-8'))
+        user_id = int(data['userId'])
     except (TypeError, ValueError):
         return jsonify({'code': '0002', 'message': '账号不存在'})
 
@@ -90,10 +90,10 @@ def sign_up():
     :return: json
     """
     try:
-        data = loads(request.get_data().decode("utf-8"))
-        user_id = int(data['user_id'])
+        data = loads(request.get_data().decode('utf-8'))
+        user_id = int(data['userId'])
         password = data['password']
-        room_id = data['room_id']
+        room_id = data['roomId']
         email = data['email']
     except (TypeError, ValueError):
         return jsonify({'code': '2000', 'message': '服务器内部错误'})
