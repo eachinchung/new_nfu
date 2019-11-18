@@ -83,6 +83,10 @@ def verification_code() -> jsonify:
 
     try:
         if int(r.get(g.user.id)) == code:
+
+            # 删除缓存中的数据
+            r.delete(g.user.id)
+
             return jsonify({'code': '1000', 'message': 'success'})
 
         else:
