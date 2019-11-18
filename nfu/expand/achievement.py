@@ -1,5 +1,3 @@
-import json
-
 from nfu.expand.nfu import get_achievement_list, get_jw_token
 from nfu.extensions import db
 from nfu.models import Achievement

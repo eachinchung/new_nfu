@@ -24,15 +24,15 @@ def get_token_bp():
         data = loads(request.get_data().decode("utf-8"))
         user_id = int(data['user_id'])
     except (TypeError, ValueError):
-        return jsonify({'adopt': False, 'code': 1002, 'message': '账号不存在'})
+        return jsonify({'code': '0002', 'message': '账号不存在'})
 
     # 首先验证账号是否存在
     user = User.query.get(user_id)
     if user is None:
-        return jsonify({'adopt': False, 'code': 1002, 'message': '账号不存在'})
+        return jsonify({'code': '0002', 'message': '账号不存在'})
 
     if not user.validate_password(data['password']):
-        return jsonify({'adopt': False, 'code': 1003, 'message': '密码错误'})
+        return jsonify({'code': '0003', 'message': '密码错误'})
 
     # 验证账号是否激活，若账号未激活，往后操作无意义
     user_power = Power.query.get(user_id)
@@ -43,14 +43,13 @@ def get_token_bp():
             'email': user.email,
         }
         return jsonify({
-            'adopt': False,
-            'code': 1001,
+            'code': '0001',
             'message': '账号暂未激活。',
             'refresh_email_token': generate_token(data, token_type='REFRESH_EMAIL_TOKEN')
         })
 
     return jsonify({
-        'adopt': True,
+        'code': '1000',
         'message': {
             'access_token': generate_token(user_power.get_dict()),
             'refresh_token': generate_token({'id': user.id}, token_type='REFRESH_TOKEN', expires_in=2592000)
@@ -69,16 +68,16 @@ def refresh_token():
     try:
         validate = validate_token(get_token(), 'REFRESH_TOKEN')
     except ValueError as err:
-        return jsonify({'adopt': False, 'message': str(err)})
+        return jsonify({'code': '2000', 'message': str(err)})
 
     user = User.query.get(validate['id'])
     user_power = Power.query.get(validate['id'])
 
     if user is None:
-        return jsonify({'adopt': False, 'message': '账号不存在'})
+        return jsonify({'code': '2000', 'message': '账号不存在'})
 
     return jsonify({
-        'adopt': True,
+        'code': '1000',
         'message': {
             'access_token': generate_token(user_power.get_dict()),
             'refresh_token': generate_token({'id': user.id}, token_type='REFRESH_TOKEN', expires_in=2592000)
@@ -86,7 +85,7 @@ def refresh_token():
     })
 
 
-@oauth_bp.route('/sign-up', methods=['POST'])
+@oauth_bp.route('/signUp', methods=['POST'])
 def sign_up():
     """
     注册接口
@@ -99,21 +98,21 @@ def sign_up():
         room_id = data['room_id']
         email = data['email']
     except (TypeError, ValueError):
-        return jsonify({'adopt': False, 'message': '服务器内部错误'})
+        return jsonify({'code': '2000', 'message': '服务器内部错误'})
 
     # 防一波教务系统bug。。。
     if password is None or password == '':
-        return jsonify({'adopt': False, 'message': '密码不能为空'})
+        return jsonify({'code': '2000', 'message': '密码不能为空'})
 
     user = User.query.get(user_id)
     if user is not None:
-        return jsonify({'adopt': False, 'message': '该账号已存在'})
+        return jsonify({'code': '2000', 'message': '该账号已存在'})
 
     # 如果正确获得学生姓名，默认代表该用户拥有该账号合法性
     try:
         name = get_student_name(user_id, password)
     except NFUError as err:
-        return jsonify({'adopt': False, 'message': err.message})
+        return jsonify({'code': err.code, 'message': err.message})
 
     token = generate_token({'id': user_id}, token_type='EMAIL_TOKEN')
     send_validate_email(email, name, user_id, token)
@@ -128,10 +127,10 @@ def sign_up():
     db.session.add(Power(id=user_id))
     db.session.commit()
 
-    return jsonify({'adopt': True, 'message': 'success'})
+    return jsonify({'code': '1000', 'message': 'success'})
 
 
-@oauth_bp.route('/resend/validate-email')
+@oauth_bp.route('/resend/validateEmail')
 def refresh_validate_email():
     """
     重新发送激活邮件
@@ -141,16 +140,16 @@ def refresh_validate_email():
     try:
         validate = validate_token(get_token(), 'REFRESH_EMAIL_TOKEN')
     except NFUError as err:
-        return jsonify({'adopt': False, 'message': err.message})
+        return jsonify({'code': err.code, 'message': err.message})
 
     user_power = Power.query.get(validate['id'])
 
     if user_power is None:
-        return jsonify({'adopt': False, 'message': '账号不存在'})
+        return jsonify({'code': '2000', 'message': '账号不存在'})
 
     if user_power.validate_email:
-        return jsonify({'adopt': False, 'message': '该账号已激活'})
+        return jsonify({'code': '2000', 'message': '该账号已激活'})
 
     token = generate_token({'id': validate['id']}, token_type='EMAIL_TOKEN')
     send_validate_email(validate['email'], validate['name'], validate['id'], token)
-    return jsonify({'adopt': True, 'message': 'success'})
+    return jsonify({'code': '1000', 'message': 'success'})

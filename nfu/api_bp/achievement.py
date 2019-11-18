@@ -24,10 +24,10 @@ def get(school_year, semester):
 
     # 数据库存在成绩数据
     if achievement_db:
-        return jsonify({'code': 1000, 'message': db_get(achievement_db)})
+        return jsonify({'code': '1000', 'message': db_get(achievement_db)})
 
     try:
-        return jsonify({'code': 1000, 'message': db_init(g.user.id, school_year, semester)})
+        return jsonify({'code': '1000', 'message': db_init(g.user.id, school_year, semester)})
     except NFUError as err:
         return jsonify({'code': err.code, 'message': err.message})
 
@@ -43,7 +43,7 @@ def update(school_year, semester):
     :return:
     """
     try:
-        return jsonify({'code': 1000, 'message': db_update(g.user.id, school_year, semester)})
+        return jsonify({'code': '1000', 'message': db_update(g.user.id, school_year, semester)})
     except NFUError as err:
         return jsonify({'code': err.code, 'message': err.message})
 
@@ -60,10 +60,10 @@ def get_total():
 
     # 数据库存在数据
     if achievement_db:
-        return jsonify({'code': 1000, 'message': achievement_db.get_dict()})
+        return jsonify({'code': '1000', 'message': achievement_db.get_dict()})
 
     try:
-        return jsonify({'code': 1000, 'message': db_init_total(g.user.id)})
+        return jsonify({'code': '1000', 'message': db_init_total(g.user.id)})
     except NFUError as err:
         return jsonify({'code': err.code, 'message': err.message})
 
@@ -76,6 +76,6 @@ def update_total():
     :return:
     """
     try:
-        return jsonify({'code': 1000, 'message': db_update_total(g.user.id)})
+        return jsonify({'code': '1000', 'message': db_update_total(g.user.id)})
     except NFUError as err:
         return jsonify({'code': err.code, 'message': err.message})
