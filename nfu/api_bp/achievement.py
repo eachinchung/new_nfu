@@ -24,12 +24,12 @@ def get(school_year, semester):
 
     # 数据库存在成绩数据
     if achievement_db:
-        return jsonify({'adopt': True, 'message': db_get(achievement_db, g.user.id, school_year, semester)})
+        return jsonify({'code': 1000, 'message': db_get(achievement_db)})
 
     try:
-        return jsonify({'adopt': True, 'message': db_init(g.user.id, school_year, semester)})
+        return jsonify({'code': 1000, 'message': db_init(g.user.id, school_year, semester)})
     except NFUError as err:
-        return jsonify({'adopt': False, 'message': err.message})
+        return jsonify({'code': err.code, 'message': err.message})
 
 
 @achievement_bp.route('/update')
@@ -43,9 +43,9 @@ def update(school_year, semester):
     :return:
     """
     try:
-        return jsonify({'adopt': True, 'message': db_update(g.user.id, school_year, semester)})
+        return jsonify({'code': 1000, 'message': db_update(g.user.id, school_year, semester)})
     except NFUError as err:
-        return jsonify({'adopt': False, 'message': err.message})
+        return jsonify({'code': err.code, 'message': err.message})
 
 
 @achievement_bp.route('/total')
@@ -60,12 +60,12 @@ def get_total():
 
     # 数据库存在数据
     if achievement_db:
-        return jsonify({'adopt': True, 'message': achievement_db.get_dict()})
+        return jsonify({'code': 1000, 'message': achievement_db.get_dict()})
 
     try:
-        return jsonify({'adopt': True, 'message': db_init_total(g.user.id)})
+        return jsonify({'code': 1000, 'message': db_init_total(g.user.id)})
     except NFUError as err:
-        return jsonify({'adopt': False, 'message': err.message})
+        return jsonify({'code': err.code, 'message': err.message})
 
 
 @achievement_bp.route('/update/total')
@@ -76,6 +76,6 @@ def update_total():
     :return:
     """
     try:
-        return jsonify({'adopt': True, 'message': db_update_total(g.user.id)})
+        return jsonify({'code': 1000, 'message': db_update_total(g.user.id)})
     except NFUError as err:
-        return jsonify({'adopt': False, 'message': err.message})
+        return jsonify({'code': err.code, 'message': err.message})

@@ -33,8 +33,8 @@ class Power(db.Model):
     def get_dict(self):
         return {
             'id': self.id,
-            'validate_email': self.validate_email,
-            'school_bus': self.school_bus,
+            'validateEmail': self.validate_email,
+            'schoolBus': self.school_bus,
             'admin': self.admin
         }
 
@@ -65,10 +65,10 @@ class TotalAchievements(db.Model):
 
     def get_dict(self):
         return {
-            'get_credit': self.get_credit,
-            'selected_credit ': self.selected_credit,
-            'average_achievement ': self.average_achievement,
-            'average_achievement_point': self.average_achievement_point
+            'getCredit': self.get_credit,
+            'selectedCredit ': self.selected_credit,
+            'averageAchievement ': self.average_achievement,
+            'averageAchievement_point': self.average_achievement_point
         }
 
 
@@ -93,18 +93,20 @@ class Achievement(db.Model):
 
     def get_dict(self):
         return {
-            'course_type': self.course_type,
-            'course_name': self.course_name,
-            'course_id': self.course_id,
-            'resit_exam': self.resit_exam,
+            'schoolYear': self.school_year,
+            'semester': self.semester,
+            'courseType': self.course_type,
+            'courseName': self.course_name,
+            'courseId': self.course_id,
+            'resitExam': self.resit_exam,
             'credit': self.credit,
-            'achievement_point': self.achievement_point,
-            'final_achievements': self.final_achievements,
-            'total_achievements': self.total_achievements,
-            'midterm_achievements': self.midterm_achievements,
-            'practice_achievements': self.practice_achievements,
-            'peacetime_achievements': self.peacetime_achievements,
-            'resit_exam_achievement_point': self.resit_exam_achievement_point
+            'achievementPoint': self.achievement_point,
+            'finalAchievements': self.final_achievements,
+            'totalAchievements': self.total_achievements,
+            'midtermAchievements': self.midterm_achievements,
+            'practiceAchievements': self.practice_achievements,
+            'peacetimeAchievements': self.peacetime_achievements,
+            'resitExamAchievementPoint': self.resit_exam_achievement_point
         }
 
 
@@ -126,15 +128,15 @@ class ClassSchedule(db.Model):
 
     def get_dict(self):
         return {
-            'course_name': self.course_name,
-            'course_id': self.course_id,
+            'courseName': self.course_name,
+            'courseId': self.course_id,
             'teacher': loads(self.teacher),
             'classroom': self.classroom,
             'weekday': self.weekday,
-            'start_node': self.start_node,
-            'end_node': self.end_node,
-            'start_week': self.start_week,
-            'end_week': self.end_week
+            'startNode': self.start_node,
+            'endNode': self.end_node,
+            'startWeek': self.start_week,
+            'endWeek': self.end_week
         }
 
 

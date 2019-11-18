@@ -43,7 +43,7 @@ def check_access_token(func):
         try:
             validate = validate_token(get_token())
         except NFUError as err:
-            return jsonify({'adopt': False, 'message': err.message, 'code': err.code})
+            return jsonify({'code': err.code, 'message': err.message})
 
         g.user = User.query.get(validate['id'])
         g.user_power = validate
