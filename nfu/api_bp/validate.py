@@ -1,9 +1,11 @@
+from json import loads
 from os import getenv
+from random import randint
 
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, g, request
 from redis import Redis
 
-from nfu.common import get_token
+from nfu.common import get_token, check_access_token
 from nfu.expand.token import validate_token
 from nfu.extensions import db
 from nfu.NFUError import NFUError
@@ -12,8 +14,8 @@ from nfu.models import User
 validate_bp = Blueprint('validate', __name__)
 
 
-@validate_bp.route('/email')
-def activation():
+@validate_bp.route('/activation')
+def activation() -> jsonify:
     """
     验证邮箱合法性，并激活账号
     因为有账号才能拿到token，故不考虑，账号不存在的情况
@@ -39,8 +41,48 @@ def activation():
     except AttributeError:
         return jsonify({'code': '2000', 'message': '注册信息已过期'})
 
+    # 删除缓存中的数据
+    r.delete(validate['id'])
+
+    # 把用户数据写入 MySql
     user = User(id=validate['id'], name=name, password=password, room_id=room_id, email=email)
     db.session.add(user)
     db.session.commit()
 
-    return jsonify({'adopt': True, 'message': 'success'})
+    return jsonify({'code': '1000', 'message': 'success'})
+
+
+@validate_bp.route('/getVerificationCode')
+@check_access_token
+def get_verification_code() -> jsonify:
+    """
+    生成六位验证码
+    :return:
+    """
+    r = Redis(host='localhost', password=getenv('REDIS_PASSWORD'), port=6379)
+    r.set(g.user.id, randint(100000, 999999), ex=600)
+
+    return jsonify({'code': '1000', 'message': 'success'})
+
+
+@validate_bp.route('/verificationCode')
+@check_access_token
+def verification_code() -> jsonify:
+    """
+    验证验证码
+    :return:
+    """
+
+    try:
+        data = loads(request.get_data().decode("utf-8"))
+        code = int(data['verificationCode'])
+    except (TypeError, ValueError):
+        return jsonify({'adopt': False, 'message': '服务器内部错误'})
+
+    r = Redis(host='localhost', password=getenv('REDIS_PASSWORD'), port=6379)
+
+    if int(r.get(g.user.id)) == code:
+        return jsonify({'code': '1000', 'message': 'success'})
+
+    else:
+        return jsonify({'code': '2000', 'message': '验证码错误'})
