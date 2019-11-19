@@ -1,6 +1,8 @@
 from functools import wraps
+from os import getenv
 
 from flask import g, jsonify, request
+from redis import Redis
 
 from nfu.expand.token import validate_token
 from nfu.models import User
@@ -72,7 +74,28 @@ def check_power_school_bus(func):
     return wrapper
 
 
-def get_token():
+def verification_code(code) -> None:
+    """
+    验证验证码
+    :return:
+    """
+
+    r = Redis(host='localhost', password=getenv('REDIS_PASSWORD'), port=6379)
+
+    try:
+        if int(r.get(g.user.id)) == code:
+
+            # 删除缓存中的数据
+            r.delete(g.user.id)
+
+        else:
+            raise NFUError('验证码错误')
+
+    except TypeError:
+        raise NFUError('验证码已过期')
+
+
+def get_token() -> str:
     """
     从请求头获取token
     :return:

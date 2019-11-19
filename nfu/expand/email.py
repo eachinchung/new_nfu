@@ -56,3 +56,19 @@ def send_validate_email(to: str, name: str, user_id: int, token) -> None:
     body = render_template('email/validate_email.txt', name=name, user_id=user_id, url=url)
     html = render_template('email/validate_email.html', name=name, user_id=user_id, url=url)
     send_email('请验证您的邮箱地址', to, body, html)
+
+
+def send_verification_code(to: str, name: str, code: int) -> None:
+    """
+    发送验证码
+
+    url 拼接实例 http://127.0.0.1:5000/validate/email/token
+
+    :param to: 收件人
+    :param name: 用户姓名
+    :param code: 验证码
+    :return:
+    """
+    body = render_template('email/verification_code.txt', name=name, code=code)
+    html = render_template('email/verification_code.html', name=name, code=code)
+    send_email('您的验证码', to, body, html)

@@ -1,11 +1,11 @@
-from json import loads
 from os import getenv
 from random import randint
 
-from flask import Blueprint, g, jsonify, request
+from flask import Blueprint, g, jsonify
 from redis import Redis
 
 from nfu.common import check_access_token, get_token
+from nfu.expand.email import send_verification_code
 from nfu.expand.token import validate_token
 from nfu.extensions import db
 from nfu.models import User
@@ -49,7 +49,7 @@ def activation() -> jsonify:
     db.session.add(user)
     db.session.commit()
 
-    return jsonify({'code': '1000', 'message': 'success'})
+    return jsonify({'code': '1000', 'message': '激活成功'})
 
 
 @validate_bp.route('/getVerificationCode')
@@ -59,38 +59,12 @@ def get_verification_code() -> jsonify:
     生成六位验证码
     :return:
     """
-    r = Redis(host='localhost', password=getenv('REDIS_PASSWORD'), port=6379)
-    r.set(g.user.id, randint(100000, 999999), ex=300)
 
-    return jsonify({'code': '1000', 'message': 'success'})
-
-
-@validate_bp.route('/verificationCode')
-@check_access_token
-def verification_code() -> jsonify:
-    """
-    验证验证码
-    :return:
-    """
-
-    try:
-        data = loads(request.get_data().decode('utf-8'))
-        code = int(data['verificationCode'])
-    except (TypeError, ValueError):
-        return jsonify({'adopt': False, 'message': '服务器内部错误'})
+    code = randint(100000, 999999)
 
     r = Redis(host='localhost', password=getenv('REDIS_PASSWORD'), port=6379)
+    r.set(g.user.id, code, ex=300)
 
-    try:
-        if int(r.get(g.user.id)) == code:
+    send_verification_code(g.user.email, g.user.name, code)
 
-            # 删除缓存中的数据
-            r.delete(g.user.id)
-
-            return jsonify({'code': '1000', 'message': 'success'})
-
-        else:
-            return jsonify({'code': '2000', 'message': '验证码错误'})
-
-    except TypeError:
-        return jsonify({'code': '2000', 'message': '验证码已过期'})
+    return jsonify({'code': '1000', 'message': '验证码已发送至您的邮箱，请查看'})
