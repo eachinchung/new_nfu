@@ -149,7 +149,10 @@ def set_password() -> jsonify:
     if not g.user.validate_password(password):
         return jsonify({'code': '2000', 'message': '密码错误'})
 
-    verification_code(code)
+    try:  # 验证验证码是否正确
+        verification_code(code)
+    except NFUError as err:
+        return jsonify({'code': err.code, 'message': err.message})
 
     g.user.password = generate_password_hash(new_password)
     db.session.add(g.user)
@@ -176,7 +179,10 @@ def set_email() -> jsonify:
     if not g.user.validate_password(password):
         return jsonify({'code': '2000', 'message': '密码错误'})
 
-    verification_code(code)
+    try:  # 验证验证码是否正确
+        verification_code(code)
+    except NFUError as err:
+        return jsonify({'code': err.code, 'message': err.message})
 
     g.user.email = new_email
     db.session.add(g.user)
