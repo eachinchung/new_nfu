@@ -66,8 +66,8 @@ def refresh_token() -> jsonify:
     # 验证 token 是否通过
     try:
         validate = validate_token(get_token(), 'REFRESH_TOKEN')
-    except ValueError as err:
-        return jsonify({'code': '2000', 'message': str(err)})
+    except NFUError as err:
+        return jsonify({'code': err.code, 'message': err.message})
 
     user = User.query.get(validate['id'])
 
