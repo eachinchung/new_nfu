@@ -1,15 +1,14 @@
 from json import loads
 from os import getenv
 
-from flask import Blueprint, g, jsonify, request
+from flask import Blueprint, jsonify, request
 from redis import Redis
 from werkzeug.security import generate_password_hash
 
-from nfu.common import check_access_token, get_token, verification_code
+from nfu.common import get_token
 from nfu.expand.email import send_validate_email
 from nfu.expand.nfu import get_student_name
 from nfu.expand.token import generate_token, validate_token
-from nfu.extensions import db
 from nfu.models import User
 from nfu.NFUError import NFUError
 
@@ -46,12 +45,11 @@ def get_token_bp() -> jsonify:
     if not user.validate_password(data['password']):
         return jsonify({'code': '0003', 'message': '密码错误'})
 
-    token_data = {'id': user.id}
     return jsonify({
         'code': '1000',
         'message': {
-            'access_token': generate_token(token_data),
-            'refresh_token': generate_token(token_data, token_type='REFRESH_TOKEN', expires_in=2592000)
+            'accessToken': generate_token({'id': user.id, 'busPower': user.bus_session is not None}),
+            'refreshToken': generate_token({'id': user.id}, token_type='REFRESH_TOKEN', expires_in=2592000)
         }
     })
 
@@ -74,12 +72,11 @@ def refresh_token() -> jsonify:
     if user is None:
         return jsonify({'code': '2000', 'message': '账号不存在'})
 
-    token_data = {'id': user.id}
     return jsonify({
         'code': '1000',
         'message': {
-            'access_token': generate_token(token_data),
-            'refresh_token': generate_token(token_data, token_type='REFRESH_TOKEN', expires_in=2592000)
+            'accessToken': generate_token({'id': user.id, 'busPower': user.bus_session is not None}),
+            'refreshToken': generate_token({'id': user.id}, token_type='REFRESH_TOKEN', expires_in=2592000)
         }
     })
 
@@ -129,63 +126,3 @@ def sign_up() -> jsonify:
     r.expire(user_id, 3600)
 
     return jsonify({'code': '1000', 'message': '激活邮件已发送至您的邮箱，请查看'})
-
-
-@oauth_bp.route('/set/password', methods=['POST'])
-@check_access_token
-def set_password() -> jsonify:
-    """
-    更新密码
-    :return:
-    """
-    try:
-        data = loads(request.get_data().decode('utf-8'))
-        password = data['password']
-        new_password = data['newPassword']
-        code = data['code']
-    except (TypeError, ValueError):
-        return jsonify({'code': '2000', 'message': '服务器内部错误'})
-
-    if not g.user.validate_password(password):
-        return jsonify({'code': '2000', 'message': '密码错误'})
-
-    try:  # 验证验证码是否正确
-        verification_code(code)
-    except NFUError as err:
-        return jsonify({'code': err.code, 'message': err.message})
-
-    g.user.password = generate_password_hash(new_password)
-    db.session.add(g.user)
-    db.session.commit()
-
-    return jsonify({'code': '1000', 'message': '密码更新成功'})
-
-
-@oauth_bp.route('/set/email', methods=['POST'])
-@check_access_token
-def set_email() -> jsonify:
-    """
-    更新邮箱
-    :return:
-    """
-    try:
-        data = loads(request.get_data().decode('utf-8'))
-        password = data['password']
-        new_email = data['newEmail']
-        code = data['code']
-    except (TypeError, ValueError):
-        return jsonify({'code': '2000', 'message': '服务器内部错误'})
-
-    if not g.user.validate_password(password):
-        return jsonify({'code': '2000', 'message': '密码错误'})
-
-    try:  # 验证验证码是否正确
-        verification_code(code)
-    except NFUError as err:
-        return jsonify({'code': err.code, 'message': err.message})
-
-    g.user.email = new_email
-    db.session.add(g.user)
-    db.session.commit()
-
-    return jsonify({'code': '1000', 'message': '邮箱更新成功'})

@@ -74,7 +74,7 @@ def check_power_school_bus(func):
     return wrapper
 
 
-def verification_code(code) -> None:
+def verification_code(code: int) -> None:
     """
     验证验证码
     :return:
@@ -89,10 +89,10 @@ def verification_code(code) -> None:
             r.delete(g.user.id)
 
         else:
-            raise NFUError('验证码错误')
+            raise NFUError('验证码错误', code='2001')
 
     except TypeError:
-        raise NFUError('验证码已过期')
+        raise NFUError('验证码错误', code='2001')
 
 
 def get_token() -> str:
@@ -104,9 +104,9 @@ def get_token() -> str:
     try:
         token_type, token = request.headers['Authorization'].split(None, 1)
     except (KeyError, ValueError):
-        raise NFUError('没有访问权限')
+        raise NFUError('没有访问权限', code='1001')
 
     if token == 'null' or token_type.lower() != 'bearer':
-        raise NFUError('没有访问权限')
+        raise NFUError('没有访问权限', code='1001')
 
     return token
