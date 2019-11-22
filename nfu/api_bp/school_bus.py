@@ -114,8 +114,8 @@ def return_ticket_bp():
 
     try:
         data = loads(request.get_data().decode('utf-8'))
-        order_id = data['order_id']
-        ticket_id = data['ticket_id']
+        order_id = data['orderId']
+        ticket_id = data['ticketId']
     except ValueError:
         return jsonify({'code': '2000', 'message': '服务器内部错误'})
 
