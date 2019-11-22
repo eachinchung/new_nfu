@@ -19,9 +19,9 @@
       <div class="swiper-slide">
         <div class="top_xi">
           <div class="road_box">
-            {{ bus_data['road_from']|safe }}
+            {{ bus_data['roadFrom']|safe }}
             <span class="road_line">→</span>
-            {{ bus_data['road_to']|safe }}
+            {{ bus_data['roadTo']|safe }}
           </div>
           <div class="data_box">
             {{ bus_data['year']|safe }}
@@ -29,7 +29,7 @@
             {{ bus_data['time']|safe }}
             <span class="data_to">发车</span>
           </div>
-          {{ bus_data['bus_id']|safe }}
+          {{ bus_data['busId']|safe }}
           <div class="box_radius">
             <div class="radius"></div>
             <div class="radius"></div>
@@ -43,10 +43,10 @@
             验票时请调亮屏幕
           </p>
           <div class="erwei" id="erwei"></div>
-          <p class="erwei_num">{{ data['ticket_id']|safe }}</p>
+          <p class="erwei_num">{{ data['ticketId']|safe }}</p>
           {{ data['passenger']|safe }}
           {{ data['seat']|safe }}
-          <p class="erwei_num erwei_c" style="text-align: center;text-indent:.5rem;">{{ bus_data['take_station'] }}</p>
+          <p class="erwei_num erwei_c" style="text-align: center;text-indent:.5rem;">{{ bus_data['takeStation'] }}</p>
           <div class="box_radius">
             <div class="radius"></div>
             <div class="radius"></div>

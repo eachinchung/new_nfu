@@ -5,7 +5,7 @@ from itsdangerous import BadSignature, SignatureExpired, TimedJSONWebSignatureSe
 from nfu.NFUError import NFUError
 
 
-def generate_token(data: dict, *, token_type: str = 'ACCESS_TOKEN', expires_in: int = 3600) -> tuple:
+def generate_token(data: dict, *, token_type: str = 'ACCESS_TOKEN', expires_in: int = 3600) -> str:
     """
     生成令牌
     :param data: 令牌的内容

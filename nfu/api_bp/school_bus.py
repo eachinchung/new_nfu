@@ -134,28 +134,26 @@ def not_used_order():
     :return:
     """
     try:
-        return jsonify({'code': '1000', 'message': get_not_used_order(g.user.bus_session)})
+        return jsonify({'code': '1000', 'message': get_not_used_order(g.user.id, g.user.bus_session)})
     except NFUError as err:
         return jsonify({'code': err.code, 'message': err.message})
 
 
-@school_bus_bp.route('/ticket')
-def get_ticket():
+@school_bus_bp.route('/ticket/<string:token>')
+def get_ticket(token: str) -> render_template:
     """
     获取电子车票
     :return:
     """
 
     try:
-        token_data = validate_token(request.args.get('token'))
+        token_data = validate_token(token, 'TICKET_TOKEN')
+        user_id = token_data['userId']
+        order_id = token_data['orderId']
     except NFUError as err:
         return render_template('html/err.html', err=err.message)
 
-    if not token_data['school_bus']:
-        return render_template('html/err.html', err='没有访问权限')
-
-    user = User.query.get(token_data['id'])
-    order_id = request.args.get('orderId')
+    user = User.query.get(user_id)
 
     try:
         ticket_data = school_bus.get_ticket_data(order_id, user.bus_session)
@@ -185,5 +183,5 @@ def alipay_qrcode():
     二维码生成
     :return:
     """
-    alipays_url = school_bus.get_alipays_url(request.args.get('tradeNo'))
-    return send_file(school_bus.get_qrcode(url=alipays_url), mimetype='image/png')
+    alipay_url = school_bus.get_alipays_url(request.args.get('tradeNo'))
+    return send_file(school_bus.get_qrcode(url=alipay_url), mimetype='image/png')

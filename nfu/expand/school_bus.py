@@ -8,6 +8,7 @@ import qrcode
 from requests import session
 
 from nfu.NFUError import NFUError
+from nfu.expand.token import generate_token
 
 
 def get_bus_schedule(route_id: int, date: list, bus_session: str) -> dict:
@@ -143,13 +144,13 @@ def get_ticket_data(order_id: int, bus_session: str) -> tuple:
     try:
         response = http_session.get(url, params={'order_id': order_id}, headers=headers)
         bus_data = {
-            'road_from': search(r'<span class="road_from">.+', response.text).group()[:-1],
-            'road_to': search(r'<span class="road_to">.+', response.text).group()[:-1],
+            'roadFrom': search(r'<span class="road_from">.+', response.text).group()[:-1],
+            'roadTo': search(r'<span class="road_to">.+', response.text).group()[:-1],
             'year': search(r'<span class="data_y">.+', response.text).group()[:-1],
             'week': search(r'<span class="data_week">.+', response.text).group()[:-1],
             'time': search(r'<span class="data_hm">.+', response.text).group()[:-1],
-            'bus_id': search(r'<div class="data_bc">.+', response.text).group()[:-1],
-            'take_station': search(r'上车点：.+', response.text).group()[:-5]
+            'busId': search(r'<div class="data_bc">.+', response.text).group()[:-1],
+            'takeStation': search(r'上车点：.+', response.text).group()[:-5]
         }
         javascript = search(r'<script>.+</script>', response.text, S).group()
 
@@ -164,7 +165,7 @@ def get_ticket_data(order_id: int, bus_session: str) -> tuple:
 
     for i, ticket_id in enumerate(ticket_ids):
         ticket.append({
-            'ticket_id': ticket_id[:-1],
+            'ticketId': ticket_id[:-1],
             'passenger': passengers[i][:-1],
             'seat': seats[i][:-1]
         })
@@ -211,7 +212,7 @@ def get_ticket_ids(order_id: int, bus_session: str) -> list:
             ticket_list.append({
                 'code': '1000',
                 'name': name,
-                'ticket_id': ticket_id
+                'ticketId': ticket_id
             })
 
     return ticket_list
@@ -248,9 +249,10 @@ def return_ticket(order_id: int, ticket_id: int, bus_session: str) -> str:
     return response['desc']
 
 
-def get_not_used_order(bus_session: str, order_type: int = 0) -> list:
+def get_not_used_order(user_id: int, bus_session: str, order_type: int = 0) -> list:
     """
     获取待乘车订单
+    :param user_id:
     :param bus_session:
     :param order_type: 标签页 0.待乘车 1.待付款 3.全部
     :return:
@@ -270,7 +272,25 @@ def get_not_used_order(bus_session: str, order_type: int = 0) -> list:
     except (OSError, decoder.JSONDecodeError):
         raise NFUError('学校车票系统错误，请稍后再试')
 
-    return response
+    # ok我们处理一下车票数据，让他返回一些我们要的数据
+    result = []
+
+    for item in response:
+        result.append({
+            'id': item['id'],
+            'date': item['date'],
+            'week': item['week'],
+            'startTime': item['start_time'],
+            'price': item['price'],
+            'startFromName': item['start_from_name'],
+            'startToName': item['start_to_name'],
+            'ticketUrl': getenv('API_URL') + '/schoolBus/ticket/' + generate_token({
+                'userId': user_id,
+                'orderId': item['id']
+            }, token_type='TICKET_TOKEN', expires_in=604800)
+        })
+
+    return result
 
 
 def get_qrcode(url: str) -> BytesIO:
