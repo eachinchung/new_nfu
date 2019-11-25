@@ -123,9 +123,8 @@ class ClassSchedule(db.Model):
 class TicketOrder(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer)
-    ticket_time = db.Column(db.DateTime)
-    bus_ids = db.Column(db.String)
+    bus_ids = db.Column(db.Integer)
     passenger_ids = db.Column(db.String)
-    order_message = db.Column(db.String)
     order_time = db.Column(db.DateTime)
-    trade_no = db.Column(db.String)
+    order_state = db.Column(db.Integer)
+    ticket_time = db.Column(db.DateTime)
