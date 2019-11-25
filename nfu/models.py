@@ -125,6 +125,7 @@ class TicketOrder(db.Model):
     user_id = db.Column(db.Integer)
     bus_ids = db.Column(db.Integer)
     passenger_ids = db.Column(db.String)
+    order_type = db.Column(db.Integer)
     order_time = db.Column(db.DateTime)
     order_state = db.Column(db.Integer)
     ticket_time = db.Column(db.DateTime)
