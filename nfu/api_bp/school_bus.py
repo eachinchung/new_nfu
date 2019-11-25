@@ -5,7 +5,6 @@ from flask import Blueprint, g, jsonify, render_template, request, send_file
 
 from nfu.common import check_access_token, check_power_school_bus
 from nfu.expand import school_bus
-from nfu.expand.school_bus import get_not_used_order
 from nfu.expand.token import validate_token
 from nfu.models import User
 from nfu.NFUError import NFUError
@@ -77,9 +76,28 @@ def create_order_bp():
 
     return jsonify({
         'code': '1000',
-        'message': order,
-        'alipays_url': school_bus.get_alipays_url(order['trade_no']),
-        'alipays_qr_url': getenv('API_URL') + '/schoolBus/alipay/qrcode?tradeNo=' + order['trade_no']
+        'message': order
+    })
+
+
+@school_bus_bp.route('/order/pay', methods=['POST'])
+@check_access_token
+@check_power_school_bus
+def order_pay():
+    """
+    订单的支付信息
+    :return:
+    """
+    try:
+        data = loads(request.get_data().decode("utf-8"))
+        order_id = data['orderId']
+        bus_session = g.user.bus_session
+    except ValueError:
+        return jsonify({'code': '2000', 'message': '服务器内部错误'})
+
+    return jsonify({
+        'code': '1000',
+        'message': school_bus.get_pay_order(order_id, bus_session)
     })
 
 
@@ -134,7 +152,7 @@ def not_used_order():
     :return:
     """
     try:
-        return jsonify({'code': '1000', 'message': get_not_used_order(g.user.id, g.user.bus_session)})
+        return jsonify({'code': '1000', 'message': school_bus.get_not_used_order(g.user.id, g.user.bus_session)})
     except NFUError as err:
         return jsonify({'code': err.code, 'message': err.message})
 
@@ -183,5 +201,5 @@ def alipay_qrcode():
     二维码生成
     :return:
     """
-    alipay_url = school_bus.get_alipays_url(request.args.get('tradeNo'))
+    alipay_url = school_bus.get_alipay_url(request.args.get('tradeNo'))
     return send_file(school_bus.get_qrcode(url=alipay_url), mimetype='image/png')

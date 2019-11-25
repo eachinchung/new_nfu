@@ -111,9 +111,55 @@ def create_order(passenger_ids: str, connect_id: int, schedule_id: int, date: st
         raise NFUError(response['desc'], code=response['code'])
 
     return {
-        'trade_no': response['trade_no'],
-        'out_trade_no': response['out_trade_no'],
-        'order_id': response['order_id']
+        'tradeNo': response['trade_no'],
+        'outTradeNo': response['out_trade_no'],
+        'orderId': response['order_id']
+    }
+
+
+def get_pay_order(order_id: int, bus_session: str) -> dict:
+    """
+    获取未支付订单的数据
+    :param order_id:
+    :param bus_session:
+    :return:
+    """
+    url = 'http://nfuedu.zftcloud.com/campusbus_index/order/notpay_order/order_id/{}.html'.format(order_id)
+    http_session = session()
+    headers = {'Cookie': bus_session}
+
+    try:
+        response = http_session.get(url, params={'order_id': order_id}, headers=headers)
+        route = '{} -> {}'.format(
+            search(r'<span class="site_from">.+</span>', response.text).group()[24:-7],
+            search(r'<span class="site_to">.+</span>', response.text).group()[22:-7]
+        )
+        date = '{} {}'.format(
+            search(r'<span class="time_go">\S+</span>', response.text).group()[22:-7],
+            search(r'<span class="time_day">\S+</span>', response.text).group()[23:-7]
+        )
+        names = findall(r'<span class="title_name title_w">\D+</span>', response.text)
+        phones = findall(r'<span class="title_iphone">\d+</span>', response.text)
+        trade_no = search(r'var tradeNo = .+', response.text).group()[15:-2]
+        price = search(r'￥<span>\d+</span>', response.text).group()[7:-7]
+    except (OSError, AttributeError):
+        raise NFUError('学校车票系统错误，请稍后再试')
+
+    # 把乘客信息处理成一个列表
+    passengers = []
+    for i, name in enumerate(names):
+        passengers.append({
+            'name': name[33:-7],
+            'phone': phones[i][27:-7]
+        })
+
+    return {
+        'route': route,
+        'date': date,
+        'passengers': passengers,
+        'price': price,
+        'alipayUrl': get_alipay_url(trade_no),
+        'alipayQrUrl': getenv('API_URL') + '/schoolBus/alipay/qrcode?tradeNo=' + trade_no
     }
 
 
@@ -315,7 +361,7 @@ def get_qrcode(url: str) -> BytesIO:
     return byte_io
 
 
-def get_alipays_url(trade_no: int) -> str:
+def get_alipay_url(trade_no: str) -> str:
     """
     返回唤醒alipay的url
     :param trade_no:
