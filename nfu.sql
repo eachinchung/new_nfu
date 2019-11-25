@@ -85,13 +85,14 @@ create table ticket_order
     id            int      not null primary key auto_increment,
     user_id       int(9)   not null,
     bus_ids       int      not null,
+    bus_order_id  int      null,
     passenger_ids json     not null,
+    order_id      char(20) not null,
     order_type    tinyint  not null,
     order_time    datetime not null,
     order_state   tinyint  not null,
     ticket_time   datetime not null,
+    index user_id (user_id),
+    unique index order_id (order_id),
     foreign key (user_id) references user (id) on delete cascade on update cascade
 );
-
-alter table ticket_order
-    auto_increment = 1000000000;
