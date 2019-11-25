@@ -3,7 +3,8 @@ from json import dumps, loads
 from flask import Blueprint, g, jsonify, render_template, request, send_file
 
 from nfu.common import check_access_token, check_power_school_bus
-from nfu.expand import school_bus
+from nfu.expand.school_bus import create_order, get_alipay_url, get_bus_schedule, get_passenger_data, get_pay_order, \
+    get_pending_payment_order, get_qrcode, get_ticket_data, get_ticket_ids, get_waiting_ride_order, return_ticket
 from nfu.expand.token import validate_token
 from nfu.models import User
 from nfu.NFUError import NFUError
@@ -28,7 +29,7 @@ def get_schedule():
         return jsonify({'code': '2000', 'message': '服务器内部错误'})
 
     try:
-        return jsonify({'code': '1000', 'message': school_bus.get_bus_schedule(route_id, date, g.user.bus_session)})
+        return jsonify({'code': '1000', 'message': get_bus_schedule(route_id, date, g.user.bus_session)})
     except NFUError as err:
         return jsonify({'code': err.code, 'message': err.message})
 
@@ -43,7 +44,7 @@ def get_passenger():
     """
 
     try:
-        return jsonify({'code': '1000', 'message': school_bus.get_passenger_data(g.user.bus_session)})
+        return jsonify({'code': '1000', 'message': get_passenger_data(g.user.bus_session)})
     except NFUError as err:
         return jsonify({'code': err.code, 'message': err.message})
 
@@ -69,7 +70,7 @@ def create_order_bp():
         return jsonify({'code': '2000', 'message': '服务器内部错误'})
 
     try:
-        order = school_bus.create_order(passenger_ids, connect_id, schedule_id, date, take_station, bus_session)
+        order = create_order(passenger_ids, connect_id, schedule_id, date, take_station, bus_session)
     except NFUError as err:
         return jsonify({'code': err.code, 'message': err.message, 'busCode': err.code})
 
@@ -96,7 +97,7 @@ def order_pay():
 
     return jsonify({
         'code': '1000',
-        'message': school_bus.get_pay_order(order_id, bus_session)
+        'message': get_pay_order(order_id, bus_session)
     })
 
 
@@ -115,7 +116,7 @@ def get_ticket_ids_bp():
         return jsonify({'code': '2000', 'message': '服务器内部错误'})
 
     try:
-        return jsonify({'code': '1000', 'message': school_bus.get_ticket_ids(order_id, g.user.bus_session)})
+        return jsonify({'code': '1000', 'message': get_ticket_ids(order_id, g.user.bus_session)})
     except NFUError as err:
         return jsonify({'code': err.code, 'message': err.message})
 
@@ -137,21 +138,35 @@ def return_ticket_bp():
         return jsonify({'code': '2000', 'message': '服务器内部错误'})
 
     try:
-        return jsonify({'code': '1000', 'message': school_bus.return_ticket(order_id, ticket_id, g.user.bus_session)})
+        return jsonify({'code': '1000', 'message': return_ticket(order_id, ticket_id, g.user.bus_session)})
     except NFUError as err:
         return jsonify({'code': err.code, 'message': err.message})
 
 
-@school_bus_bp.route('/order/notUsed')
+@school_bus_bp.route('/order/waitingRide')
 @check_access_token
 @check_power_school_bus
-def not_used_order():
+def waiting_ride_order():
     """
     获取待乘车的订单
     :return:
     """
     try:
-        return jsonify({'code': '1000', 'message': school_bus.get_not_used_order(g.user.id, g.user.bus_session)})
+        return jsonify({'code': '1000', 'message': get_waiting_ride_order(g.user.id, g.user.bus_session)})
+    except NFUError as err:
+        return jsonify({'code': err.code, 'message': err.message})
+
+
+@school_bus_bp.route('/order/pendingPayment')
+@check_access_token
+@check_power_school_bus
+def pending_payment_order():
+    """
+    获取待乘车的订单
+    :return:
+    """
+    try:
+        return jsonify({'code': '1000', 'message': get_pending_payment_order(g.user.bus_session)})
     except NFUError as err:
         return jsonify({'code': err.code, 'message': err.message})
 
@@ -173,7 +188,7 @@ def get_ticket(token: str) -> render_template:
     user = User.query.get(user_id)
 
     try:
-        ticket_data = school_bus.get_ticket_data(order_id, user.bus_session)
+        ticket_data = get_ticket_data(order_id, user.bus_session)
     except NFUError as err:
         return render_template('html/err.html', err=err.message)
 
@@ -200,5 +215,5 @@ def alipay_qrcode():
     二维码生成
     :return:
     """
-    alipay_url = school_bus.get_alipay_url(request.args.get('tradeNo'))
-    return send_file(school_bus.get_qrcode(url=alipay_url), mimetype='image/png')
+    alipay_url = get_alipay_url(request.args.get('tradeNo'))
+    return send_file(get_qrcode(url=alipay_url), mimetype='image/png')

@@ -7,8 +7,8 @@ from urllib.parse import quote
 import qrcode
 from requests import session
 
-from nfu.NFUError import NFUError
 from nfu.expand.token import generate_token
+from nfu.NFUError import NFUError
 
 
 def get_bus_schedule(route_id: int, date: list, bus_session: str) -> dict:
@@ -295,12 +295,11 @@ def return_ticket(order_id: int, ticket_id: int, bus_session: str) -> str:
     return response['desc']
 
 
-def get_not_used_order(user_id: int, bus_session: str, order_type: int = 0) -> list:
+def get_order_list(bus_session: str, list_type: int) -> list:
     """
-    获取待乘车订单
-    :param user_id:
+    获取订单列表
     :param bus_session:
-    :param order_type: 标签页 0.待乘车 1.待付款 3.全部
+    :param list_type:
     :return:
     """
     url = 'http://nfuedu.zftcloud.com/campusbus_index/order/refresh.html'
@@ -308,7 +307,7 @@ def get_not_used_order(user_id: int, bus_session: str, order_type: int = 0) -> l
     headers = {'Cookie': bus_session}
 
     data = {
-        'type': order_type,
+        'type': list_type,
         'page': 1
     }
 
@@ -318,7 +317,17 @@ def get_not_used_order(user_id: int, bus_session: str, order_type: int = 0) -> l
     except (OSError, decoder.JSONDecodeError):
         raise NFUError('学校车票系统错误，请稍后再试')
 
-    # ok我们处理一下车票数据，让他返回一些我们要的数据
+    return response
+
+
+def get_waiting_ride_order(user_id: int, bus_session: str) -> list:
+    """
+    获取待乘车订单
+    :param user_id:
+    :param bus_session:
+    :return:
+    """
+    response = get_order_list(bus_session, 0)
     result = []
 
     for item in response:
@@ -334,6 +343,29 @@ def get_not_used_order(user_id: int, bus_session: str, order_type: int = 0) -> l
                 'userId': user_id,
                 'orderId': item['id']
             }, token_type='TICKET_TOKEN', expires_in=604800)
+        })
+
+    return result
+
+
+def get_pending_payment_order(bus_session: str) -> list:
+    """
+    获取待付款的订单
+    :param bus_session:
+    :return:
+    """
+    response = get_order_list(bus_session, 1)
+    result = []
+
+    for item in response:
+        result.append({
+            'id': item['id'],
+            'date': item['date'],
+            'week': item['week'],
+            'startTime': item['start_time'],
+            'price': item['price'],
+            'startFromName': item['start_from_name'],
+            'startToName': item['start_to_name']
         })
 
     return result
