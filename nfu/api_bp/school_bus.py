@@ -1,5 +1,4 @@
 from json import dumps, loads
-from os import getenv
 
 from flask import Blueprint, g, jsonify, render_template, request, send_file
 

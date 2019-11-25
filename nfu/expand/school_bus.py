@@ -29,7 +29,7 @@ def get_bus_schedule(route_id: int, date: list, bus_session: str) -> dict:
     :param route_id: 校车路线
     :param date: 乘车日期
     :param bus_session: 校车系统的 session
-    :return: 0.是否成功获取数据，1.数据
+    :return:
     """
 
     url = 'http://nfuedu.zftcloud.com/campusbus_index/ticket/show_schedule.html'
@@ -54,7 +54,7 @@ def get_passenger_data(bus_session: str) -> list:
     获取乘车人数据
     同样，数据都会在页面直接返回。
     :param bus_session: 校车系统的 session
-    :return: 0.是否成功获取数据，1.数据
+    :return:
     """
     url = 'http://nfuedu.zftcloud.com/campusbus_index/my/passenger_puls.html'
     headers = {'Cookie': bus_session}
