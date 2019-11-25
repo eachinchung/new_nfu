@@ -1,3 +1,5 @@
+create database nfu;
+
 use nfu;
 
 create table user
@@ -80,14 +82,14 @@ create table class_schedule
 
 create table ticket_order
 (
-    id            int          not null primary key auto_increment,
-    user_id       int(9)       not null,
-    ticket_time   datetime     not null,
-    bus_ids       json         not null,
-    passenger_ids json         not null,
-    order_message varchar(255) not null,
-    order_time    datetime     not null,
-    trade_no      varchar(50)  null,
+    id            int      not null primary key auto_increment,
+    user_id       int(9)   not null,
+    bus_ids       int      not null,
+    passenger_ids json     not null,
+    order_type    tinyint  not null,
+    order_time    datetime not null,
+    order_state   tinyint  not null,
+    ticket_time   datetime not null,
     foreign key (user_id) references user (id) on delete cascade on update cascade
 );
 
