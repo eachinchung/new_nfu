@@ -14,9 +14,10 @@ DATABASE_URL=xxxxxxx
 ACCESS_TOKEN=xxxxxxx
 REFRESH_TOKEN=xxxxxxx
 EMAIL_TOKEN=xxxxxxx
+TICKET_TOKEN=xxxxxxx
 
 # Redis 密码
-REDIS_PASSWORD=
+REDIS_PASSWORD=xxxxxxx
 
 # 邮箱信息
 MAIL_SERVER=smtp.exmail.qq.com
@@ -56,6 +57,8 @@ FRONT_END_URL=http://127.0.0.1:8080
 ### 车票模块
 - [x] 获取班车时刻表
 - [x] 获取乘车人数据
+- [x] 获取待乘车订单
+- [x] 获取待付款订单
 - [x] 购票创建订单
 - [x] 支付宝支付接口
 - [x] 获取电子车票
