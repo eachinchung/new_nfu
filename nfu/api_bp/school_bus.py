@@ -7,14 +7,13 @@ from flask import Blueprint, g, jsonify, render_template, request, send_file
 from redis import Redis
 
 from nfu.common import check_access_token, check_power_school_bus
-from nfu.expand.school_bus_data import get_bus_schedule, get_passenger_data, \
-    get_pay_order, get_ticket_data, get_ticket_ids
-from nfu.expand.school_bus_order import create_order, get_alipay_url, get_pending_payment_order, \
-    get_qrcode, get_waiting_ride_order, return_ticket
 from nfu.expand.token import validate_token
+from nfu.expand_bus.order import create_order, get_pending_payment_order, get_waiting_ride_order
+from nfu.expand_bus.other_data import get_bus_schedule, get_passenger_data, get_pay_order, get_ticket_ids
+from nfu.expand_bus.ticket import get_alipay_url, get_qrcode, get_ticket_data, return_ticket
 from nfu.extensions import db
-from nfu.models import TicketOrder, User
-from nfu.NFUError import NFUError
+from nfu.models import BusUser, TicketOrder
+from nfu.nfu_error import NFUError
 
 school_bus_bp = Blueprint('school_bus', __name__)
 
@@ -36,7 +35,7 @@ def get_schedule() -> jsonify:
         return jsonify({'code': '2000', 'message': '服务器内部错误'})
 
     try:
-        return jsonify({'code': '1000', 'message': get_bus_schedule(route_id, date, g.user.bus_session)})
+        return jsonify({'code': '1000', 'message': get_bus_schedule(route_id, date)})
     except NFUError as err:
         return jsonify({'code': err.code, 'message': err.message})
 
@@ -51,7 +50,7 @@ def get_passenger() -> jsonify:
     """
 
     try:
-        return jsonify({'code': '1000', 'message': get_passenger_data(g.user.bus_session)})
+        return jsonify({'code': '1000', 'message': get_passenger_data()})
     except NFUError as err:
         return jsonify({'code': err.code, 'message': err.message})
 
@@ -72,12 +71,12 @@ def create_order_bp() -> jsonify:
         schedule_id = data['scheduleId']
         date = data['date']
         take_station = data['takeStation']
-        bus_session = g.user.bus_session
+
     except ValueError:
         return jsonify({'code': '2000', 'message': '服务器内部错误'})
 
     try:
-        order = create_order(passenger_ids, connect_id, schedule_id, date, take_station, bus_session)
+        order = create_order(passenger_ids, connect_id, schedule_id, date, take_station)
     except NFUError as err:
         return jsonify({'code': err.code, 'message': err.message, 'busCode': err.code})
 
@@ -98,13 +97,13 @@ def order_pay() -> jsonify:
     try:
         data = loads(request.get_data().decode("utf-8"))
         order_id = data['orderId']
-        bus_session = g.user.bus_session
+
     except ValueError:
         return jsonify({'code': '2000', 'message': '服务器内部错误'})
 
     return jsonify({
         'code': '1000',
-        'message': get_pay_order(order_id, bus_session)
+        'message': get_pay_order(order_id)
     })
 
 
@@ -116,6 +115,7 @@ def get_ticket_ids_bp() -> jsonify:
     获取车票的id，用于退票
     :return:
     """
+
     try:
         data = loads(request.get_data().decode('utf-8'))
         order_id = data['orderId']
@@ -123,7 +123,7 @@ def get_ticket_ids_bp() -> jsonify:
         return jsonify({'code': '2000', 'message': '服务器内部错误'})
 
     try:
-        return jsonify({'code': '1000', 'message': get_ticket_ids(order_id, g.user.bus_session)})
+        return jsonify({'code': '1000', 'message': get_ticket_ids(order_id)})
     except NFUError as err:
         return jsonify({'code': err.code, 'message': err.message})
 
@@ -145,7 +145,7 @@ def return_ticket_bp() -> jsonify:
         return jsonify({'code': '2000', 'message': '服务器内部错误'})
 
     try:
-        return jsonify({'code': '1000', 'message': return_ticket(order_id, ticket_id, g.user.bus_session)})
+        return jsonify({'code': '1000', 'message': return_ticket(order_id, ticket_id)})
     except NFUError as err:
         return jsonify({'code': err.code, 'message': err.message})
 
@@ -159,7 +159,7 @@ def waiting_ride_order() -> jsonify:
     :return:
     """
     try:
-        return jsonify({'code': '1000', 'message': get_waiting_ride_order(g.user.id, g.user.bus_session)})
+        return jsonify({'code': '1000', 'message': get_waiting_ride_order(g.user.id)})
     except NFUError as err:
         return jsonify({'code': err.code, 'message': err.message})
 
@@ -173,7 +173,7 @@ def pending_payment_order() -> jsonify:
     :return:
     """
     try:
-        return jsonify({'code': '1000', 'message': get_pending_payment_order(g.user.bus_session)})
+        return jsonify({'code': '1000', 'message': get_pending_payment_order()})
     except NFUError as err:
         return jsonify({'code': err.code, 'message': err.message})
 
@@ -266,10 +266,11 @@ def get_ticket(token: str) -> render_template:
     except NFUError as err:
         return render_template('html/err.html', err=err.message)
 
-    user = User.query.get(user_id)
+    g.bus_user = BusUser.query.get(user_id)
+    g.refresh = True
 
     try:
-        ticket_data = get_ticket_data(order_id, user.bus_session)
+        ticket_data = get_ticket_data(order_id)
     except NFUError as err:
         return render_template('html/err.html', err=err.message)
 

@@ -3,10 +3,10 @@ from json import loads
 from flask import Blueprint, g, jsonify, request
 from werkzeug.security import generate_password_hash
 
-from nfu.nfu_error import NFUError
 from nfu.common import check_access_token, verification_code
 from nfu.extensions import db
 from nfu.models import Dormitory
+from nfu.nfu_error import NFUError
 
 user_bp = Blueprint('user', __name__)
 

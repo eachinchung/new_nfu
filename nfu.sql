@@ -4,12 +4,20 @@ use nfu;
 
 create table user
 (
-    id          int          not null primary key,
-    name        varchar(15)  not null,
-    password    char(94)     not null,
-    room_id     int          not null,
-    email       varchar(255) not null,
-    bus_session varchar(50)  null
+    id       int          not null primary key,
+    name     varchar(15)  not null,
+    password char(94)     not null,
+    room_id  int          not null,
+    email    varchar(255) not null
+);
+
+create table bus_user
+(
+    user_id        int         not null primary key,
+    alipay_user_id varchar(20) not null,
+    id_card        varchar(20) not null,
+    bus_session    varchar(50) null,
+    foreign key (user_id) references user (id) on delete cascade on update cascade
 );
 
 create table dormitory

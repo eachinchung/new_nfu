@@ -9,7 +9,7 @@ from nfu.common import get_token
 from nfu.expand.email import send_validate_email
 from nfu.expand.nfu import get_student_name
 from nfu.expand.token import generate_token, validate_token
-from nfu.models import User
+from nfu.models import BusUser, User
 from nfu.nfu_error import NFUError
 
 oauth_bp = Blueprint('oauth', __name__)
@@ -48,7 +48,7 @@ def get_token_bp() -> jsonify:
     return jsonify({
         'code': '1000',
         'message': {
-            'accessToken': generate_token({'id': user.id, 'busPower': user.bus_session is not None}),
+            'accessToken': generate_token({'id': user.id, 'busPower': BusUser.query.get(user.id) is not None}),
             'refreshToken': generate_token({'id': user.id}, token_type='REFRESH_TOKEN', expires_in=2592000)
         }
     })
@@ -75,7 +75,7 @@ def refresh_token() -> jsonify:
     return jsonify({
         'code': '1000',
         'message': {
-            'accessToken': generate_token({'id': user.id, 'busPower': user.bus_session is not None}),
+            'accessToken': generate_token({'id': user.id, 'busPower': BusUser.query.get(user.id) is not None}),
             'refreshToken': generate_token({'id': user.id}, token_type='REFRESH_TOKEN', expires_in=2592000)
         }
     })

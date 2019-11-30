@@ -5,37 +5,54 @@ from werkzeug.security import check_password_hash
 from nfu.extensions import db
 
 
-# 用户表
 class User(db.Model):
+    """
+    用户表
+    """
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
     password = db.Column(db.String)
     room_id = db.Column(db.Integer)
     email = db.Column(db.String)
-    bus_session = db.Column(db.String)
 
     def validate_password(self, password):
         return check_password_hash(self.password, password)
 
 
-# 宿舍表
+class BusUser(db.Model):
+    """
+    校巴用户表
+    """
+    user_id = db.Column(db.Integer, primary_key=True)
+    alipay_user_id = db.Column(db.String)
+    id_card = db.Column(db.String)
+    bus_session = db.Column(db.String)
+
+
 class Dormitory(db.Model):
+    """
+    宿舍表
+    """
     id = db.Column(db.Integer, primary_key=True)
     building = db.Column(db.String)
     floor = db.Column(db.String)
     room = db.Column(db.Integer)
 
 
-# 电费表
 class Electric(db.Model):
+    """
+    电费表
+    """
     id = db.Column(db.Integer, primary_key=True)
     room_id = db.Column(db.Integer, index=True)
     value = db.Column(db.Float)
     time = db.Column(db.Date)
 
 
-# 总成绩表
 class TotalAchievements(db.Model):
+    """
+    总成绩表
+    """
     id = db.Column(db.Integer, primary_key=True)
     get_credit = db.Column(db.Integer)
     selected_credit = db.Column(db.Integer)
@@ -51,8 +68,10 @@ class TotalAchievements(db.Model):
         }
 
 
-# 成绩表
 class Achievement(db.Model):
+    """
+    成绩表
+    """
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer)
     school_year = db.Column(db.Integer)
@@ -89,8 +108,10 @@ class Achievement(db.Model):
         }
 
 
-# 课程表
 class ClassSchedule(db.Model):
+    """
+    课程表
+    """
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer)
     school_year = db.Column(db.Integer)
@@ -119,8 +140,10 @@ class ClassSchedule(db.Model):
         }
 
 
-# 车票订单
 class TicketOrder(db.Model):
+    """
+    车票订单
+    """
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer)
     bus_ids = db.Column(db.Integer)

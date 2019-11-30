@@ -5,8 +5,8 @@ from flask import g, jsonify, request
 from redis import Redis
 
 from nfu.expand.token import validate_token
-from nfu.models import User
-from nfu.NFUError import NFUError
+from nfu.models import User, BusUser
+from nfu.nfu_error import NFUError
 
 
 def get_config(func):
@@ -64,8 +64,10 @@ def check_power_school_bus(func):
 
     @wraps(func)
     def wrapper(*args, **kw):
+        g.refresh = True
+        g.bus_user = BusUser.query.get(g.user.id)
 
-        if g.user.bus_session is None:
+        if g.bus_user is None:
             return jsonify({'message': '没有访问权限'})
 
         else:
