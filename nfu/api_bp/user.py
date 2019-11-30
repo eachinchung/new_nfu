@@ -11,7 +11,7 @@ from nfu.nfu_error import NFUError
 user_bp = Blueprint('user', __name__)
 
 
-@user_bp.route('/getUserData')
+@user_bp.route('/data')
 @check_access_token
 def get_user():
     """

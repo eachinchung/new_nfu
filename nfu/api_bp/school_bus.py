@@ -1,17 +1,14 @@
 from datetime import datetime
 from json import dumps, loads
-from os import getenv
-from random import randint
 
 from flask import Blueprint, g, jsonify, render_template, request, send_file
-from redis import Redis
 
 from nfu.common import check_access_token, check_power_school_bus
 from nfu.expand.token import validate_token
+from nfu.expand_bus.accelerate import generate_order_number, put_mysql, put_redis
 from nfu.expand_bus.order import create_order, get_pending_payment_order, get_waiting_ride_order
 from nfu.expand_bus.other_data import get_bus_schedule, get_passenger_data, get_pay_order, get_ticket_ids
 from nfu.expand_bus.ticket import get_alipay_url, get_qrcode, get_ticket_data, return_ticket
-from nfu.extensions import db
 from nfu.models import BusUser, TicketOrder
 from nfu.nfu_error import NFUError
 
@@ -150,7 +147,7 @@ def return_ticket_bp() -> jsonify:
         return jsonify({'code': err.code, 'message': err.message})
 
 
-@school_bus_bp.route('/order/waitingRide')
+@school_bus_bp.route('/order/waiting-ride')
 @check_access_token
 @check_power_school_bus
 def waiting_ride_order() -> jsonify:
@@ -164,7 +161,7 @@ def waiting_ride_order() -> jsonify:
         return jsonify({'code': err.code, 'message': err.message})
 
 
-@school_bus_bp.route('/order/pendingPayment')
+@school_bus_bp.route('/order/pending-payment')
 @check_access_token
 @check_power_school_bus
 def pending_payment_order() -> jsonify:
@@ -189,65 +186,24 @@ def create_accelerate_order() -> jsonify:
 
     try:
         data = loads(request.get_data().decode('utf-8'))
-        bus_id = data['busId']
-        passenger_ids = data['passengerIds']
-        order_type = data['orderType']
-        order_state = data['orderState']
-        ticket_date = data['ticketDate']
-        take_station = data['takeStation']
-        bus_session = g.user.bus_session
     except ValueError:
         return jsonify({'code': '2000', 'message': '服务器内部错误'})
 
     # 防止重复下单
-    order_list = TicketOrder().query.filter_by(user_id=g.user.id, ticket_date=ticket_date, bus_ids=bus_id).first()
+    order_list = TicketOrder().query.filter_by(
+        user_id=g.user.id,
+        ticket_date=data['ticketDate'],
+        bus_ids=data['busId']
+    ).first()
+
     if order_list is not None:
         return jsonify({'code': '2000', 'message': '重复下单'})
 
-    # 生成订单号
-    user_id = str(g.user.id)
     today = datetime.today()
-    order_id = "{}{}{}{}{}".format(order_type, user_id[1], today.strftime("%y%m%d%H%M%S"),
-                                   randint(100, 999), user_id[-3:])
+    order_id = generate_order_number(data['orderType'], today)
 
-    # 订单写入mysql
-    order = TicketOrder()
-    order.user_id = g.user.id
-    order.bus_ids = bus_id
-    order.passenger_ids = dumps(passenger_ids)
-    order.order_id = order_id
-    order.order_type = order_type
-    order.order_time = today
-    order.order_state = order_state
-    order.ticket_date = ticket_date
-
-    db.session.add(order)
-    db.session.commit()
-
-    r = Redis(host='localhost', password=getenv('REDIS_PASSWORD'), port=6379)
-
-    # 预售订单写入Redis
-    if order_type == 1:
-        #
-        # 判断订单时间
-        #
-        r.hset('{}{}'.format(ticket_date, 'accelerate'), order_id, dumps({
-            'busId': bus_id,
-            'passengerIds': passenger_ids,
-            'orderTime': order_id,
-            'takeStation': take_station,
-            'busSession': bus_session
-        }))
-
-    # 刷票订单写入Redis
-    if order_type == 2:
-        r.hset('accelerateOrder', order_id, dumps({
-            'busId': bus_id,
-            'passengerIds': passenger_ids,
-            'orderTime': order_id,
-            'takeStation': take_station,
-            'busSession': bus_session
-        }))
+    put_mysql(data, order_id, today)
+    put_redis(data, order_id)
 
     return jsonify({'code': '1000', 'orderId': order_id})
 

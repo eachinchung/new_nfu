@@ -81,7 +81,7 @@ def refresh_token() -> jsonify:
     })
 
 
-@oauth_bp.route('/signUp', methods=['POST'])
+@oauth_bp.route('/sign-up', methods=['POST'])
 def sign_up() -> jsonify:
     """
     注册接口

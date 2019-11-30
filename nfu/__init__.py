@@ -37,10 +37,10 @@ def register_blueprints(app) -> None:
     :return:
     """
     app.register_blueprint(achievement_bp, url_prefix='/achievement')
-    app.register_blueprint(class_schedule_bp, url_prefix='/classSchedule')
+    app.register_blueprint(class_schedule_bp, url_prefix='/class-schedule')
     app.register_blueprint(electric_bp, url_prefix='/electric')
     app.register_blueprint(oauth_bp, url_prefix='/oauth')
-    app.register_blueprint(school_bus_bp, url_prefix='/schoolBus')
+    app.register_blueprint(school_bus_bp, url_prefix='/school-bus')
     app.register_blueprint(user_bp, url_prefix='/user')
     app.register_blueprint(validate_bp, url_prefix='/validate')
 

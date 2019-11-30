@@ -52,7 +52,7 @@ def activation() -> jsonify:
     return jsonify({'code': '1000', 'message': '激活成功'})
 
 
-@validate_bp.route('/getVerificationCode')
+@validate_bp.route('/verification-code')
 @check_access_token
 def get_verification_code() -> jsonify:
     """
