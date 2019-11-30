@@ -10,7 +10,7 @@ from nfu.expand.email import send_validate_email
 from nfu.expand.nfu import get_student_name
 from nfu.expand.token import generate_token, validate_token
 from nfu.models import User
-from nfu.NFUError import NFUError
+from nfu.nfu_error import NFUError
 
 oauth_bp = Blueprint('oauth', __name__)
 

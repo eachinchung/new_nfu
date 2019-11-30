@@ -2,7 +2,7 @@ from os import getenv
 
 from itsdangerous import BadSignature, SignatureExpired, TimedJSONWebSignatureSerializer
 
-from nfu.NFUError import NFUError
+from nfu.nfu_error import NFUError
 
 
 def generate_token(data: dict, *, token_type: str = 'ACCESS_TOKEN', expires_in: int = 3600) -> str:

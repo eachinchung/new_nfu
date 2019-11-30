@@ -3,7 +3,7 @@ from json import loads
 from flask import Blueprint, g, jsonify, request
 from werkzeug.security import generate_password_hash
 
-from nfu.NFUError import NFUError
+from nfu.nfu_error import NFUError
 from nfu.common import check_access_token, verification_code
 from nfu.extensions import db
 from nfu.models import Dormitory
@@ -24,7 +24,7 @@ def get_user():
         'id': g.user.id,
         'name': g.user.name,
         'email': g.user.email,
-        'dormitory': dormitory.building + ' ' + dormitory.floor + ' ' + str(dormitory.room)
+        'dormitory': f'{dormitory.building} {dormitory.floor} {dormitory.room}'
     })
 
 

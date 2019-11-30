@@ -2,7 +2,7 @@ from json import decoder, loads
 
 from requests import session
 
-from nfu.NFUError import NFUError
+from nfu.nfu_error import NFUError
 
 
 def get_jw_token(student_id: int, password: str = '') -> str:

@@ -4,7 +4,7 @@ from re import search
 
 from requests import session
 
-from nfu.NFUError import NFUError
+from nfu.nfu_error import NFUError
 
 
 def get_electric_data(room: int) -> float:

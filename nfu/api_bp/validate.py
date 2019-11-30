@@ -9,7 +9,7 @@ from nfu.expand.email import send_verification_code
 from nfu.expand.token import validate_token
 from nfu.extensions import db
 from nfu.models import User
-from nfu.NFUError import NFUError
+from nfu.nfu_error import NFUError
 
 validate_bp = Blueprint('validate', __name__)
 

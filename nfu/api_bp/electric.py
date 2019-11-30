@@ -8,7 +8,7 @@ from nfu.expand.electric import ElectricPay, get_electric_create_log, get_electr
 from nfu.expand.token import validate_token
 from nfu.extensions import db
 from nfu.models import Dormitory, Electric
-from nfu.NFUError import NFUError
+from nfu.nfu_error import NFUError
 
 electric_bp = Blueprint('electric', __name__)
 
@@ -128,7 +128,7 @@ def pay_order():
     signature = request.args.get('signature')
     electric_cookies = request.args.get('electric_cookies')
 
-    url = "http://nfu.zhihuianxin.net/school_paycgi_wxpay/paycgi_upw?json=" + json_data + "&signature=" + signature
+    url = f"http://nfu.zhihuianxin.net/school_paycgi_wxpay/paycgi_upw?json={json_data}&signature={signature}"
     response = make_response(redirect(url))
     response.set_cookie('JSESSIONID', electric_cookies)
     return response
