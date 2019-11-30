@@ -16,8 +16,11 @@ from nfu.api_bp.validate import validate_bp
 from nfu.extensions import cors, db, mail
 
 
-# 加载基本配置
 def create_app() -> Flask:
+    """
+    加载基本配置
+    :return:
+    """
     app = Flask('nfu')
     app.config.from_pyfile('settings.py')
 
@@ -27,8 +30,12 @@ def create_app() -> Flask:
     return app
 
 
-# 加载蓝本
 def register_blueprints(app) -> None:
+    """
+    加载蓝本
+    :param app:
+    :return:
+    """
     app.register_blueprint(achievement_bp, url_prefix='/achievement')
     app.register_blueprint(class_schedule_bp, url_prefix='/classSchedule')
     app.register_blueprint(electric_bp, url_prefix='/electric')
@@ -38,15 +45,23 @@ def register_blueprints(app) -> None:
     app.register_blueprint(validate_bp, url_prefix='/validate')
 
 
-# 初始化拓展
 def register_extensions(app) -> None:
+    """
+    初始化拓展
+    :param app:
+    :return:
+    """
     cors.init_app(app)
     db.init_app(app)
     mail.init_app(app)
 
 
-# 加载错误页
 def register_errors(app) -> None:
+    """
+    加载错误页
+    :param app:
+    :return:
+    """
     @app.errorhandler(404)
     def page_not_found(e):
         return jsonify({'message': '404 错误 – 找不到此资源'}), 404
