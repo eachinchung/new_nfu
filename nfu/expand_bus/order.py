@@ -76,7 +76,7 @@ def get_waiting_ride_order(user_id: int) -> list:
             'price': item['price'],
             'startFromName': item['start_from_name'],
             'startToName': item['start_to_name'],
-            'ticketUrl': getenv('API_URL') + '/schoolBus/ticket/' + generate_token({
+            'ticketUrl': getenv('API_URL') + '/school-bus/ticket/' + generate_token({
                 'userId': user_id,
                 'orderId': item['id']
             }, token_type='TICKET_TOKEN', expires_in=604800)

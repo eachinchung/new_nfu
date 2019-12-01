@@ -115,5 +115,5 @@ def get_alipay_url(trade_no: str) -> str:
     :param trade_no:
     :return:
     """
-    url = f"{getenv('API_URL')}/schoolBus/alipay?tradeNo={trade_no}"
+    url = f"{getenv('API_URL')}/school-bus/alipay?tradeNo={trade_no}"
     return f"alipays://platformapi/startapp?appId=20000067&url={quote(url, 'utf-8')}"

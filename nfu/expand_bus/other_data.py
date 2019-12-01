@@ -94,7 +94,7 @@ def get_pay_order(order_id: int, ) -> dict:
         'passengers': passengers,
         'price': price,
         'alipayUrl': get_alipay_url(trade_no),
-        'alipayQrUrl': getenv('API_URL') + '/schoolBus/alipay/qrcode?tradeNo=' + trade_no
+        'alipayQrUrl': getenv('API_URL') + '/school-bus/alipay/qrcode?tradeNo=' + trade_no
     }
 
 
