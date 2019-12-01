@@ -5,6 +5,7 @@ from urllib.parse import quote
 
 import qrcode
 
+from nfu.common import generate_auth_key
 from nfu.expand_bus.network import http_get, http_post
 from nfu.nfu_error import NFUError
 
@@ -115,5 +116,10 @@ def get_alipay_url(trade_no: str) -> str:
     :param trade_no:
     :return:
     """
-    url = f"{getenv('API_URL')}/school-bus/alipay?tradeNo={trade_no}"
+
+    # 生成cdn鉴权的 auth_key
+    uri = f'/school-bus/alipay'
+    auth_key = generate_auth_key(uri)
+
+    url = f"{getenv('API_URL')}{uri}?tradeNo={trade_no}&auth_key={auth_key}"
     return f"alipays://platformapi/startapp?appId=20000067&url={quote(url, 'utf-8')}"

@@ -32,15 +32,28 @@ def generate_password(length: int = 32, chars: str = ascii_letters + digits) -> 
     return ''.join([choice(chars) for i in range(length)])
 
 
-def generate_cdn_key(uri: str, timestamp: int, rand: str) -> str:
+def generate_cdn_hash_value(uri: str, timestamp: int, rand: str) -> str:
     """
-    生成cdn鉴权key
+    生成cdn鉴权的哈希值
     :param uri:
     :param timestamp:
     :param rand:
     :return:
     """
     return md5(f"{uri}-{timestamp}-{rand}-0-{getenv('CDN_PRIVATE_KEY')}".encode(encoding="UTF-8")).hexdigest()
+
+
+def generate_auth_key(uri: str, expires_in: int = 600):
+    """
+    生成cdn鉴权的auth_key
+    :param uri:
+    :param expires_in:
+    :return:
+    """
+    expires_timestamp = generate_expires_timestamp(expires_in)
+    rand = generate_password()
+    md5hash = generate_cdn_hash_value(uri, expires_timestamp, rand)
+    return f"{expires_timestamp}-{rand}-0-{md5hash}"
 
 
 def verification_code(code: int) -> None:

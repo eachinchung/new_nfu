@@ -1,5 +1,6 @@
 from os import getenv
 
+from nfu.common import generate_auth_key
 from nfu.expand.token import generate_token
 from nfu.expand_bus.network import http_post
 from nfu.nfu_error import NFUError
@@ -68,6 +69,16 @@ def get_waiting_ride_order(user_id: int) -> list:
     result = []
 
     for item in response:
+        # 生成访问电子车票的token
+        token = generate_token({
+            'userId': user_id,
+            'orderId': item['id']
+        }, token_type='TICKET_TOKEN', expires_in=604800)
+
+        # 生成cdn鉴权的 auth_key
+        uri = f'/school-bus/ticket/{token}'
+        auth_key = generate_auth_key(uri, 604800)
+
         result.append({
             'id': item['id'],
             'date': item['date'],
@@ -76,10 +87,7 @@ def get_waiting_ride_order(user_id: int) -> list:
             'price': item['price'],
             'startFromName': item['start_from_name'],
             'startToName': item['start_to_name'],
-            'ticketUrl': getenv('API_URL') + '/school-bus/ticket/' + generate_token({
-                'userId': user_id,
-                'orderId': item['id']
-            }, token_type='TICKET_TOKEN', expires_in=604800)
+            'ticketUrl': f"{getenv('API_URL')}{uri}?auth_key={auth_key}"
         })
 
     return result
