@@ -23,6 +23,7 @@ def __refresh() -> None:
     except OSError:
         raise NFUError('学校车票系统错误，请稍后再试')
 
+    # 把新的session写入MySql
     cookie = utils.dict_from_cookiejar(http_session.cookies)
     g.bus_user.bus_session = f"PHPSESSID={cookie['PHPSESSID']}"
 
@@ -45,8 +46,11 @@ def http_get(url: str, params=None):
     except OSError:
         raise NFUError('学校车票系统错误，请稍后再试')
 
+    # 如果被重定向至支付宝，则重新刷新session
     if response.url.find('openauth.alipay.com') != -1 and g.refresh:
         __refresh()
+
+        # 防止递归死循环
         g.refresh = False
         return http_get(url, params)
 
