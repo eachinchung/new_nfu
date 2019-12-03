@@ -1,3 +1,4 @@
+from datetime import datetime
 from functools import wraps
 from hashlib import md5
 from os import getenv
@@ -108,10 +109,14 @@ def get_school_config(func):
         semester = 1
         school_opens = '2019-08-26'
 
+        school_opens_date = datetime.strptime(school_opens, '%Y-%m-%d')
+        school_week = int(datetime.now().strftime('%W')) - int(school_opens_date.strftime('%W'))
+
         g.school_config = {
             'schoolYear': school_year,
             'semester': semester,
-            'schoolOpens': school_opens
+            'schoolOpens': school_opens,
+            'schoolWeek': school_week
         }
 
         return func(*args, **kw)
