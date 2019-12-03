@@ -34,7 +34,8 @@ def get():
     # 获取课程表，并写入数据库
     try:
         return jsonify({
-            'code': '1000', 'message': db_init(g.user.id, g.school_config['schoolYear'], g.school_config['semester'])
+            'code': '1000',
+            'message': db_init(g.user.id, g.school_config['schoolYear'], g.school_config['semester'])
         })
     except NFUError as err:
         return jsonify({'code': err.code, 'message': err.message})

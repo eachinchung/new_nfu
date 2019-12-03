@@ -26,7 +26,8 @@ def get():
 
     try:
         return jsonify({
-            'code': '1000', 'message': db_init(g.user.id, g.school_config['schoolYear'], g.school_config['semester'])
+            'code': '1000',
+            'message': db_init(g.user.id, g.school_config['schoolYear'], g.school_config['semester'])
         })
     except NFUError as err:
         return jsonify({'code': err.code, 'message': err.message})
@@ -42,7 +43,8 @@ def update():
     """
     try:
         return jsonify({
-            'code': '1000', 'message': db_update(g.user.id, g.school_config['schoolYear'], g.school_config['semester'])
+            'code': '1000',
+            'message': db_update(g.user.id, g.school_config['schoolYear'], g.school_config['semester'])
         })
     except NFUError as err:
         return jsonify({'code': err.code, 'message': err.message})
