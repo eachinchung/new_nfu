@@ -94,7 +94,7 @@ def get_token() -> str:
     return token
 
 
-def get_config(func):
+def get_school_config(func):
     """
     获取当前学年学期等基本配置
 
@@ -106,8 +106,15 @@ def get_config(func):
     def wrapper(*args, **kw):
         school_year = 2019
         semester = 1
+        school_opens = '2019-08-26'
 
-        return func(school_year, semester, *args, **kw)
+        g.school_config = {
+            'schoolYear': school_year,
+            'semester': semester,
+            'schoolOpens': school_opens
+        }
+
+        return func(*args, **kw)
 
     return wrapper
 

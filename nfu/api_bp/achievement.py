@@ -1,6 +1,6 @@
 from flask import Blueprint, g, jsonify
 
-from nfu.common import check_access_token, get_config
+from nfu.common import check_access_token, get_school_config
 from nfu.expand.achievement import db_get, db_init, db_update
 from nfu.expand.total_achievement import db_init_total, db_update_total
 from nfu.models import Achievement, TotalAchievements
@@ -11,12 +11,10 @@ achievement_bp = Blueprint('achievement', __name__)
 
 @achievement_bp.route('/get')
 @check_access_token
-@get_config
-def get(school_year, semester):
+@get_school_config
+def get():
     """
     获取成绩单
-    :param school_year:
-    :param semester:
     :return:
     """
 
@@ -27,23 +25,25 @@ def get(school_year, semester):
         return jsonify({'code': '1000', 'message': db_get(achievement_db)})
 
     try:
-        return jsonify({'code': '1000', 'message': db_init(g.user.id, school_year, semester)})
+        return jsonify({
+            'code': '1000', 'message': db_init(g.user.id, g.school_config['schoolYear'], g.school_config['semester'])
+        })
     except NFUError as err:
         return jsonify({'code': err.code, 'message': err.message})
 
 
 @achievement_bp.route('/update')
 @check_access_token
-@get_config
-def update(school_year, semester):
+@get_school_config
+def update():
     """
     更新成绩单
-    :param school_year:
-    :param semester:
     :return:
     """
     try:
-        return jsonify({'code': '1000', 'message': db_update(g.user.id, school_year, semester)})
+        return jsonify({
+            'code': '1000', 'message': db_update(g.user.id, g.school_config['schoolYear'], g.school_config['semester'])
+        })
     except NFUError as err:
         return jsonify({'code': err.code, 'message': err.message})
 
