@@ -114,6 +114,7 @@ def __db_input(user_id: int, achievement_list: list) -> None:
             school_year=course['schoolYear'],
             semester=course['semester'],
             course_type=course['courseType'],
+            subdivision_type=course['subdivisionType'],
             course_name=course['courseName'],
             course_id=course['courseId'],
             credit=course['credit'],
@@ -154,7 +155,8 @@ def __data_processing(achievement_data: list, school_year: int, semester: int) -
         achievement.append({
             'schoolYear': school_year,
             'semester': semester,
-            'courseType': course['kcxz'],
+            'courseType': course['l2kcxz'],
+            'subdivisionType': course['kcxz'],
             'courseName': course['yjkcmc'],
             'courseId': course['pkbdm'],
             'resitExam': resit_exam,

@@ -77,6 +77,7 @@ class Achievement(db.Model):
     school_year = db.Column(db.Integer)
     semester = db.Column(db.Integer)
     course_type = db.Column(db.String)
+    subdivision_type = db.Column(db.String)
     course_name = db.Column(db.String)
     course_id = db.Column(db.String)
     resit_exam = db.Column(db.Boolean)
@@ -94,6 +95,7 @@ class Achievement(db.Model):
             'schoolYear': self.school_year,
             'semester': self.semester,
             'courseType': self.course_type,
+            'subdivisionType': self.subdivision_type,
             'courseName': self.course_name,
             'courseId': self.course_id,
             'resitExam': self.resit_exam,

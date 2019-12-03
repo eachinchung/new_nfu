@@ -53,6 +53,7 @@ create table achievement
     school_year                  int         not null,
     semester                     tinyint     not null,
     course_type                  varchar(20) not null,
+    subdivision_type             varchar(20) not null,
     course_name                  varchar(50) not null,
     course_id                    varchar(50) not null,
     resit_exam                   tinyint     not null,
