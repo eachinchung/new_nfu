@@ -74,15 +74,14 @@ def __db_input(user_id, class_schedule_list: list, school_year: int, semester: i
         )
 
         class_schedule.append({
-            'course_name': course['course_name'],
-            'course_id': course['course_id'],
+            'courseName': course['course_name'],
             'teacher': course['teacher'],
             'classroom': course['classroom'],
             'weekday': course['weekday'],
-            'start_node': course['start_node'],
-            'end_node': course['end_node'],
-            'start_week': course['start_week'],
-            'end_week': course['end_week']
+            'startNode': course['start_node'],
+            'endNode': course['end_node'],
+            'startWeek': course['start_week'],
+            'endWeek': course['end_week']
         })
 
     db.session.commit()

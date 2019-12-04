@@ -131,7 +131,6 @@ class ClassSchedule(db.Model):
     def get_dict(self):
         return {
             'courseName': self.course_name,
-            'courseId': self.course_id,
             'teacher': loads(self.teacher),
             'classroom': self.classroom,
             'weekday': self.weekday,
