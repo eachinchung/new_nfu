@@ -145,7 +145,7 @@ def __data_processing(achievement_data: list, school_year: int, semester: int) -
 
         # 判断该学生是否重考
         try:
-            resit_exam_achievement_point = course['ckcj']
+            resit_exam_achievement_point = float(course['ckcj'])
         except KeyError:
             resit_exam = False
             resit_exam_achievement_point = None
@@ -160,13 +160,13 @@ def __data_processing(achievement_data: list, school_year: int, semester: int) -
             'courseName': course['yjkcmc'],
             'courseId': course['pkbdm'],
             'resitExam': resit_exam,
-            'credit': course['kcxf'],
-            'achievementPoint': course['jdVal'],
-            'finalAchievements': course['qmcj'],
-            'totalAchievements': course['zpcj'],
-            'midtermAchievements': course['qzcj'],
-            'practiceAchievements': course['sjcj'],
-            'peacetimeAchievements': course['pscj'],
+            'credit': float(course['kcxf']),
+            'achievementPoint': float(course['jdVal']),
+            'finalAchievements': float(course['qmcj']),
+            'totalAchievements': float(course['zpcj']),
+            'midtermAchievements': float(course['qzcj']),
+            'practiceAchievements': float(course['sjcj']),
+            'peacetimeAchievements': float(course['pscj']),
             'resitExamAchievementPoint': resit_exam_achievement_point
         })
 
