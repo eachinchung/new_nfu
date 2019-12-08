@@ -156,7 +156,7 @@ def __data_processing(achievement_data: list, school_year: int, semester: int) -
             'schoolYear': school_year,
             'semester': semester,
             'courseType': course['l2kcxz'],
-            'subdivisionType': course['kcxz0'],
+            'subdivisionType': course['kcxz'],
             'courseName': course['yjkcmc'],
             'courseId': course['pkbdm'],
             'resitExam': resit_exam,
