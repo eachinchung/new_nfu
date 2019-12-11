@@ -130,6 +130,7 @@ class ClassSchedule(db.Model):
 
     def get_dict(self):
         return {
+            'courseId': self.course_id,
             'courseName': self.course_name,
             'teacher': loads(self.teacher),
             'classroom': self.classroom,
