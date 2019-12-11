@@ -23,7 +23,6 @@ def validate_token(token: str, token_type: str = 'ACCESS_TOKEN') -> dict:
     验证令牌
     :param token: 令牌
     :param token_type: 令牌类型
-    :return: 一个元组，通常我规定第一个为bool，用来判定是否成功获取数据。
     """
     s = TimedJSONWebSignatureSerializer(getenv(token_type))
     try:

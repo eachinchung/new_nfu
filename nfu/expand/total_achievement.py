@@ -58,8 +58,8 @@ def __db_input(user_id: int, total_achievement) -> dict:
     db.session.commit()
 
     return {
-        'get_credit': total_achievement['get_credit'],
-        'selected_credit ': total_achievement['selected_credit'],
-        'average_achievement ': total_achievement['average_achievement'],
-        'average_achievement_point': total_achievement['average_achievement_point']
+        'getCredit': total_achievement['get_credit'],
+        'selectedCredit': total_achievement['selected_credit'],
+        'averageAchievement': total_achievement['average_achievement'],
+        'averageAchievementPoint': total_achievement['average_achievement_point']
     }

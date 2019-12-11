@@ -62,9 +62,9 @@ class TotalAchievements(db.Model):
     def get_dict(self):
         return {
             'getCredit': self.get_credit,
-            'selectedCredit ': self.selected_credit,
-            'averageAchievement ': self.average_achievement,
-            'averageAchievement_point': self.average_achievement_point
+            'selectedCredit': self.selected_credit,
+            'averageAchievement': self.average_achievement,
+            'averageAchievementPoint': self.average_achievement_point
         }
 
 
