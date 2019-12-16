@@ -1,10 +1,6 @@
 from datetime import datetime
 from functools import wraps
-from hashlib import md5
 from os import getenv
-from random import choice
-from string import ascii_letters, digits
-from time import time
 
 from flask import g, jsonify, request
 from redis import Redis
@@ -12,49 +8,6 @@ from redis import Redis
 from nfu.expand.token import validate_token
 from nfu.models import BusUser, User
 from nfu.nfu_error import NFUError
-
-
-def generate_expires_timestamp(expires_in: int = 600) -> int:
-    """
-    生成过期时间戳
-    :param expires_in:
-    :return:
-    """
-    return int(time() + expires_in)
-
-
-def generate_password(length: int = 32, chars: str = ascii_letters + digits) -> str:
-    """
-    生成随机密码
-    :param length:
-    :param chars:
-    :return:
-    """
-    return ''.join([choice(chars) for i in range(length)])
-
-
-def generate_cdn_hash_value(uri: str, timestamp: int, rand: str) -> str:
-    """
-    生成cdn鉴权的哈希值
-    :param uri:
-    :param timestamp:
-    :param rand:
-    :return:
-    """
-    return md5(f"{uri}-{timestamp}-{rand}-0-{getenv('CDN_PRIVATE_KEY')}".encode(encoding="UTF-8")).hexdigest()
-
-
-def generate_auth_key(uri: str, expires_in: int = 600):
-    """
-    生成cdn鉴权的auth_key
-    :param uri:
-    :param expires_in:
-    :return:
-    """
-    expires_timestamp = generate_expires_timestamp(expires_in)
-    rand = generate_password()
-    md5hash = generate_cdn_hash_value(uri, expires_timestamp, rand)
-    return f"{expires_timestamp}-{rand}-0-{md5hash}"
 
 
 def verification_code(code: int) -> None:

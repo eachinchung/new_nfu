@@ -2,7 +2,6 @@ from json import decoder, loads
 from os import getenv
 from re import findall, search
 
-from nfu.common import generate_auth_key
 from nfu.expand_bus.network import http_get
 from nfu.expand_bus.ticket import get_alipay_url
 from nfu.nfu_error import NFUError
@@ -89,17 +88,13 @@ def get_pay_order(order_id: int, ) -> dict:
             'phone': phones[i][27:-7]
         })
 
-    # 生成cdn鉴权的 auth_key
-    uri = f'/school-bus/alipay/qrcode'
-    auth_key = generate_auth_key(uri)
-
     return {
         'route': route,
         'date': date,
         'passengers': passengers,
         'price': price,
         'alipayUrl': get_alipay_url(trade_no),
-        'alipayQrUrl': f"{getenv('API_URL')}{uri}?tradeNo={trade_no}&auth_key={auth_key}"
+        'alipayQrUrl': f"{getenv('API_URL')}/school-bus/alipay/qrcode?tradeNo={trade_no}"
     }
 
 
