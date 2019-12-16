@@ -19,8 +19,12 @@ def get():
     :return: json
     """
 
-    electric_data = Electric.query.filter_by(room_id=g.user.room_id).order_by(Electric.time.desc()).first()
-    return jsonify({'code': '1000', 'message': electric_data.value})
+    electric_data = Electric.query.filter_by(room_id=g.user.room_id).order_by(Electric.date.desc()).first()
+    return jsonify({
+        'code': '1000',
+        'electric': electric_data.value,
+        'date': electric_data.date.strftime("%Y-%m-%d")
+    })
 
 
 @electric_bp.route('/analyse')
@@ -30,7 +34,7 @@ def analyse():
     分析近15天电费
     :return:
     """
-    electric_data = Electric.query.filter_by(room_id=g.user.room_id).order_by(Electric.time.desc()).limit(15).all()
+    electric_data = Electric.query.filter_by(room_id=g.user.room_id).order_by(Electric.date.desc()).limit(15).all()
 
     if electric_data is None:
         return jsonify({'code': '2000', 'message': '当前宿舍没有电费数据'})
