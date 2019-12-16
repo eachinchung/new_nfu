@@ -13,7 +13,7 @@ from nfu.api_bp.oauth import oauth_bp
 from nfu.api_bp.school_bus import school_bus_bp
 from nfu.api_bp.user import user_bp
 from nfu.api_bp.validate import validate_bp
-from nfu.extensions import cors, db, mail
+from nfu.extensions import db, mail
 
 
 def create_app() -> Flask:
@@ -51,7 +51,6 @@ def register_extensions(app) -> None:
     :param app:
     :return:
     """
-    cors.init_app(app)
     db.init_app(app)
     mail.init_app(app)
 
@@ -62,6 +61,7 @@ def register_errors(app) -> None:
     :param app:
     :return:
     """
+
     @app.errorhandler(404)
     def page_not_found(e):
         return jsonify({'message': '404 错误 – 找不到此资源'}), 404
