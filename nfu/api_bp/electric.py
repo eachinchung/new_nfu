@@ -1,12 +1,10 @@
-from datetime import datetime
 from json import loads
 
 from flask import Blueprint, g, jsonify, make_response, redirect, render_template, request
 
 from nfu.common import check_access_token
-from nfu.expand.electric import ElectricPay, get_electric_create_log, get_electric_data
+from nfu.expand.electric import ElectricPay, get_electric_create_log
 from nfu.expand.token import validate_token
-from nfu.extensions import db
 from nfu.models import Dormitory, Electric
 from nfu.nfu_error import NFUError
 
@@ -22,19 +20,6 @@ def get():
     """
 
     electric_data = Electric.query.filter_by(room_id=g.user.room_id).order_by(Electric.time.desc()).first()
-
-    # 当数据库没有电费数据时，我们向安心付请求数据
-    if electric_data is None:
-        try:
-            electric = get_electric_data(g.user.room_id)
-        except NFUError as err:
-            return jsonify({'code': err.code, 'message': err.message})
-
-        # 并将电费数据写入数据库
-        electric_data = Electric(room_id=g.user.room_id, value=electric, time=datetime.now())
-        db.session.add(electric_data)
-        db.session.commit()
-
     return jsonify({'code': '1000', 'message': electric_data.value})
 
 

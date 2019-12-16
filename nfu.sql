@@ -31,8 +31,8 @@ create table electric
 (
     id      int primary key auto_increment,
     room_id int   not null,
-    value   float not null,
-    time    date  not null,
+    value   float,
+    date    date  not null,
     index room_id (room_id)
 );
 

@@ -46,7 +46,7 @@ class Electric(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     room_id = db.Column(db.Integer, index=True)
     value = db.Column(db.Float)
-    time = db.Column(db.Date)
+    date = db.Column(db.Date)
 
 
 class TotalAchievements(db.Model):

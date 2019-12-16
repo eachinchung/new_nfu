@@ -7,34 +7,6 @@ from requests import session
 from nfu.nfu_error import NFUError
 
 
-def get_electric_data(room: int) -> float:
-    """
-    获取宿舍电费
-
-    :param room: 宿舍id
-    :return: 一个元组，通常我规定第一个为bool，用来判定是否成功获取数据。
-    :raise OSError: 一般错误为超时，学校系统炸了，与我们无关
-    """
-
-    url = 'http://axf.nfu.edu.cn/electric/getData/getReserveAM'
-    data = {'roomId': room}
-    http_session = session()
-
-    try:
-        response = http_session.post(url, data=data, timeout=1)
-    except OSError:
-        raise NFUError('安心付服务器错误')
-
-    try:
-        electric_quantity = loads(response.text)
-        electric_quantity = electric_quantity['data']['remainPower']
-    except (KeyError, decoder.JSONDecodeError):
-        raise NFUError('此宿舍无数据')
-
-    electric_quantity = round(float(electric_quantity), 2)
-    return electric_quantity
-
-
 def get_electric_create_log(room_id: int, page_index: int) -> dict:
     """
     电费充值记录
@@ -42,7 +14,7 @@ def get_electric_create_log(room_id: int, page_index: int) -> dict:
     :param page_index:
     :return:
     """
-    url = 'http://axf.nfu.edu.cn/electric/order/page'
+    url = 'http://nfu.zhihuianxin.net/electric/order/page'
     data = {
         'ammeterId': room_id,
         'pageIndex': page_index,
@@ -88,7 +60,7 @@ class ElectricPay:
         :raises OSError: 安心付晚上11点过后，无法充值电费，会报错。
         """
 
-        url = 'http://axf.nfu.edu.cn/electric/pay/doPay'
+        url = 'http://nfu.zhihuianxin.net/electric/pay/doPay'
         data = {
             'amt': self.amount,
             'custNo': self.user_id,
@@ -138,7 +110,7 @@ class ElectricPay:
             'json': json_data,
             'signature': signature
         }
-        header = {'Referer': 'http://axf.nfu.edu.cn/electric/pay/doPay'}
+        header = {'Referer': 'http://nfu.zhihuianxin.net/electric/pay/doPay'}
 
         try:
             # 向安心付接口 post 订单数据，无需返回值
