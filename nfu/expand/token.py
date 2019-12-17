@@ -10,12 +10,12 @@ def create_access_token(user) -> dict:
     """
     生成访问令牌
     """
-    dormitory = Dormitory.query.get(user.room_id)
+    # dormitory = Dormitory.query.get(user.room_id)
     token_data = {
         'id': user.id,
-        'name': user.name,
-        'email': user.email,
-        'dormitory': f'{dormitory.building} {dormitory.floor} {dormitory.room}',
+        # 'name': user.name,
+        # 'email': user.email,
+        # 'dormitory': f'{dormitory.building} {dormitory.floor} {dormitory.room}',
         'busPower': BusUser.query.get(user.id) is not None
     }
 
