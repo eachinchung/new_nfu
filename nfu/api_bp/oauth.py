@@ -8,8 +8,8 @@ from werkzeug.security import generate_password_hash
 from nfu.common import get_token
 from nfu.expand.email import send_validate_email
 from nfu.expand.nfu import get_student_name
-from nfu.expand.token import generate_token, validate_token
-from nfu.models import BusUser, User
+from nfu.expand.token import create_access_token, generate_token, validate_token
+from nfu.models import User
 from nfu.nfu_error import NFUError
 
 oauth_bp = Blueprint('oauth', __name__)
@@ -45,13 +45,7 @@ def get_token_bp() -> jsonify:
     if not user.validate_password(data['password']):
         return jsonify({'code': '0003', 'message': '密码错误'})
 
-    return jsonify({
-        'code': '1000',
-        'message': {
-            'accessToken': generate_token({'id': user.id, 'busPower': BusUser.query.get(user.id) is not None}),
-            'refreshToken': generate_token({'id': user.id}, token_type='REFRESH_TOKEN', expires_in=2592000)
-        }
-    })
+    return jsonify(create_access_token(user))
 
 
 @oauth_bp.route('/token/refresh')
@@ -67,18 +61,7 @@ def refresh_token() -> jsonify:
     except NFUError as err:
         return jsonify({'code': err.code, 'message': err.message})
 
-    user = User.query.get(validate['id'])
-
-    if user is None:
-        return jsonify({'code': '2000', 'message': '账号不存在'})
-
-    return jsonify({
-        'code': '1000',
-        'message': {
-            'accessToken': generate_token({'id': user.id, 'busPower': BusUser.query.get(user.id) is not None}),
-            'refreshToken': generate_token({'id': user.id}, token_type='REFRESH_TOKEN', expires_in=2592000)
-        }
-    })
+    return jsonify(create_access_token(User.query.get(validate['id'])))
 
 
 @oauth_bp.route('/sign-up', methods=['POST'])
