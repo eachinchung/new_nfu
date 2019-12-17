@@ -1,10 +1,10 @@
 from json import loads
 
-from flask import Blueprint, g, jsonify, make_response, redirect, render_template, request
+from flask import Blueprint, g, jsonify, request, send_file
 
 from nfu.common import check_access_token
 from nfu.expand.electric import ElectricPay, get_electric_create_log
-from nfu.expand.token import validate_token
+from nfu.expand_bus.ticket import get_qrcode
 from nfu.models import Dormitory, Electric
 from nfu.nfu_error import NFUError
 
@@ -84,40 +84,20 @@ def create_order():
         return jsonify({'code': '2000', 'message': '服务器内部错误'})
 
     order = ElectricPay(
-        amount, g.user.id, g.user.name, g.user.room_id, dormitory.building, dormitory.floor, dormitory.room)
+        amount, g.user.id, g.user.name, g.user.room_id, dormitory.building, dormitory.floor, dormitory.room
+    )
 
     try:
-        order_data = order.create_order()
+        pay_url = order.create_order()
     except NFUError as err:
         return jsonify({'code': err.code, 'message': err.message})
 
     return jsonify({
         'code': '1000',
-        'message': {
-            'json': order_data[0],
-            'signature': order_data[1],
-            'electric_cookies': order_data[2]
-        }
+        'wechatPay': pay_url
     })
 
 
-@electric_bp.route('/order/pay')
-def pay_order():
-    """
-    跳转支付页面
-    :return:
-    """
-
-    try:
-        validate_token(request.args.get('token'))
-    except NFUError as err:
-        return render_template('html/err.html', err=err.message)
-
-    json_data = request.args.get('json')
-    signature = request.args.get('signature')
-    electric_cookies = request.args.get('electric_cookies')
-
-    url = f"http://nfu.zhihuianxin.net/school_paycgi_wxpay/paycgi_upw?json={json_data}&signature={signature}"
-    response = make_response(redirect(url))
-    response.set_cookie('JSESSIONID', electric_cookies)
-    return response
+@electric_bp.route('/wechat-pay/qrcode')
+def wechat_pay_qrcode():
+    return send_file(get_qrcode(url=request.args.get('url')), mimetype='image/png')

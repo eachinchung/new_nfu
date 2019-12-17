@@ -13,6 +13,7 @@ from nfu.api_bp.oauth import oauth_bp
 from nfu.api_bp.school_bus import school_bus_bp
 from nfu.api_bp.user import user_bp
 from nfu.api_bp.validate import validate_bp
+from nfu.extensions import cors, db, mail
 from nfu.extensions import db, mail
 
 
@@ -51,6 +52,7 @@ def register_extensions(app) -> None:
     :param app:
     :return:
     """
+    cors.init_app(app)
     db.init_app(app)
     mail.init_app(app)
 
@@ -73,3 +75,4 @@ def register_errors(app) -> None:
     @app.errorhandler(500)
     def internal_server_error(e):
         return jsonify({'message': '500 错误 – 服务器内部错误'}), 500
+

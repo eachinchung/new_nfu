@@ -55,9 +55,6 @@ class ElectricPay:
             - architectureName 宿舍楼
             - floorName 楼层
             - roomName 楼号
-
-        :return: 一个元组，通常我规定第一个为bool，用来判定是否成功获取数据。
-        :raises OSError: 安心付晚上11点过后，无法充值电费，会报错。
         """
 
         url = 'http://nfu.zhihuianxin.net/electric/pay/doPay'
@@ -86,7 +83,7 @@ class ElectricPay:
 
         return json_data, signature
 
-    def __set_wechat_pay(self, json_data, signature):
+    def __set_wechat_pay(self, json_data, signature) -> tuple:
         """
         设置支付方式为微信支付
 
@@ -101,8 +98,6 @@ class ElectricPay:
 
         :param json_data: ready_pay 返回的订单数据
         :param signature: ready_pay 返回的数字签名
-        :return: 0.bool 1.json 2.signature 3.cookies
-        :raise: OSError: 安心付晚上11点过后，无法充值电费，会报错。
         """
 
         url = 'http://nfu.zhihuianxin.net/paycenter/gateway_web'
@@ -133,8 +128,17 @@ class ElectricPay:
         except AttributeError:
             raise NFUError('与安心付服务器连接超时，请稍后再试')
 
-        return json_data, signature, self.__http_session.cookies.get_dict()['JSESSIONID']
+        return json_data, signature
 
-    def create_order(self):
+    def create_order(self) -> str:
+        """
+        创建订单
+        :return: 微信支付url
+        """
         ready_pay = self.__ready_pay()
-        return self.__set_wechat_pay(ready_pay[0], ready_pay[1])
+        signature = self.__set_wechat_pay(ready_pay[0], ready_pay[1])
+
+        url = "http://nfu.zhihuianxin.net/school_paycgi_wxpay/paycgi_upw"
+        data = {'json': signature[0], 'signature': signature[1]}
+        response = self.__http_session.post(url, data=data)
+        return search(r'weixin://wxpay/.+', response.text).group()[:-5]
