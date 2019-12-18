@@ -1,9 +1,9 @@
 from datetime import datetime
-from json import loads
+from json import loads, decoder
 from os import getenv
 
 from flask import Blueprint, g, jsonify, render_template, request
-from requests import session
+from requests import post
 from werkzeug.security import generate_password_hash
 
 from nfu.common import check_access_token, verification_code
@@ -57,11 +57,15 @@ def feedback():
     }
 
     try:
-        session().post(url, data=data)
-    except OSError:
+        response = post(url, data=data)
+        errmsg = loads(response.text)['errmsg']
+    except (OSError, KeyError, decoder.JSONDecodeError):
         return jsonify({'code': '2000', 'message': '与 Server酱 连接失败'})
 
-    return jsonify({'code': '1000', 'message': 'success'})
+    if errmsg == 'success':
+        return jsonify({'code': '1000', 'message': 'success'})
+    else:
+        return jsonify({'code': '2000', 'message': errmsg})
 
 
 @user_bp.route('/set/dormitory', methods=['POST'])

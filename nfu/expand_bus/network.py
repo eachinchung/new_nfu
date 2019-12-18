@@ -1,7 +1,7 @@
 from json import decoder, loads
 
 from flask import g
-from requests import session, utils
+from requests import get, post
 
 from nfu.expand_bus.user_agent import get_user_agent
 from nfu.extensions import db
@@ -13,20 +13,17 @@ def __refresh() -> None:
     刷新 车票session
     :return:
     """
-    http_session = session()
     url = 'http://nfuedu.zftcloud.com/campusbus_index/ticket_checked/index'
     params = {'alipay_user_id': g.bus_user.alipay_user_id, 'idcard': g.bus_user.id_card}
     headers = {'user-agent': get_user_agent()}
 
     try:  # 发送请求
-        http_session.get(url, headers=headers, params=params)
+        response = get(url, headers=headers, params=params)
     except OSError:
         raise NFUError('学校车票系统错误，请稍后再试')
 
     # 把新的session写入MySql
-    cookie = utils.dict_from_cookiejar(http_session.cookies)
-    g.bus_user.bus_session = f"PHPSESSID={cookie['PHPSESSID']}"
-
+    g.bus_user.bus_session = f"PHPSESSID={response.cookies['PHPSESSID']}"
     db.session.add(g.bus_user)
     db.session.commit()
 
@@ -38,11 +35,10 @@ def http_get(url: str, params=None):
     :param params:
     :return:
     """
-    http_session = session()
     headers = {'Cookie': g.bus_user.bus_session, 'user-agent': get_user_agent()}
 
     try:  # 发送请求
-        response = http_session.get(url, headers=headers, params=params)
+        response = get(url, headers=headers, params=params)
     except OSError:
         raise NFUError('学校车票系统错误，请稍后再试')
 
@@ -64,11 +60,10 @@ def http_post(url: str, data: dict):
     :param data:
     :return:
     """
-    http_session = session()
     headers = {'Cookie': g.bus_user.bus_session, 'user-agent': get_user_agent()}
 
     try:  # 发送请求
-        response = http_session.post(url, data=data, headers=headers)
+        response = post(url, data=data, headers=headers)
     except OSError:
         raise NFUError('学校车票系统错误，请稍后再试')
 

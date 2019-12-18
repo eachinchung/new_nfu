@@ -1,6 +1,6 @@
 from json import decoder, loads
 
-from requests import session
+from requests import post
 
 from nfu.nfu_error import NFUError
 
@@ -14,7 +14,6 @@ def get_jw_token(student_id: int, password: str = '') -> str:
     """
 
     url = 'http://ecampus.nfu.edu.cn:2929/jw-privilegei/User/r-login'
-    http_session = session()
     data = {
         'username': student_id,
         'password': password,
@@ -22,7 +21,7 @@ def get_jw_token(student_id: int, password: str = '') -> str:
     }
 
     try:
-        response = http_session.post(url, data=data, timeout=10)
+        response = post(url, data=data, timeout=10)
         token = loads(response.text)['msg']
     except (OSError, decoder.JSONDecodeError):
         raise NFUError('教务系统错误，请稍后再试')
@@ -50,10 +49,9 @@ def get_student_name(student_id: int, password: str) -> str:
     token = get_jw_token(student_id, password)
     url = 'http://ecampus.nfu.edu.cn:2929/jw-privilegei/User/r-getMyself'
     data = {'jwloginToken': token}
-    http_session = session()
 
     try:
-        response = http_session.post(url, data=data, timeout=10)
+        response = post(url, data=data, timeout=10)
         name = loads(response.text)['msg']['name']
     except (OSError, KeyError):
         raise NFUError('教务系统错误，请稍后再试')
@@ -75,7 +73,6 @@ def get_class_schedule(token: str, school_year: int, semester: int) -> list:
     """
     course_data = []
     url = 'http://ecampus.nfu.edu.cn:2929/jw-cssi/CssStudent/r-listJxb'
-    http_session = session()
     data = {
         'xn': school_year,
         'xq': semester,
@@ -83,7 +80,7 @@ def get_class_schedule(token: str, school_year: int, semester: int) -> list:
     }
 
     try:
-        response = http_session.post(url, data=data, timeout=10)
+        response = post(url, data=data, timeout=10)
         course_list = loads(response.text)['msg']
     except (OSError, KeyError, decoder.JSONDecodeError):
         raise NFUError('教务系统错误，请稍后再试')
@@ -124,7 +121,6 @@ def get_achievement_list(token: str, school_year: int, semester) -> list:
     """
 
     url = 'http://ecampus.nfu.edu.cn:2929/jw-amsi/AmsJxbXsZgcj/r-list'
-    http_session = session()
     data = {
         'deleted': False,
         'pg': 1,
@@ -135,7 +131,7 @@ def get_achievement_list(token: str, school_year: int, semester) -> list:
     }
 
     try:
-        response = http_session.post(url, data=data, timeout=10)
+        response = post(url, data=data, timeout=10)
     except OSError:
         raise NFUError('教务系统错误，请稍后再试')
 
@@ -163,11 +159,10 @@ def get_total_achievement_point(token: str) -> dict:
     """
 
     url = 'http://ecampus.nfu.edu.cn:2929/jw-privilegei/User/r-getMyself'
-    http_session = session()
     data = {'jwloginToken': token}
 
     try:  # 先获取学生的真实id
-        response = http_session.post(url, data=data, timeout=10)
+        response = post(url, data=data, timeout=10)
         actual_id = loads(response.text)['msg']['actualId']
 
     except (OSError, KeyError, decoder.JSONDecodeError):
@@ -185,7 +180,7 @@ def get_total_achievement_point(token: str) -> dict:
     }
 
     try:
-        response = http_session.post(url, data=data, timeout=10)
+        response = post(url, data=data, timeout=10)
         data = loads(response.text)['msg']['list'][0]
     except (OSError, KeyError, decoder.JSONDecodeError):
         raise NFUError('教务系统错误，请稍后再试')

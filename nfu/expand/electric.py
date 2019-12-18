@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from json import decoder, loads
 from re import search
 
-from requests import session
+from requests import post, session
 
 from nfu.nfu_error import NFUError
 
@@ -20,10 +20,9 @@ def get_electric_log(room_id: int, page_index: int) -> dict:
         'pageIndex': page_index,
         'pageSize': 10
     }
-    http_session = session()
 
     try:
-        response = http_session.post(url, data=data, timeout=1)
+        response = post(url, data=data, timeout=1)
         electric_create = loads(response.text)['data']
     except (OSError, KeyError, decoder.JSONDecodeError):
         raise NFUError('安心付服务器错误')
