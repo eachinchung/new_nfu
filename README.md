@@ -27,6 +27,9 @@ MAIL_PASSWORD=xxxxxxx
 # host
 API_URL=http://127.0.0.1:5000
 FRONT_END_URL=http://127.0.0.1:8080
+
+# Server酱
+SCKEY=xxxxxxx
 ```
 
 ### pipenv
