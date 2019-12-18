@@ -3,7 +3,7 @@ from json import loads
 from flask import Blueprint, g, jsonify, request, send_file
 
 from nfu.common import check_access_token
-from nfu.expand.electric import ElectricPay, get_electric_create_log
+from nfu.expand.electric import ElectricPay, get_electric_log
 from nfu.expand_bus.ticket import get_qrcode
 from nfu.models import Dormitory, Electric
 from nfu.nfu_error import NFUError
@@ -51,7 +51,7 @@ def analyse():
 
 @electric_bp.route('/order/log', methods=['POST'])
 @check_access_token
-def create_log():
+def electric_log():
     """
     电费充值记录
     :return:
@@ -63,7 +63,7 @@ def create_log():
         return jsonify({'code': '2000', 'message': '服务器内部错误'})
 
     try:
-        return jsonify({'code': '1000', 'message': get_electric_create_log(g.user.room_id, page)})
+        return jsonify({'code': '1000', 'message': get_electric_log(g.user.room_id, page)})
     except NFUError as err:
         return jsonify({'code': err.code, 'message': err.message})
 
@@ -84,7 +84,13 @@ def create_order():
         return jsonify({'code': '2000', 'message': '服务器内部错误'})
 
     order = ElectricPay(
-        amount, g.user.id, g.user.name, g.user.room_id, dormitory.building, dormitory.floor, dormitory.room
+        amount=amount,
+        user_id=g.user.id,
+        name=g.user.name,
+        room_id=g.user.room_id,
+        building=dormitory.building,
+        floor=dormitory.floor,
+        room=dormitory.room
     )
 
     try:
@@ -100,4 +106,7 @@ def create_order():
 
 @electric_bp.route('/wechat-pay/qrcode')
 def wechat_pay_qrcode():
+    """
+    生成二维码
+    """
     return send_file(get_qrcode(url=request.args.get('url')), mimetype='image/png')

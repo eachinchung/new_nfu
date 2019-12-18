@@ -7,7 +7,7 @@ from requests import session
 from nfu.nfu_error import NFUError
 
 
-def get_electric_create_log(room_id: int, page_index: int) -> dict:
+def get_electric_log(room_id: int, page_index: int) -> dict:
     """
     电费充值记录
     :param room_id:
