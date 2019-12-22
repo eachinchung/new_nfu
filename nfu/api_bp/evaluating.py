@@ -62,7 +62,7 @@ def evaluating_bp():
         )
         return jsonify({
             'code': '1000',
-            'message': '1'
+            'message': '评教成功'
         })
 
     except NFUError as err:
