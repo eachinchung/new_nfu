@@ -26,7 +26,7 @@ def get_token_bp() -> jsonify:
         data = loads(request.get_data().decode('utf-8'))
         user_id = int(data['userId'])
     except (TypeError, ValueError):
-        return jsonify({'code': '0002', 'message': '账号不存在'})
+        return jsonify({'code': '0004', 'message': '提交信息不合法'})
 
     # 首先验证账号是否存在
     user = User.query.get(user_id)
