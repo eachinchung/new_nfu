@@ -69,6 +69,15 @@ create table achievement
     foreign key (user_id) references user (id) on delete cascade on update cascade
 );
 
+create table profile
+(
+    id         int unsigned primary key auto_increment,
+    user_id    int         not null,
+    grade      int         not null,
+    profession varchar(50) not null,
+    foreign key (user_id) references user (id) on delete cascade on update cascade
+);
+
 create table class_schedule
 (
     id          bigint unsigned not null primary key auto_increment,

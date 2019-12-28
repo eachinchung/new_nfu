@@ -110,6 +110,22 @@ class Achievement(db.Model):
         }
 
 
+class Profile(db.Model):
+    """
+    个人档案表
+    """
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer)
+    grade = db.Column(db.Integer)
+    profession = db.Column(db.String)
+
+    def get_dict(self):
+        return {
+            'grade': self.grade,
+            'profession': self.profession,
+        }
+
+
 class ClassSchedule(db.Model):
     """
     课程表

@@ -37,7 +37,7 @@ def get_token_bp() -> jsonify:
         r = Redis(host='localhost', password=getenv('REDIS_PASSWORD'), port=6379)
 
         if r.hget(user_id, 'name') is None:
-            return jsonify({'code': '0001', 'message': '账号不存在'})
+            return jsonify({'code': '0001', 'message': '账号不存在，请注册'})
 
         else:
             return jsonify({'code': '0002', 'message': '账号暂未激活'})
