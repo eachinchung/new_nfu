@@ -145,9 +145,6 @@ def get_achievement_list(token: str, school_year: int, semester) -> list:
     except KeyError:
         raise NFUError(course)
 
-    if not course:
-        raise NFUError('学校教务系统返回数据为空')
-
     return course
 
 

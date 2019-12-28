@@ -73,6 +73,11 @@ def __get(user_id: int, school_year_now: int, semester_now: int) -> list:
     for item in school_year_list:
         # 向教务系统请求数据
         achievement_data = get_achievement_list(token, item[0], item[1])
+
+        # 判断返回的数据是否为空
+        if not achievement_data:
+            continue
+
         # 此数据，为接口返回的数据
         achievement_list.extend(__data_processing(achievement_data, item[0], item[1]))
 
@@ -88,15 +93,18 @@ def __get_school_year_list(user_id: int, school_year_now: int, semester_now: int
     :return:
     """
     school_year_list = []
-    school_year_first = 2000 + int(user_id / 10000000)
+    school_year_first = int(f'20{str(user_id)[:2]}')
 
     while school_year_first < school_year_now:
         school_year_list.append((school_year_first, 1))
         school_year_list.append((school_year_first, 2))
         school_year_first += 1
 
-    if semester_now == 2:
+    if semester_now == 1:
         school_year_list.append((school_year_now, 1))
+    else:
+        school_year_list.append((school_year_now, 1))
+        school_year_list.append((school_year_now, 2))
 
     return school_year_list
 
