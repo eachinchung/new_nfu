@@ -5,7 +5,6 @@ verify_ssl = true
 
 [packages]
 flask = "*"
-flask-cors = "*"
 flask-mail = "*"
 flask-sqlalchemy = "*"
 gunicorn = "*"
