@@ -59,17 +59,15 @@ def get_school_config(func):
     @wraps(func)
     def wrapper(*args, **kw):
         school_year = 2019
-        semester = 1
-        school_opens = '2019-08-26'
-
-        school_opens_date = datetime.strptime(school_opens, '%Y-%m-%d')
-        school_week = int(datetime.now().strftime('%W')) - int(school_opens_date.strftime('%W'))
+        semester = 2
+        school_opens = '2020-02-24'
 
         g.school_config = {
             'schoolYear': school_year,
             'semester': semester,
             'schoolOpens': school_opens,
-            'schoolWeek': school_week
+            'schoolOpenstimestamp': 1582473600000,
+            'schoolWeek': 0
         }
 
         return func(*args, **kw)
