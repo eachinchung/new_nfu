@@ -1,4 +1,3 @@
-from datetime import datetime
 from functools import wraps
 from os import getenv
 
@@ -58,15 +57,11 @@ def get_school_config(func):
 
     @wraps(func)
     def wrapper(*args, **kw):
-        school_year = 2019
-        semester = 2
-        school_opens = '2020-02-24'
-
         g.school_config = {
-            'schoolYear': school_year,
-            'semester': semester,
-            'schoolOpens': school_opens,
-            'schoolOpenstimestamp': 1582473600000,
+            'schoolYear': 2019,
+            'semester': 2,
+            'schoolOpens': '2020-02-24',
+            'schoolOpensTimestamp': 1582473600000,
             'schoolWeek': 0
         }
 
