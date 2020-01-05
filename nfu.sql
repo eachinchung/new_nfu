@@ -4,7 +4,7 @@ use nfu;
 
 create table user
 (
-    id       int          not null primary key,
+    id       int unsigned not null primary key,
     name     varchar(15)  not null,
     password char(94)     not null,
     room_id  int          not null,
@@ -13,10 +13,11 @@ create table user
 
 create table bus_user
 (
-    user_id        int         not null primary key,
-    alipay_user_id varchar(20) not null,
-    id_card        varchar(20) not null,
-    bus_session    varchar(50)
+    user_id        int unsigned not null primary key,
+    alipay_user_id varchar(20)  not null,
+    id_card        varchar(20)  not null,
+    bus_session    varchar(50),
+    foreign key (user_id) references user (id) on delete cascade on update cascade
 );
 
 create table dormitory
@@ -38,50 +39,49 @@ create table electric
 
 create table total_achievements
 (
-    id                        int   not null primary key,
-    get_credit                int   not null,
-    selected_credit           int   not null,
-    average_achievement       float not null,
-    average_achievement_point float not null,
-    foreign key (id) references user (id) on delete cascade on update cascade
+    user_id                   int unsigned not null primary key,
+    get_credit                int          not null,
+    selected_credit           int          not null,
+    average_achievement       float        not null,
+    average_achievement_point float        not null,
+    foreign key (user_id) references user (id) on delete cascade on update cascade
 );
 
 create table achievement
 (
     id                           bigint unsigned primary key auto_increment,
-    user_id                      int         not null,
-    school_year                  int         not null,
-    semester                     tinyint     not null,
-    course_type                  varchar(20) not null,
-    subdivision_type             varchar(20) not null,
-    course_name                  varchar(50) not null,
-    course_id                    varchar(50) not null,
-    resit_exam                   tinyint     not null,
-    credit                       float       not null,
-    achievement_point            float       not null,
-    final_achievements           float       not null,
-    total_achievements           float       not null,
-    midterm_achievements         float       not null,
-    practice_achievements        float       not null,
-    peacetime_achievements       float       not null,
-    resit_exam_achievement_point float       null,
+    user_id                      int unsigned not null,
+    school_year                  int          not null,
+    semester                     tinyint      not null,
+    course_type                  varchar(20)  not null,
+    subdivision_type             varchar(20)  not null,
+    course_name                  varchar(50)  not null,
+    course_id                    varchar(50)  not null,
+    resit_exam                   tinyint      not null,
+    credit                       float        not null,
+    achievement_point            float        not null,
+    final_achievements           float        not null,
+    total_achievements           float        not null,
+    midterm_achievements         float        not null,
+    practice_achievements        float        not null,
+    peacetime_achievements       float        not null,
+    resit_exam_achievement_point float        null,
     index course_id (course_id),
     foreign key (user_id) references user (id) on delete cascade on update cascade
 );
 
 create table profile
 (
-    id         int unsigned primary key auto_increment,
-    user_id    int         not null,
-    grade      int         not null,
-    profession varchar(50) not null,
+    user_id    int unsigned not null primary key,
+    grade      int          not null,
+    profession varchar(50)  not null,
     foreign key (user_id) references user (id) on delete cascade on update cascade
 );
 
 create table class_schedule
 (
     id          bigint unsigned not null primary key auto_increment,
-    user_id     int             not null,
+    user_id     int unsigned    not null,
     school_year int             not null,
     semester    tinyint         not null,
     course_name varchar(50)     not null,
@@ -100,7 +100,7 @@ create table class_schedule
 create table ticket_order
 (
     id            int unsigned not null primary key auto_increment,
-    user_id       int          not null,
+    user_id       int unsigned not null,
     bus_ids       int          not null,
     bus_order_id  int          null,
     passenger_ids json         not null,

@@ -53,7 +53,7 @@ class TotalAchievements(db.Model):
     """
     总成绩表
     """
-    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, primary_key=True)
     get_credit = db.Column(db.Integer)
     selected_credit = db.Column(db.Integer)
     average_achievement = db.Column(db.Float)
@@ -114,8 +114,7 @@ class Profile(db.Model):
     """
     个人档案表
     """
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer)
+    user_id = db.Column(db.Integer, primary_key=True)
     grade = db.Column(db.Integer)
     profession = db.Column(db.String)
 

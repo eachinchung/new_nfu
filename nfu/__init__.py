@@ -16,13 +16,18 @@ from nfu.api_bp.validate import validate_bp
 from nfu.extensions import db, mail
 
 
-def create_app() -> Flask:
+def create_app(config_name=None) -> Flask:
     """
     加载基本配置
     :return:
     """
     app = Flask('nfu')
     app.config.from_pyfile('settings.py')
+
+    # 本地开发由 flask-cors 提供 CORS
+    if config_name is None:
+        from flask_cors import CORS
+        CORS(app)
 
     register_blueprints(app)
     register_extensions(app)
