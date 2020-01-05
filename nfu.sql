@@ -57,7 +57,6 @@ create table achievement
     subdivision_type             varchar(20)  not null,
     course_name                  varchar(50)  not null,
     course_id                    varchar(50)  not null,
-    resit_exam                   tinyint      not null,
     credit                       float        not null,
     achievement_point            float        not null,
     final_achievements           float        not null,

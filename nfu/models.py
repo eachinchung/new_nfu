@@ -80,7 +80,6 @@ class Achievement(db.Model):
     subdivision_type = db.Column(db.String)
     course_name = db.Column(db.String)
     course_id = db.Column(db.String)
-    resit_exam = db.Column(db.Boolean)
     credit = db.Column(db.Float)
     achievement_point = db.Column(db.Float)
     final_achievements = db.Column(db.Float)
@@ -98,7 +97,6 @@ class Achievement(db.Model):
             'subdivisionType': self.subdivision_type,
             'courseName': self.course_name,
             'courseId': self.course_id,
-            'resitExam': self.resit_exam,
             'credit': self.credit,
             'achievementPoint': self.achievement_point,
             'finalAchievements': self.final_achievements,

@@ -1,7 +1,7 @@
 """
     :author: Eachin Chung (钟予乾)
     :url: https://www.eachin-life.com
-    :copyright: © 2019 Eachin Chung
+    :copyright: © 2020 Eachin Chung
     :license: MIT, see LICENSE for more details.
 """
 from flask import Flask, jsonify
