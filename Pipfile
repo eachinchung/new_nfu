@@ -18,4 +18,5 @@ requests = "*"
 [dev-packages]
 autopep8 = "*"
 flake8 = "*"
+flask-cors = "*"
 v = {editable = true,version = "*"}
