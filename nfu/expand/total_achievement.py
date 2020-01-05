@@ -9,8 +9,24 @@ def db_init_total(user_id: int) -> dict:
     :param user_id:
     :return:
     """
-    data = __get(user_id)
-    return __db_input(user_id, data)
+    total_achievement_data = get_total_achievement_point(get_jw_token(user_id))
+
+    db.session.add(TotalAchievements(
+        user_id=user_id,
+        get_credit=total_achievement_data['get_credit'],
+        selected_credit=total_achievement_data['selected_credit'],
+        average_achievement=total_achievement_data['average_achievement'],
+        average_achievement_point=total_achievement_data['average_achievement_point']
+    ))
+
+    db.session.commit()
+
+    return {
+        'getCredit': total_achievement_data['get_credit'],
+        'selectedCredit': total_achievement_data['selected_credit'],
+        'averageAchievement': total_achievement_data['average_achievement'],
+        'averageAchievementPoint': total_achievement_data['average_achievement_point']
+    }
 
 
 def db_update_total(user_id: int) -> dict:
@@ -19,50 +35,20 @@ def db_update_total(user_id: int) -> dict:
     :param user_id:
     :return:
     """
-    # 向教务系统请求数据
-    data = __get(user_id)
+    total_achievement_data = get_total_achievement_point(get_jw_token(user_id))
 
     achievement_db = TotalAchievements.query.get(user_id)
+    achievement_db.get_credit = total_achievement_data['get_credit']
+    achievement_db.selected_credit = total_achievement_data['selected_credit']
+    achievement_db.average_achievement = total_achievement_data['average_achievement']
+    achievement_db.average_achievement_point = total_achievement_data['average_achievement_point']
 
-    # 删除数据库中已有的数据
-    if achievement_db:
-        db.session.delete(achievement_db)
-        db.session.commit()
-
-    return __db_input(user_id, data)
-
-
-def __get(user_id: int) -> dict:
-    """
-    向教务系统请求数据
-    :param user_id:
-    :return:
-    """
-    return get_total_achievement_point(get_jw_token(user_id))
-
-
-def __db_input(user_id: int, total_achievement) -> dict:
-    """
-    把数据写入数据库
-    :param user_id:
-    :param total_achievement:
-    :return:
-    """
-    db.session.add(
-        TotalAchievements(
-            user_id=user_id,
-            get_credit=total_achievement['get_credit'],
-            selected_credit=total_achievement['selected_credit'],
-            average_achievement=total_achievement['average_achievement'],
-            average_achievement_point=total_achievement['average_achievement_point']
-        )
-    )
-
+    db.session.add(achievement_db)
     db.session.commit()
 
     return {
-        'getCredit': total_achievement['get_credit'],
-        'selectedCredit': total_achievement['selected_credit'],
-        'averageAchievement': total_achievement['average_achievement'],
-        'averageAchievementPoint': total_achievement['average_achievement_point']
+        'getCredit': total_achievement_data['get_credit'],
+        'selectedCredit': total_achievement_data['selected_credit'],
+        'averageAchievement': total_achievement_data['average_achievement'],
+        'averageAchievementPoint': total_achievement_data['average_achievement_point']
     }
