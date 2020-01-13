@@ -25,11 +25,8 @@ def get():
     if achievement_db:
         return jsonify({
             'code': '1000',
-            'message': {
-                'achievement_list': db_get(achievement_db),
-                'grade': profile_db.grade,
-                'profession': profile_db.profession
-            }})
+            'message': db_get(achievement_db)
+        })
 
     try:
         return jsonify({

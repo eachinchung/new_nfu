@@ -2,7 +2,7 @@ from re import sub
 
 from nfu.expand.nfu import get_achievement_list, get_jw_token
 from nfu.extensions import db
-from nfu.models import Achievement, Profile
+from nfu.models import Achievement
 
 
 def db_get(achievement_db) -> list:
@@ -18,7 +18,7 @@ def db_get(achievement_db) -> list:
     return achievement
 
 
-def db_init(user_id: int, school_year_now: int, semester_now: int) -> dict:
+def db_init(user_id: int, school_year_now: int, semester_now: int) -> list:
     """
     从教务系统获取成绩单，并写入数据库
     :param user_id:
@@ -26,18 +26,15 @@ def db_init(user_id: int, school_year_now: int, semester_now: int) -> dict:
     :param semester_now:
     :return:
     """
-    achievement_list, grade, profession = __get(user_id, school_year_now, semester_now)
+    achievement_list = __get(user_id, school_year_now, semester_now)
 
     # 接下来把数据写入数据库
     __db_input(user_id, achievement_list)
 
-    db.session.add(Profile(user_id=user_id, grade=grade, profession=profession))
-    db.session.commit()
-
-    return {'achievement_list': achievement_list, 'grade': grade, 'profession': profession}
+    return achievement_list
 
 
-def db_update(user_id: int, school_year_now: int, semester_now: int) -> dict:
+def db_update(user_id: int, school_year_now: int, semester_now: int) -> list:
     """
     更新成绩单
     :param user_id:
@@ -45,7 +42,7 @@ def db_update(user_id: int, school_year_now: int, semester_now: int) -> dict:
     :param semester_now:
     :return:
     """
-    achievement_list, grade, profession = __get(user_id, school_year_now, semester_now)
+    achievement_list = __get(user_id, school_year_now, semester_now)
 
     # 从数据库删除已有的记录
     achievement_db = Achievement.query.filter_by(user_id=user_id).all()
@@ -58,16 +55,10 @@ def db_update(user_id: int, school_year_now: int, semester_now: int) -> dict:
     # 接下来把数据写入数据库
     __db_input(user_id, achievement_list)
 
-    profile_db = Profile.query.get(user_id)
-    profile_db.grade = grade
-    profile_db.profession = profession
-    db.session.add(profile_db)
-    db.session.commit()
-
-    return {'achievement_list': achievement_list, 'grade': grade, 'profession': profession}
+    return achievement_list
 
 
-def __get(user_id: int, school_year_now: int, semester_now: int) -> tuple:
+def __get(user_id: int, school_year_now: int, semester_now: int) -> list:
     """
     向教务系统请求数据，
     :param user_id:
@@ -89,12 +80,12 @@ def __get(user_id: int, school_year_now: int, semester_now: int) -> tuple:
         if not achievement_data:
             continue
 
-        achievement, grade, profession = __data_processing(achievement_data, item[0], item[1])
+        achievement = __data_processing(achievement_data, item[0], item[1])
 
         # 此数据，为接口返回的数据
         achievement_list.extend(achievement)
 
-    return achievement_list, grade, profession
+    return achievement_list
 
 
 def __get_school_year_list(user_id: int, school_year_now: int, semester_now: int) -> list:
@@ -153,7 +144,7 @@ def __db_input(user_id: int, achievement_list: list) -> None:
     db.session.commit()
 
 
-def __data_processing(achievement_data: list, school_year: int, semester: int) -> tuple:
+def __data_processing(achievement_data: list, school_year: int, semester: int) -> list:
     """
     处理爬取下来的数据
     :param achievement_data:
@@ -162,9 +153,6 @@ def __data_processing(achievement_data: list, school_year: int, semester: int) -
     achievement = []
 
     for course in achievement_data:
-
-        grade = course['sznj']
-        profession = course['zymc']
 
         # 判断该学生是否重考
         try:
@@ -176,7 +164,7 @@ def __data_processing(achievement_data: list, school_year: int, semester: int) -
             'schoolYear': school_year,
             'semester': semester,
             'courseType': course['l2kcxz'],
-            'subdivisionType': course['kcxz'],
+            'subdivisionType': course['kcxz0'],
             'courseName': sub(r'[\r\n]', '', course['yjkcmc']),
             'courseId': course['pkbdm'],
             'credit': float(course['kcxf']),
@@ -189,4 +177,4 @@ def __data_processing(achievement_data: list, school_year: int, semester: int) -
             'resitExamAchievementPoint': resit_exam_achievement_point
         })
 
-    return achievement, grade, profession
+    return achievement
