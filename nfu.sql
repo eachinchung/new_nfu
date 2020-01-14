@@ -16,8 +16,7 @@ create table bus_user
     user_id        int unsigned not null primary key,
     alipay_user_id varchar(20)  not null,
     id_card        varchar(20)  not null,
-    bus_session    varchar(50),
-    foreign key (user_id) references user (id) on delete cascade on update cascade
+    bus_session    varchar(50)
 );
 
 create table dormitory

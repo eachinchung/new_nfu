@@ -24,7 +24,7 @@ def get_jw_token(student_id: int, password: str = '') -> str:
         response = post(url, data=data, timeout=10)
         token = loads(response.text)['msg']
     except (OSError, decoder.JSONDecodeError):
-        raise NFUError('教务系统错误，请稍后再试')
+        raise NFUError('教务系统登录接口错误，请稍后再试')
 
     if not token:
         raise NFUError('学号或密码错误!')
@@ -54,7 +54,7 @@ def get_student_name(student_id: int, password: str) -> str:
         response = post(url, data=data, timeout=10)
         name = loads(response.text)['msg']['name']
     except (OSError, KeyError):
-        raise NFUError('教务系统错误，请稍后再试')
+        raise NFUError('实名验证错误，请稍后再试')
 
     if not name:
         raise NFUError('没有获取到数据，请稍后再试')
@@ -83,7 +83,7 @@ def get_class_schedule(token: str, school_year: int, semester: int) -> list:
         response = post(url, data=data, timeout=10)
         course_list = loads(response.text)['msg']
     except (OSError, KeyError, decoder.JSONDecodeError):
-        raise NFUError('教务系统错误，请稍后再试')
+        raise NFUError('教务系统课程表接口错误，请稍后再试')
 
     # 判断获取的数据是否是列表，如果不是列表，可能教务系统又炸了
     if not isinstance(course_list, list):
@@ -133,7 +133,7 @@ def get_achievement_list(token: str, school_year: int, semester) -> list:
     try:
         response = post(url, data=data, timeout=10)
     except OSError:
-        raise NFUError('教务系统错误，请稍后再试')
+        raise NFUError('教务系统成绩接口错误，请稍后再试')
 
     try:
         course = loads(response.text)['msg']
@@ -163,7 +163,7 @@ def get_total_achievement_point(token: str) -> dict:
         actual_id = loads(response.text)['msg']['actualId']
 
     except (OSError, KeyError, decoder.JSONDecodeError):
-        raise NFUError('教务系统错误，请稍后再试')
+        raise NFUError('教务系统绩点接口错误，请稍后再试')
 
     if not actual_id:
         raise NFUError('没有获取到该学生的真实id')
@@ -180,7 +180,7 @@ def get_total_achievement_point(token: str) -> dict:
         response = post(url, data=data, timeout=10)
         data = loads(response.text)['msg']['list'][0]
     except (OSError, KeyError, decoder.JSONDecodeError):
-        raise NFUError('教务系统错误，请稍后再试')
+        raise NFUError('教务系统绩点接口错误，请稍后再试')
 
     if not data:
         raise NFUError('没有获取到数据，请稍后再试')
