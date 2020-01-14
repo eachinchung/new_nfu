@@ -73,7 +73,8 @@ create table profile
 (
     user_id    int unsigned not null primary key,
     grade      int          not null,
-    profession varchar(50)  not null,
+    profession varchar(50)  null,
+    direction  varchar(50)  null,
     foreign key (user_id) references user (id) on delete cascade on update cascade
 );
 

@@ -115,11 +115,13 @@ class Profile(db.Model):
     user_id = db.Column(db.Integer, primary_key=True)
     grade = db.Column(db.Integer)
     profession = db.Column(db.String)
+    direction = db.Column(db.String)
 
     def get_dict(self):
         return {
             'grade': self.grade,
             'profession': self.profession,
+            'direction': self.direction
         }
 
 
