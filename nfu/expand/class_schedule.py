@@ -1,3 +1,4 @@
+from time import time
 from json import dumps
 
 from nfu.expand.nfu import get_class_schedule, get_jw_token
@@ -5,9 +6,10 @@ from nfu.extensions import db
 from nfu.models import ClassSchedule
 
 
-def db_init(user_id: int, school_year: int, semester: int):
+def db_init(user_id: int, school_year: int, semester: int, redis) -> list:
     """
     数据库没有课表数据时，调用此函数写入数据
+    :param redis:
     :param user_id:
     :param school_year:
     :param semester:
@@ -16,12 +18,14 @@ def db_init(user_id: int, school_year: int, semester: int):
 
     token = get_jw_token(user_id)
     class_schedule_api = get_class_schedule(token, school_year, semester)
+    redis.set(f'classSchedule-{user_id}', time())
     return __db_input(user_id, class_schedule_api, school_year, semester)
 
 
-def db_update(user_id: int, school_year: int, semester: int):
+def db_update(user_id: int, school_year: int, semester: int, redis) -> list:
     """
     更新数据库中的课表数据
+    :param redis:
     :param user_id:
     :param school_year:
     :param semester:
@@ -43,10 +47,12 @@ def db_update(user_id: int, school_year: int, semester: int):
         db.session.delete(course)
 
     db.session.commit()
+
+    redis.set(f'classSchedule-{user_id}', time())
     return __db_input(user_id, class_schedule_api, school_year, semester)
 
 
-def __db_input(user_id, class_schedule_list: list, school_year: int, semester: int):
+def __db_input(user_id, class_schedule_list: list, school_year: int, semester: int) -> list:
     """
     把课程表写入数据库
     :param class_schedule_list:
