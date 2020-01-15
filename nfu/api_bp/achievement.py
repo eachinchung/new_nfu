@@ -3,7 +3,7 @@ from flask import Blueprint, g, jsonify
 from nfu.common import check_access_token, get_school_config
 from nfu.expand.achievement import db_get, db_init, db_update
 from nfu.expand.total_achievement import db_init_total, db_update_total
-from nfu.models import Achievement, TotalAchievements, Profile
+from nfu.models import Achievement, TotalAchievements
 from nfu.nfu_error import NFUError
 
 achievement_bp = Blueprint('achievement', __name__)
@@ -18,7 +18,6 @@ def get():
     :return:
     """
 
-    profile_db = Profile.query.get(g.user.id)
     achievement_db = Achievement.query.filter_by(user_id=g.user.id).all()
 
     # 数据库存在成绩数据
