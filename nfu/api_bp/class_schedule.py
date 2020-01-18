@@ -80,9 +80,16 @@ def version():
     :return:
     """
     r = Redis(host='localhost', password=getenv('REDIS_PASSWORD'), port=6379)
+    class_schedule_version = r.get(f'class-schedule-version-{g.user.id}')
+
+    if class_schedule_version is None:
+        class_schedule_version = 'update'
+    else:
+        class_schedule_version = class_schedule_version.decode('utf-8')
+
     return jsonify({
         'code': '1000',
-        'version': r.get(f'class-schedule-version-{g.user.id}').decode('utf-8')
+        'version': class_schedule_version
     })
 
 
