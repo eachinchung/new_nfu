@@ -82,7 +82,7 @@ def get_waiting_ride_order(user_id: int) -> list:
             'price': item['price'],
             'startFromName': item['start_from_name'],
             'startToName': item['start_to_name'],
-            'ticketUrl': f"{getenv('API_URL')}/school-bus/ticket/{token}"
+            'ticketUrl': f"{getenv('API_URL')}/school-bus-plus/ticket/{token}"
         })
 
     return result
