@@ -1,5 +1,5 @@
-from time import time
 from json import dumps
+from time import time
 
 from nfu.expand.nfu import get_class_schedule, get_jw_token
 from nfu.extensions import db
@@ -18,7 +18,7 @@ def db_init(user_id: int, school_year: int, semester: int, redis) -> list:
 
     token = get_jw_token(user_id)
     class_schedule_api = get_class_schedule(token, school_year, semester)
-    redis.set(f'classSchedule-{user_id}', time())
+    redis.set(f'class-schedule-version-{user_id}', time())
     return __db_input(user_id, class_schedule_api, school_year, semester)
 
 
@@ -48,7 +48,7 @@ def db_update(user_id: int, school_year: int, semester: int, redis) -> list:
 
     db.session.commit()
 
-    redis.set(f'classSchedule-{user_id}', time())
+    redis.set(f'class-schedule-version-{user_id}', time())
     return __db_input(user_id, class_schedule_api, school_year, semester)
 
 
@@ -69,6 +69,7 @@ def __db_input(user_id, class_schedule_list: list, school_year: int, semester: i
                 semester=semester,
                 course_name=course['course_name'],
                 course_id=course['course_id'],
+                credit=float(course['credit']),
                 teacher=dumps(course['teacher']),
                 classroom=course['classroom'],
                 weekday=course['weekday'],
@@ -82,6 +83,7 @@ def __db_input(user_id, class_schedule_list: list, school_year: int, semester: i
         class_schedule.append({
             'courseId': course['course_id'],
             'courseName': course['course_name'],
+            'credit': float(course['credit']),
             'teacher': course['teacher'],
             'classroom': course['classroom'],
             'weekday': course['weekday'],

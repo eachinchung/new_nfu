@@ -37,7 +37,7 @@ def get():
         return jsonify({
             'code': '1000',
             'message': class_schedule,
-            'version': r.get(f'classSchedule-{g.user.id}').decode('utf-8')
+            'version': r.get(f'class-schedule-version-{g.user.id}').decode('utf-8')
         })
 
     # 获取课程表，并写入数据库
@@ -45,7 +45,7 @@ def get():
         return jsonify({
             'code': '1000',
             'message': db_init(g.user.id, g.school_config['schoolYear'], g.school_config['semester'], r),
-            'version': r.get(f'classSchedule-{g.user.id}').decode('utf-8')
+            'version': r.get(f'class-schedule-version-{g.user.id}').decode('utf-8')
         })
     except NFUError as err:
         return jsonify({'code': err.code, 'message': err.message})
@@ -66,7 +66,7 @@ def update():
         return jsonify({
             'code': '1000',
             'message': db_update(g.user.id, g.school_config['schoolYear'], g.school_config['semester'], r),
-            'version': r.get(f'classSchedule-{g.user.id}').decode('utf-8')
+            'version': r.get(f'class-schedule-version-{g.user.id}').decode('utf-8')
         })
     except NFUError as err:
         return jsonify({'code': err.code, 'message': err.message})
@@ -82,7 +82,7 @@ def version():
     r = Redis(host='localhost', password=getenv('REDIS_PASSWORD'), port=6379)
     return jsonify({
         'code': '1000',
-        'version': r.get(f'classSchedule-{g.user.id}').decode('utf-8')
+        'version': r.get(f'class-schedule-version-{g.user.id}').decode('utf-8')
     })
 
 

@@ -135,6 +135,7 @@ class ClassSchedule(db.Model):
     semester = db.Column(db.Integer)
     course_name = db.Column(db.String)
     course_id = db.Column(db.String)
+    credit = db.Column(db.Float)
     teacher = db.Column(db.String)
     classroom = db.Column(db.String)
     weekday = db.Column(db.Integer)
@@ -147,6 +148,7 @@ class ClassSchedule(db.Model):
         return {
             'courseId': self.course_id,
             'courseName': self.course_name,
+            'credit': self.credit,
             'teacher': loads(self.teacher),
             'classroom': self.classroom,
             'weekday': self.weekday,

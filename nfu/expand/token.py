@@ -1,18 +1,24 @@
+from json import dumps
 from os import getenv
 
 from itsdangerous import BadSignature, SignatureExpired, TimedJSONWebSignatureSerializer
 
-from nfu.models import BusUser
 from nfu.nfu_error import NFUError
 
 
-def create_access_token(user) -> dict:
+def create_access_token(user, dormitory, busPower) -> dict:
     """
     生成访问令牌
     """
     token_data = {
         'id': user.id,
-        'busPower': BusUser.query.get(user.id) is not None
+        'busPower': busPower,
+        'data': dumps({
+            'name': user.name,
+            'roomId': user.room_id,
+            'email': user.email,
+            'dormitory': dormitory
+        })
     }
 
     return {

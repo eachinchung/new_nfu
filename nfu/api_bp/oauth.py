@@ -9,7 +9,7 @@ from nfu.common import get_token
 from nfu.expand.email import send_validate_email
 from nfu.expand.nfu import get_student_name
 from nfu.expand.token import create_access_token, generate_token, validate_token
-from nfu.models import User
+from nfu.models import BusUser, Dormitory, User
 from nfu.nfu_error import NFUError
 
 oauth_bp = Blueprint('oauth', __name__)
@@ -30,13 +30,12 @@ def get_token_bp() -> jsonify:
 
     # 首先验证账号是否存在
     user = User.query.get(user_id)
+    r = Redis(host='localhost', password=getenv('REDIS_PASSWORD'), port=6379)
 
     if user is None:  # 当MySql为空时
 
         # 查看缓存是否有已注册的信息
-        r = Redis(host='localhost', password=getenv('REDIS_PASSWORD'), port=6379)
-
-        if r.hget(user_id, 'name') is None:
+        if r.hget(f"sign-up-{user_id}", 'name') is None:
             return jsonify({'code': '0001', 'message': '账号不存在，请注册'})
 
         else:
@@ -45,7 +44,19 @@ def get_token_bp() -> jsonify:
     if not user.validate_password(data['password']):
         return jsonify({'code': '0003', 'message': '密码错误'})
 
-    return jsonify(create_access_token(user))
+    dormitory_db = Dormitory.query.get(user.room_id)
+    dormitory = f'{dormitory_db.building} {dormitory_db.floor} {dormitory_db.room}'
+    busPower = int(BusUser.query.get(user.id) is not None)
+
+    r.hmset(f"user-{user_id}", {
+        'name': user.name,
+        'roomId': user.room_id,
+        'email': user.email,
+        'dormitory': dormitory,
+        'busPower': busPower
+    })
+
+    return jsonify(create_access_token(user, dormitory, busPower))
 
 
 @oauth_bp.route('/token/refresh')
@@ -61,7 +72,30 @@ def refresh_token() -> jsonify:
     except NFUError as err:
         return jsonify({'code': err.code, 'message': err.message})
 
-    return jsonify(create_access_token(User.query.get(validate['id'])))
+    r = Redis(host='localhost', password=getenv('REDIS_PASSWORD'), port=6379)
+
+    try:  # 从 Redis 读取信息
+        name = r.hget(f"user-{validate['id']}", 'name').decode('utf-8')
+        room_id = int(r.hget(f"user-{validate['id']}", 'roomId').decode('utf-8'))
+        email = r.hget(f"user-{validate['id']}", 'email').decode('utf-8')
+        dormitory = r.hget(f"user-{validate['id']}", 'dormitory').decode('utf-8')
+        busPower = int(r.hget(f"user-{validate['id']}", 'busPower'))
+    except AttributeError:
+        user = User.query.get(validate['id'])
+        dormitory_db = Dormitory.query.get(user.room_id)
+        dormitory = f'{dormitory_db.building} {dormitory_db.floor} {dormitory_db.room}'
+        busPower = int(BusUser.query.get(user.id) is not None)
+        r.hmset(f"user-{validate['id']}", {
+            'name': user.name,
+            'roomId': user.room_id,
+            'email': user.email,
+            'dormitory': dormitory,
+            'busPower': busPower
+        })
+    else:
+        user = User(id=validate['id'], name=name, room_id=room_id, email=email)
+
+    return jsonify(create_access_token(user, dormitory, busPower))
 
 
 @oauth_bp.route('/sign-up', methods=['POST'])
@@ -98,7 +132,7 @@ def sign_up() -> jsonify:
 
     # 把帐号资料写入缓存
     r = Redis(host='localhost', password=getenv('REDIS_PASSWORD'), port=6379)
-    r.hmset(user_id, {
+    r.hmset(f"sign-up-{user_id}", {
         'name': name,
         'password': generate_password_hash(password),
         'roomId': room_id,

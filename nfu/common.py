@@ -1,4 +1,5 @@
 from functools import wraps
+from json import loads
 from os import getenv
 
 from flask import g, jsonify, request
@@ -88,7 +89,13 @@ def check_access_token(func):
         except NFUError as err:
             return jsonify({'code': err.code, 'message': err.message})
 
-        g.user = User.query.get(validate['id'])
+        user_data = loads(validate['data'])
+        g.user = User(
+            id=validate['id'],
+            name=user_data["name"],
+            room_id=user_data["roomId"],
+            email=user_data["email"]
+        )
 
         return func(*args, **kw)
 

@@ -85,6 +85,7 @@ create table class_schedule
     semester    tinyint         not null,
     course_name varchar(50)     not null,
     course_id   varchar(50)     not null,
+    credit      float           not null,
     teacher     json            not null,
     classroom   char(25)        not null,
     weekday     tinyint         not null,

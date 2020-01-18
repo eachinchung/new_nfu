@@ -1,14 +1,15 @@
 from datetime import datetime
-from json import loads, decoder
+from json import decoder, loads
 from os import getenv
 
 from flask import Blueprint, g, jsonify, render_template, request
+from redis import Redis
 from requests import post
 from werkzeug.security import generate_password_hash
 
 from nfu.common import check_access_token, verification_code
 from nfu.extensions import db
-from nfu.models import Dormitory
+from nfu.models import User, Dormitory
 from nfu.nfu_error import NFUError
 
 user_bp = Blueprint('user', __name__)
@@ -76,10 +77,13 @@ def set_dormitory():
     :return:
     """
     data = loads(request.get_data().decode('utf-8'))
-    room_id = int(data['roomId'])
-    g.user.room_id = room_id
-    db.session.add(g.user)
+    user = User.query.get(g.user.id)
+    user.room_id = int(data['roomId'])
+    db.session.add(user)
     db.session.commit()
+
+    r = Redis(host='localhost', password=getenv('REDIS_PASSWORD'), port=6379)
+    r.delete(f"user-{g.user.id}")
 
     return jsonify({'code': '1000', 'message': 'success'})
 
@@ -99,7 +103,8 @@ def set_password() -> jsonify:
     except (TypeError, ValueError):
         return jsonify({'code': '2000', 'message': '请求数据错误'})
 
-    if not g.user.validate_password(password):
+    user = User.query.get(g.user.id)
+    if not user.validate_password(password):
         return jsonify({'code': '0003', 'message': '密码错误'})
 
     try:  # 验证验证码是否正确
@@ -107,8 +112,8 @@ def set_password() -> jsonify:
     except NFUError as err:
         return jsonify({'code': err.code, 'message': err.message})
 
-    g.user.password = generate_password_hash(new_password)
-    db.session.add(g.user)
+    user.password = generate_password_hash(new_password)
+    db.session.add(user)
     db.session.commit()
 
     return jsonify({'code': '1000', 'message': '密码更新成功'})
@@ -129,7 +134,8 @@ def set_email() -> jsonify:
     except (TypeError, ValueError):
         return jsonify({'code': '2000', 'message': '请求数据错误'})
 
-    if not g.user.validate_password(password):
+    user = User.query.get(g.user.id)
+    if not user.validate_password(password):
         return jsonify({'code': '2000', 'message': '密码错误'})
 
     try:  # 验证验证码是否正确
@@ -137,8 +143,11 @@ def set_email() -> jsonify:
     except NFUError as err:
         return jsonify({'code': err.code, 'message': err.message})
 
-    g.user.email = new_email
-    db.session.add(g.user)
+    user.email = new_email
+    db.session.add(user)
     db.session.commit()
+
+    r = Redis(host='localhost', password=getenv('REDIS_PASSWORD'), port=6379)
+    r.delete(f"user-{g.user.id}")
 
     return jsonify({'code': '1000', 'message': '邮箱更新成功'})
