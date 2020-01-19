@@ -46,17 +46,17 @@ def get_token_bp() -> jsonify:
 
     dormitory_db = Dormitory.query.get(user.room_id)
     dormitory = f'{dormitory_db.building} {dormitory_db.floor} {dormitory_db.room}'
-    busPower = int(BusUser.query.get(user.id) is not None)
+    bus_power = int(BusUser.query.get(user.id) is not None)
 
     r.hmset(f"user-{user_id}", {
         'name': user.name,
         'roomId': user.room_id,
         'email': user.email,
         'dormitory': dormitory,
-        'busPower': busPower
+        'busPower': bus_power
     })
 
-    return jsonify(create_access_token(user, dormitory, busPower))
+    return jsonify(create_access_token(user, dormitory, bus_power))
 
 
 @oauth_bp.route('/token/refresh')
@@ -79,23 +79,23 @@ def refresh_token() -> jsonify:
         room_id = int(r.hget(f"user-{validate['id']}", 'roomId').decode('utf-8'))
         email = r.hget(f"user-{validate['id']}", 'email').decode('utf-8')
         dormitory = r.hget(f"user-{validate['id']}", 'dormitory').decode('utf-8')
-        busPower = int(r.hget(f"user-{validate['id']}", 'busPower'))
+        bus_power = int(r.hget(f"user-{validate['id']}", 'busPower'))
     except AttributeError:
         user = User.query.get(validate['id'])
         dormitory_db = Dormitory.query.get(user.room_id)
         dormitory = f'{dormitory_db.building} {dormitory_db.floor} {dormitory_db.room}'
-        busPower = int(BusUser.query.get(user.id) is not None)
+        bus_power = int(BusUser.query.get(user.id) is not None)
         r.hmset(f"user-{validate['id']}", {
             'name': user.name,
             'roomId': user.room_id,
             'email': user.email,
             'dormitory': dormitory,
-            'busPower': busPower
+            'busPower': bus_power
         })
     else:
         user = User(id=validate['id'], name=name, room_id=room_id, email=email)
 
-    return jsonify(create_access_token(user, dormitory, busPower))
+    return jsonify(create_access_token(user, dormitory, bus_power))
 
 
 @oauth_bp.route('/sign-up', methods=['POST'])

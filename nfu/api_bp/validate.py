@@ -34,10 +34,10 @@ def activation() -> jsonify:
     r = Redis(host='localhost', password=getenv('REDIS_PASSWORD'), port=6379)
 
     try:  # 从 Redis 读取注册信息
-        name = r.hget(validate['id'], 'name').decode('utf-8')
-        password = r.hget(validate['id'], 'password').decode('utf-8')
-        room_id = r.hget(validate['id'], 'roomId').decode('utf-8')
-        email = r.hget(validate['id'], 'email').decode('utf-8')
+        name = r.hget(f"sign-up-{validate['id']}", 'name').decode('utf-8')
+        password = r.hget(f"sign-up-{validate['id']}", 'password').decode('utf-8')
+        room_id = r.hget(f"sign-up-{validate['id']}", 'roomId').decode('utf-8')
+        email = r.hget(f"sign-up-{validate['id']}", 'email').decode('utf-8')
     except AttributeError:
         return jsonify({'code': '2000', 'message': '该链接已失效'})
 
