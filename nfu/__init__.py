@@ -1,9 +1,10 @@
 """
-    :author: Eachin Chung (钟予乾)
-    :url: https://www.eachin-life.com
-    :copyright: © 2020 Eachin Chung
-    :license: MIT, see LICENSE for more details.
+:author: Eachin Chung (钟予乾)
+:url: https://www.eachin-life.com
+:copyright: © 2020 Eachin Chung
+:license: MIT, see LICENSE for more details.
 """
+
 from flask import Flask, jsonify
 
 from nfu.api_bp.achievement import achievement_bp
@@ -72,7 +73,7 @@ def register_errors(app) -> None:
         return jsonify({'message': '404 错误 – 找不到此资源'}), 404
 
     @app.errorhandler(405)
-    def page_not_found(e):
+    def method_not_allowed(e):
         return jsonify({'message': '405 错误 – 方法不被允许'}), 405
 
     @app.errorhandler(500)
