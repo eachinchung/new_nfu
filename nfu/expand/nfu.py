@@ -109,6 +109,7 @@ def get_class_schedule(token: str, school_year: int, semester: int) -> list:
                 'end_week': merge['jsz']
             })
 
+    course_data.sort(key=lambda x: x['course_id'])
     return course_data
 
 

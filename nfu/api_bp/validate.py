@@ -42,7 +42,7 @@ def activation() -> jsonify:
         return jsonify({'code': '2000', 'message': '该链接已失效'})
 
     # 删除缓存中的数据
-    r.delete(validate['id'])
+    r.delete(f"sign-up-{validate['id']}")
 
     # 把用户数据写入 MySql
     user = User(id=validate['id'], name=name, password=password, room_id=room_id, email=email)

@@ -1,5 +1,5 @@
-from json import dumps
-from time import time
+from hashlib import md5
+from json import dumps, loads
 
 from nfu.expand.nfu import get_class_schedule, get_jw_token
 from nfu.extensions import db
@@ -18,8 +18,13 @@ def db_init(user_id: int, school_year: int, semester: int, redis) -> list:
 
     token = get_jw_token(user_id)
     class_schedule_api = get_class_schedule(token, school_year, semester)
-    redis.set(f'class-schedule-version-{user_id}', time())
-    return __db_input(user_id, class_schedule_api, school_year, semester)
+
+    version = md5(dumps(class_schedule_api).encode(encoding='UTF-8')).hexdigest()
+    redis.set(f'class-schedule-version-{user_id}', version)
+
+    class_schedule = __db_input(user_id, class_schedule_api, school_year, semester)
+    redis.set(f'class-schedule-{user_id}', dumps(class_schedule))
+    return class_schedule
 
 
 def db_update(user_id: int, school_year: int, semester: int, redis) -> list:
@@ -36,20 +41,34 @@ def db_update(user_id: int, school_year: int, semester: int, redis) -> list:
 
     # 先尝试连接教务系统，看是否能获取课程数据
     class_schedule_api = get_class_schedule(token, school_year, semester)
+    version = md5(dumps(class_schedule_api).encode(encoding='UTF-8')).hexdigest()
 
-    class_schedule_db = ClassSchedule.query.filter_by(
-        user_id=user_id,
-        school_year=school_year,
-        semester=semester
-    ).all()
+    class_schedule_version = redis.get(f'class-schedule-version-{user_id}')
 
-    for course in class_schedule_db:
-        db.session.delete(course)
+    # 若检测到数据有更新，则写入mysql
+    if class_schedule_version is None or class_schedule_version.decode('utf-8') != version:
 
-    db.session.commit()
+        class_schedule_db = ClassSchedule.query.filter_by(
+            user_id=user_id,
+            school_year=school_year,
+            semester=semester
+        ).all()
 
-    redis.set(f'class-schedule-version-{user_id}', time())
-    return __db_input(user_id, class_schedule_api, school_year, semester)
+        for course in class_schedule_db:
+            db.session.delete(course)
+
+        db.session.commit()
+
+        # 写入缓存
+        class_schedule = __db_input(user_id, class_schedule_api, school_year, semester)
+        redis.set(f'class-schedule-version-{user_id}', version)
+        redis.set(f'class-schedule-{user_id}', dumps(class_schedule))
+
+    else:  # 否则直接读取缓存数据
+        class_schedule = redis.get(f'class-schedule-{user_id}').decode('utf-8')
+        class_schedule = loads(class_schedule)
+
+    return class_schedule
 
 
 def __db_input(user_id, class_schedule_list: list, school_year: int, semester: int) -> list:
