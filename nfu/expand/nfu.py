@@ -5,9 +5,10 @@ from requests import post
 from nfu.nfu_error import NFUError
 
 
-def get_jw_token(student_id: int, password: str = '') -> str:
+def get_jw_token(student_id: int, password: str = '', count: int = 0) -> str:
     """
     登陆教务系统
+    :param count:
     :param student_id: 学号
     :param password: 密码，默认为空字符串
     :return token:
@@ -24,7 +25,10 @@ def get_jw_token(student_id: int, password: str = '') -> str:
         response = post(url, data=data, timeout=10)
         token = loads(response.text)['msg']
     except (OSError, decoder.JSONDecodeError):
-        raise NFUError('教务系统登录接口错误，请稍后再试')
+        if count >= 5:
+            raise NFUError('教务系统登录接口错误，请稍后再试')
+        else:
+            return get_jw_token(student_id, password, count + 1)
 
     if not token:
         raise NFUError('学号或密码错误!')
