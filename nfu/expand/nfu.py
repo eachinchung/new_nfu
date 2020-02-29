@@ -62,10 +62,11 @@ def get_student_name(student_id: int, password: str) -> str:
     return name
 
 
-def get_class_schedule(token: str, school_year: int, semester: int) -> list:
+def get_class_schedule(token: str, school_year: int, semester: int, count: int = 0) -> list:
     """
     向教务系统请求课程表数据
 
+    :param count:
     :param token:
     :param school_year:
     :param semester:
@@ -83,11 +84,17 @@ def get_class_schedule(token: str, school_year: int, semester: int) -> list:
         response = post(url, data=data, timeout=10)
         course_list = loads(response.text)['msg']
     except (OSError, KeyError, decoder.JSONDecodeError):
-        raise NFUError('教务系统课程表接口错误，请稍后再试')
+        if count >= 5:
+            raise NFUError('教务系统课程表接口错误，请稍后再试')
+        else:
+            return get_class_schedule(token, school_year, semester, count + 1)
 
     # 判断获取的数据是否是列表，如果不是列表，可能教务系统又炸了
     if not isinstance(course_list, list):
-        raise NFUError('教务系统错误，请稍后再试')
+        if count >= 5:
+            raise NFUError('教务系统错误，请稍后再试')
+        else:
+            return get_class_schedule(token, school_year, semester, count + 1)
 
     for course in course_list:  # 循环所有课程
         for merge in course['kbMergeList']:  # 课程可能有不同上课时间，循环取出
@@ -113,9 +120,10 @@ def get_class_schedule(token: str, school_year: int, semester: int) -> list:
     return course_data
 
 
-def get_achievement_list(token: str, school_year: int, semester) -> list:
+def get_achievement_list(token: str, school_year: int, semester: int, count: int = 0) -> list:
     """
     获取成绩单
+    :param count:
     :param token:
     :param school_year:
     :param semester:
@@ -135,12 +143,18 @@ def get_achievement_list(token: str, school_year: int, semester) -> list:
     try:
         response = post(url, data=data, timeout=10)
     except OSError:
-        raise NFUError('教务系统成绩接口错误，请稍后再试')
+        if count >= 5:
+            raise NFUError('教务系统成绩接口错误，请稍后再试')
+        else:
+            return get_achievement_list(token, school_year, semester, count + 1)
 
     try:
         course = loads(response.text)['msg']
     except (KeyError, decoder.JSONDecodeError):
-        raise NFUError('教务系统错误，请稍后再试')
+        if count >= 5:
+            raise NFUError('教务系统错误，请稍后再试')
+        else:
+            return get_achievement_list(token, school_year, semester, count + 1)
 
     try:
         course = course['list']
@@ -150,9 +164,10 @@ def get_achievement_list(token: str, school_year: int, semester) -> list:
     return course
 
 
-def get_total_achievement_point(token: str) -> dict:
+def get_total_achievement_point(token: str, count: int = 0) -> dict:
     """
     获取学分、成绩的总体情况
+    :param count:
     :param token:
     :return:
     """
@@ -165,7 +180,9 @@ def get_total_achievement_point(token: str) -> dict:
         actual_id = loads(response.text)['msg']['actualId']
 
     except (OSError, KeyError, decoder.JSONDecodeError):
-        raise NFUError('教务系统绩点接口错误，请稍后再试')
+        if count >= 5:
+            raise NFUError('教务系统绩点接口错误，请稍后再试')
+        return get_total_achievement_point(token, count + 1)
 
     if not actual_id:
         raise NFUError('没有获取到该学生的真实id')
@@ -182,10 +199,14 @@ def get_total_achievement_point(token: str) -> dict:
         response = post(url, data=data, timeout=10)
         data = loads(response.text)['msg']['list'][0]
     except (OSError, KeyError, decoder.JSONDecodeError):
-        raise NFUError('教务系统绩点接口错误，请稍后再试')
+        if count >= 5:
+            raise NFUError('教务系统绩点接口错误，请稍后再试')
+        return get_total_achievement_point(token, count + 1)
 
     if not data:
-        raise NFUError('没有获取到数据，请稍后再试')
+        if count >= 5:
+            raise NFUError('没有获取到数据，请稍后再试')
+        return get_total_achievement_point(token, count + 1)
 
     return {
         'selected_credit': data['yxxf'],

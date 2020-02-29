@@ -61,7 +61,7 @@ def get_school_config(func):
         g.school_config = {
             'schoolYear': 2019,
             'semester': 2,
-            'schoolOpensTimestamp': 1582473600000
+            'schoolOpensTimestamp': 1584288000000
         }
 
         return func(*args, **kw)
