@@ -68,15 +68,6 @@ create table achievement
     foreign key (user_id) references user (id) on delete cascade on update cascade
 );
 
-create table profile
-(
-    user_id    int unsigned not null primary key,
-    grade      int          not null,
-    profession varchar(50)  null,
-    direction  varchar(50)  null,
-    foreign key (user_id) references user (id) on delete cascade on update cascade
-);
-
 create table class_schedule
 (
     id          bigint unsigned not null primary key auto_increment,
@@ -112,4 +103,28 @@ create table ticket_order
     index user_id (user_id),
     unique index order_id (order_id),
     foreign key (user_id) references user (id) on delete cascade on update cascade
+);
+
+create table profile
+(
+    user_id       int unsigned not null primary key,
+    grade         int unsigned not null,
+    college_id    int unsigned not null,
+    profession_id int unsigned not null,
+    direction     varchar(50)  null,
+    foreign key (college_id) references college (id) on delete cascade on update cascade,
+    foreign key (profession_id) references profession (id) on delete cascade on update cascade,
+    foreign key (user_id) references user (id) on delete cascade on update cascade
+);
+
+create table profession
+(
+    id         int unsigned not null primary key,
+    profession varchar(50)  null
+);
+
+create table college
+(
+    id      int unsigned not null primary key,
+    college varchar(50)  null
 );

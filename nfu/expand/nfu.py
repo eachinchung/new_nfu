@@ -2,6 +2,7 @@ from json import decoder, loads
 
 from requests import post
 
+from nfu.common import safe_base64_decode
 from nfu.nfu_error import NFUError
 
 
@@ -34,6 +35,79 @@ def get_jw_token(student_id: int, password: str = '', count: int = 0) -> str:
         raise NFUError('学号或密码错误!')
 
     return token
+
+
+def get_actual_id(token: str) -> str:
+    """
+    获取 actual_id
+    :param token:
+    :return:
+    """
+    token_data_base64 = token.split('.')[1]
+    token_data = loads(safe_base64_decode(token_data_base64))
+    auth_data = loads(token_data['aud'])
+
+    return auth_data['actualId']
+
+
+def get_student_data(token: str, count: int = 0) -> dict:
+    """
+    获取学生信息
+    :param token:
+    :param count:
+    :return:
+    """
+    url = 'http://ecampus.nfu.edu.cn:2929/jw-privilegei/User/r-getMyself'
+    data = {'jwloginToken': token}
+
+    try:
+        response = post(url, data=data, timeout=10)
+        data = loads(response.text)['msg']
+
+    except (OSError, KeyError, decoder.JSONDecodeError):
+        if count >= 5:
+            raise NFUError('教务系统专业接口繁忙')
+        return get_student_data(token, count + 1)
+
+    return data
+
+
+def get_profile(student_id: int, token: str, count: int = 0):
+    grade = int(f'20{str(student_id)[:2]}')
+    student_data = get_student_data(token)
+
+    url = 'http://ecampus.nfu.edu.cn:2929/jw-srsi/SrsFjflStudent/r-getZyfxRecByJbzlId'
+    data = {
+        'id': student_data['actualId'],
+        'jwloginToken': token
+    }
+
+    try:
+        response = post(url, data=data, timeout=10)
+        data = loads(response.text)
+    except (OSError, decoder.JSONDecodeError):
+        if count >= 5:
+            raise NFUError('教务系统专业接口繁忙')
+        return get_profile(student_id, token, count + 1)
+
+    try:
+        profile = data['msg']
+
+    except KeyError:
+        return {
+            'grade': grade,
+            'college_id': student_data['xyid'],
+            'profession_id': student_data['zyid'],
+            'direction': '未分专业方向'
+        }
+
+    else:
+        return {
+            'grade': grade,
+            'college_id': student_data['xyid'],
+            'profession_id': student_data['zyid'],
+            'direction': profile['zyfxmc']
+        }
 
 
 def get_student_name(student_id: int, password: str) -> str:
@@ -176,26 +250,11 @@ def get_total_achievement_point(token: str, count: int = 0) -> dict:
     :return:
     """
 
-    url = 'http://ecampus.nfu.edu.cn:2929/jw-privilegei/User/r-getMyself'
-    data = {'jwloginToken': token}
-
-    try:  # 先获取学生的真实id
-        response = post(url, data=data, timeout=10)
-        actual_id = loads(response.text)['msg']['actualId']
-
-    except (OSError, KeyError, decoder.JSONDecodeError):
-        if count >= 5:
-            raise NFUError('教务系统绩点接口错误，请稍后再试')
-        return get_total_achievement_point(token, count + 1)
-
-    if not actual_id:
-        raise NFUError('没有获取到该学生的真实id')
-
     url = 'http://ecampus.nfu.edu.cn:2929/jw-amsi/AmsJxbXsZgcj/listXs'
     data = {
         'deleted': False,
         'pageSize': 65535,
-        'id': actual_id,
+        'id': get_actual_id(token),
         'jwloginToken': token
     }
 

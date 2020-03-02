@@ -1,3 +1,4 @@
+import base64
 from functools import wraps
 from json import loads
 from os import getenv
@@ -8,6 +9,26 @@ from redis import Redis
 from nfu.expand.token import validate_token
 from nfu.models import BusUser, User
 from nfu.nfu_error import NFUError
+
+
+def safe_base64_decode(s: str) -> str:
+    """
+    url 安全的 base64 解码
+    :param s:
+    :return:
+    """
+    # 判断是否是4的整数u，不够的在末尾添加等号
+    if len(s) % 4 != 0:
+        s = s + '=' * (4 - len(s) % 4)
+
+    # 解决字符串和bytes类型
+    if not isinstance(s, bytes):
+        s = bytes(s, encoding='utf-8')
+
+    # 解码
+    base64_str = base64.urlsafe_b64decode(s)
+
+    return base64_str
 
 
 def verification_code(code: int) -> None:

@@ -36,7 +36,7 @@ def get_token_bp() -> jsonify:
 
         # 查看缓存是否有已注册的信息
         if r.hget(f"sign-up-{user_id}", 'name') is None:
-            return jsonify({'code': '0001', 'message': '账号不存在，请注册'})
+            return jsonify({'code': '0001', 'message': '南苑聚合账号不存在'})
 
         else:
             return jsonify({'code': '0002', 'message': '账号暂未激活'})

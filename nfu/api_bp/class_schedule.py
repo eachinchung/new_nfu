@@ -1,4 +1,4 @@
-from json import loads
+from json import dumps, loads
 from os import getenv
 
 from flask import Blueprint, g, jsonify
@@ -39,10 +39,13 @@ def get():
             for course in class_schedule_db:
                 class_schedule.append(course.get_dict())
 
+            r.set(f'class-schedule-version-{g.user.id}', 'caching')
+            r.set(f'class-schedule-{g.user.id}', dumps(class_schedule))
+
             return jsonify({
                 'code': '1000',
                 'message': class_schedule,
-                'version': 'update'
+                'version': 'caching'
             })
 
         else:

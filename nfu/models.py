@@ -114,15 +114,33 @@ class Profile(db.Model):
     """
     user_id = db.Column(db.Integer, primary_key=True)
     grade = db.Column(db.Integer)
-    profession = db.Column(db.String)
+    college_id = db.Column(db.Integer)
+    profession_id = db.Column(db.Integer)
     direction = db.Column(db.String)
 
     def get_dict(self):
         return {
             'grade': self.grade,
+            'college': self.college,
             'profession': self.profession,
             'direction': self.direction
         }
+
+
+class Profession(db.Model):
+    """
+    专业表
+    """
+    id = db.Column(db.Integer, primary_key=True)
+    profession = db.Column(db.String)
+
+
+class College(db.Model):
+    """
+    学院表
+    """
+    id = db.Column(db.Integer, primary_key=True)
+    college = db.Column(db.String)
 
 
 class ClassSchedule(db.Model):
