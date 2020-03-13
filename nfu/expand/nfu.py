@@ -181,18 +181,32 @@ def get_class_schedule(token: str, school_year: int, semester: int, count: int =
             for teacher_list in merge['teacherList']:
                 teacher.append(teacher_list['xm'])
 
-            course_data.append({
-                'course_name': course['name'],
-                'course_id': course['pkbdm'],
-                'credit': float(course['kcxf']),
-                'teacher': teacher,
-                'classroom': merge['classroomList'][0]['jsmc'],
-                'weekday': merge['xq'],
-                'start_node': merge['qsj'],
-                'end_node': merge['jsj'],
-                'start_week': merge['qsz'],
-                'end_week': merge['jsz']
-            })
+            try:
+                course_data.append({
+                    'course_name': course['name'],
+                    'course_id': course['pkbdm'],
+                    'credit': float(course['kcxf']),
+                    'teacher': teacher,
+                    'classroom': merge['classroomList'][0]['jsmc'],
+                    'weekday': merge['xq'],
+                    'start_node': merge['qsj'],
+                    'end_node': merge['jsj'],
+                    'start_week': merge['qsz'],
+                    'end_week': merge['jsz']
+                })
+            except IndexError:
+                course_data.append({
+                    'course_name': course['name'],
+                    'course_id': course['pkbdm'],
+                    'credit': float(course['kcxf']),
+                    'teacher': teacher,
+                    'classroom': '未分配教室',
+                    'weekday': merge['xq'],
+                    'start_node': merge['qsj'],
+                    'end_node': merge['jsj'],
+                    'start_week': merge['qsz'],
+                    'end_week': merge['jsz']
+                })
 
     course_data.sort(key=lambda x: x['course_id'])
     return course_data
