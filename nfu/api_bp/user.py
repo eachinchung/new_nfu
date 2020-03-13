@@ -83,7 +83,7 @@ def get_profile_api():
                 'direction': direction
             })
 
-    return jsonify({'code': '2000', 'message': {
+    return jsonify({'code': '1000', 'message': {
         'grade': grade,
         'college': college,
         'profession': profession,
