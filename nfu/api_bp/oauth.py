@@ -9,6 +9,7 @@ from nfu.common import get_token
 from nfu.expand.email import send_validate_email
 from nfu.expand.nfu import get_student_name
 from nfu.expand.token import create_access_token, generate_token, validate_token
+from nfu.extensions import db
 from nfu.models import BusUser, Dormitory, User
 from nfu.nfu_error import NFUError
 
@@ -130,16 +131,24 @@ def sign_up() -> jsonify:
     token = generate_token({'id': user_id}, token_type='EMAIL_TOKEN')
     send_validate_email(email, name, user_id, token)
 
-    # 把帐号资料写入缓存
-    r = Redis(host='localhost', password=getenv('REDIS_PASSWORD'), port=6379)
-    r.hmset(f"sign-up-{user_id}", {
-        'name': name,
-        'password': generate_password_hash(password),
-        'roomId': room_id,
-        'email': email
-    })
+    # # 把帐号资料写入缓存
+    # r = Redis(host='localhost', password=getenv('REDIS_PASSWORD'), port=6379)
+    # r.hmset(f"sign-up-{user_id}", {
+    #     'name': name,
+    #     'password': generate_password_hash(password),
+    #     'roomId': room_id,
+    #     'email': email
+    # })
+    #
+    # # 设置缓存一小时过期
+    # r.expire(user_id, 3600)
+    #
+    # return jsonify({'code': '1000', 'message': '激活邮件已发送至您的邮箱，请查看'})
 
-    # 设置缓存一小时过期
-    r.expire(user_id, 3600)
+    # 把用户数据写入 MySql
 
-    return jsonify({'code': '1000', 'message': '激活邮件已发送至您的邮箱，请查看'})
+    user = User(id=user_id, name=name, password=generate_password_hash(password), room_id=room_id, email=email)
+    db.session.add(user)
+    db.session.commit()
+
+    return jsonify({'code': '1000', 'message': '激活成功'})
