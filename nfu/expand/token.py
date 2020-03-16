@@ -3,7 +3,29 @@ from os import getenv
 
 from itsdangerous import BadSignature, SignatureExpired, TimedJSONWebSignatureSerializer
 
+from nfu.models import BusUser, Dormitory
 from nfu.nfu_error import NFUError
+
+
+def write_access_token_redis_cache(r, user) -> tuple:
+    """
+    写入 redis 缓存
+    :param r:
+    :param user:
+    :return:
+    """
+    dormitory_db = Dormitory.query.get(user.room_id)
+    dormitory = f'{dormitory_db.building} {dormitory_db.floor} {dormitory_db.room}'
+    bus_power = int(BusUser.query.get(user.id) is not None)
+    r.hmset(f"user-{user.room_id}", {
+        'name': user.name,
+        'roomId': user.room_id,
+        'email': user.email,
+        'dormitory': dormitory,
+        'busPower': bus_power
+    })
+
+    return dormitory, bus_power
 
 
 def create_access_token(user, dormitory, busPower) -> dict:

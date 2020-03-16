@@ -151,6 +151,7 @@ class ClassSchedule(db.Model):
     user_id = db.Column(db.Integer)
     school_year = db.Column(db.Integer)
     semester = db.Column(db.Integer)
+    subdivision_type = db.Column(db.String)
     course_name = db.Column(db.String)
     course_id = db.Column(db.String)
     credit = db.Column(db.Float)
@@ -165,6 +166,7 @@ class ClassSchedule(db.Model):
     def get_dict(self):
         return {
             'courseId': self.course_id,
+            'courseType': self.course_type,
             'courseName': self.course_name,
             'credit': self.credit,
             'teacher': loads(self.teacher),

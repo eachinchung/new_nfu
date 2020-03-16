@@ -184,6 +184,7 @@ def get_class_schedule(token: str, school_year: int, semester: int, count: int =
             try:
                 course_data.append({
                     'course_name': course['name'],
+                    'subdivision_type': course['l3mc'],
                     'course_id': course['pkbdm'],
                     'credit': float(course['kcxf']),
                     'teacher': teacher,
@@ -197,6 +198,7 @@ def get_class_schedule(token: str, school_year: int, semester: int, count: int =
             except IndexError:
                 course_data.append({
                     'course_name': course['name'],
+                    'subdivision_type': course['l3mc'],
                     'course_id': course['pkbdm'],
                     'credit': float(course['kcxf']),
                     'teacher': teacher,

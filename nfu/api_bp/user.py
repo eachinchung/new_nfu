@@ -109,7 +109,7 @@ def feedback():
         'text': '南苑聚合意见反馈',
         'desp': render_template(
             'markdown/feedback.md',
-            name=g.user.name,
+            name=f"{g.user.id} {g.user.name}",
             email=g.user.email,
             title=title,
             feedback=feedback_data,

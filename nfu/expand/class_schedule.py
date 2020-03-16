@@ -86,6 +86,7 @@ def __db_input(user_id, class_schedule_list: list, school_year: int, semester: i
                 user_id=user_id,
                 school_year=school_year,
                 semester=semester,
+                subdivision_type=course['subdivision_type'],
                 course_name=course['course_name'],
                 course_id=course['course_id'],
                 credit=float(course['credit']),
@@ -101,6 +102,7 @@ def __db_input(user_id, class_schedule_list: list, school_year: int, semester: i
 
         class_schedule.append({
             'courseId': course['course_id'],
+            'subdivisionType': course['subdivision_type'],
             'courseName': course['course_name'],
             'credit': float(course['credit']),
             'teacher': course['teacher'],
