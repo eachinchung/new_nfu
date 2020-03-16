@@ -1,19 +1,37 @@
-from json import loads
+from hashlib import md5
+from json import loads, decoder
 from os import getenv
 
 from flask import Blueprint, jsonify, request
 from redis import Redis
+from requests import get
 from werkzeug.security import generate_password_hash
 
 from nfu.common import get_token
 from nfu.expand.email import send_validate_email
 from nfu.expand.nfu import get_student_name
 from nfu.expand.token import create_access_token, generate_token, validate_token
-from nfu.extensions import db
 from nfu.models import BusUser, Dormitory, User
 from nfu.nfu_error import NFUError
 
 oauth_bp = Blueprint('oauth', __name__)
+
+
+@oauth_bp.route('/nfuca')
+def nfuca() -> jsonify:
+    try:
+        url = 'https://api.nfuca.com/openLoginGetInfo'
+
+        data = dict(request.args)
+        data['sign'] = md5(f'{data["name"]}{data["time"]}{data["openid"]}{data["nonce"]}{getenv("NFUCA_KEY")}'
+                           .encode(encoding='UTF-8')).hexdigest()
+
+        response = get(url, params=data, timeout=10)
+        nfuca_data = loads(response.text)['data']
+    except (OSError, KeyError, decoder.JSONDecodeError):
+        return jsonify({'code': '0004', 'message': '提交信息不合法'})
+
+    return nfuca_data['name']
 
 
 @oauth_bp.route('/token', methods=['POST'])
@@ -131,24 +149,16 @@ def sign_up() -> jsonify:
     token = generate_token({'id': user_id}, token_type='EMAIL_TOKEN')
     send_validate_email(email, name, user_id, token)
 
-    # # 把帐号资料写入缓存
-    # r = Redis(host='localhost', password=getenv('REDIS_PASSWORD'), port=6379)
-    # r.hmset(f"sign-up-{user_id}", {
-    #     'name': name,
-    #     'password': generate_password_hash(password),
-    #     'roomId': room_id,
-    #     'email': email
-    # })
-    #
-    # # 设置缓存一小时过期
-    # r.expire(user_id, 3600)
-    #
-    # return jsonify({'code': '1000', 'message': '激活邮件已发送至您的邮箱，请查看'})
+    # 把帐号资料写入缓存
+    r = Redis(host='localhost', password=getenv('REDIS_PASSWORD'), port=6379)
+    r.hmset(f"sign-up-{user_id}", {
+        'name': name,
+        'password': generate_password_hash(password),
+        'roomId': room_id,
+        'email': email
+    })
 
-    # 把用户数据写入 MySql
+    # 设置缓存一小时过期
+    r.expire(user_id, 3600)
 
-    user = User(id=user_id, name=name, password=generate_password_hash(password), room_id=room_id, email=email)
-    db.session.add(user)
-    db.session.commit()
-
-    return jsonify({'code': '1000', 'message': '激活成功'})
+    return jsonify({'code': '1000', 'message': '激活邮件已发送至您的邮箱，请查看'})
