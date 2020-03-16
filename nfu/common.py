@@ -61,10 +61,10 @@ def get_token() -> str:
     try:
         token_type, token = request.headers['Authorization'].split(None, 1)
     except (KeyError, ValueError):
-        raise NFUError('没有访问权限', code='1001')
+        raise NFUError('请重新登录', code='1001')
 
     if token == 'null' or token_type.lower() != 'bearer':
-        raise NFUError('没有访问权限', code='1001')
+        raise NFUError('请重新登录', code='1001')
 
     return token
 
