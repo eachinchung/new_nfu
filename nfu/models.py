@@ -166,7 +166,7 @@ class ClassSchedule(db.Model):
     def get_dict(self):
         return {
             'courseId': self.course_id,
-            'courseType': self.course_type,
+            'courseType': self.subdivision_type,
             'courseName': self.course_name,
             'credit': self.credit,
             'teacher': loads(self.teacher),
