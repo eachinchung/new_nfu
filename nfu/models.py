@@ -14,6 +14,7 @@ class User(db.Model):
     password = db.Column(db.String)
     room_id = db.Column(db.Integer)
     email = db.Column(db.String)
+    open_id = db.Column(db.String)
 
     def validate_password(self, password):
         return check_password_hash(self.password, password)

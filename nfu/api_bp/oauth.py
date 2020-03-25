@@ -13,6 +13,7 @@ from nfu.common import get_token
 from nfu.expand.email import send_validate_email
 from nfu.expand.nfu import get_student_name
 from nfu.expand.token import create_access_token, generate_token, validate_token, write_access_token_redis_cache
+from nfu.extensions import db
 from nfu.models import User
 from nfu.nfu_error import NFUError
 
@@ -165,6 +166,11 @@ def nfuca() -> jsonify:
     if user is None:  # 当MySql为空时
         r.set(oauth_id, response.text, ex=3600)
         return redirect(f"{getenv('FRONT_END_URL')}/oauth/nfuca/sign-up?sign={oauth_id}")
+
+    if user.open_id is None:
+        user.open_id = data["openid"]
+        db.session.add(user)
+        db.session.commit()
 
     r.set(oauth_id, nfuca_data["data"]["no"], ex=30)
     return redirect(f"{getenv('FRONT_END_URL')}/oauth/nfuca?sign={oauth_id}")

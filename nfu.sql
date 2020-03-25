@@ -8,7 +8,8 @@ create table user
     name     varchar(15)  not null,
     password char(94)     not null,
     room_id  int          not null,
-    email    varchar(255) not null
+    email    varchar(255) not null,
+    open_id  char(28)
 );
 
 create table bus_user
