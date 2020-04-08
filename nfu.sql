@@ -17,6 +17,7 @@ create table bus_user
     user_id        int unsigned not null primary key,
     alipay_user_id varchar(20)  not null,
     id_card        varchar(20)  not null,
+    avatar         varchar(100) not null,
     bus_session    varchar(50)
 );
 
@@ -130,3 +131,28 @@ create table profile
     foreign key (profession_id) references profession (id) on delete cascade on update cascade,
     foreign key (user_id) references user (id) on delete cascade on update cascade
 );
+
+INSERT INTO nfu.bus_user (user_id, alipay_user_id, id_card)
+VALUES (172017006, '2088222005848391', '445224199901053011');
+INSERT INTO nfu.bus_user (user_id, alipay_user_id, id_card)
+VALUES (172017076, '2088022640684011', '440107199908300621');
+INSERT INTO nfu.bus_user (user_id, alipay_user_id, id_card)
+VALUES (172017093, '2088722493895197', '440402199812129094');
+INSERT INTO nfu.bus_user (user_id, alipay_user_id, id_card)
+VALUES (172017119, '2088912822600633', '440882199709296517');
+INSERT INTO nfu.bus_user (user_id, alipay_user_id, id_card)
+VALUES (172017132, '2088422491788926', '440982199901220622');
+INSERT INTO nfu.bus_user (user_id, alipay_user_id, id_card)
+VALUES (172017160, '2088522015348378', '440402199810059061');
+INSERT INTO nfu.bus_user (user_id, alipay_user_id, id_card)
+VALUES (172017231, '2088122863294290', '440811199803012829');
+INSERT INTO nfu.bus_user (user_id, alipay_user_id, id_card)
+VALUES (172017316, '2088022680660983', '450821199809032817');
+INSERT INTO nfu.bus_user (user_id, alipay_user_id, id_card)
+VALUES (172017477, '2088422556604938', '441521199809280813');
+INSERT INTO nfu.bus_user (user_id, alipay_user_id, id_card)
+VALUES (172017533, '2088422481782688', '441426199804030010');
+INSERT INTO nfu.bus_user (user_id, alipay_user_id, id_card)
+VALUES (172017549, '2088912241137912', '445122199901010013');
+INSERT INTO nfu.bus_user (user_id, alipay_user_id, id_card)
+VALUES (172017561, '2088402751356421', '441521199811168839');

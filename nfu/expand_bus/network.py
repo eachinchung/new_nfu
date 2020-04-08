@@ -14,12 +14,19 @@ def __refresh() -> None:
     :return:
     """
     http_session = session()
+    http_session.headers = {'user-agent': get_user_agent()}
     url = 'http://nfuedu.zftcloud.com/campusbus_index/ticket_checked/index'
-    params = {'alipay_user_id': g.bus_user.alipay_user_id, 'idcard': g.bus_user.id_card}
-    headers = {'user-agent': get_user_agent()}
+    params = {
+        'school_code': 11557,
+        'alipay_user_id': g.bus_user.alipay_user_id,
+        'idcard': g.bus_user.id_card,
+        'avatar': g.bus_user.avatar,
+        'phone': '',
+        'real_name': g.user.name
+    }
 
     try:  # 发送请求
-        http_session.get(url, headers=headers, params=params)
+        http_session.get(url, params=params)
     except OSError:
         raise NFUError('学校车票系统错误，请稍后再试')
 
@@ -37,20 +44,20 @@ def http_get(url: str, params=None):
     :return:
     """
     http_session = session()
-    headers = {'Cookie': g.bus_user.bus_session, 'user-agent': get_user_agent()}
+    http_session.headers = {'Cookie': g.bus_user.bus_session, 'user-agent': get_user_agent()}
 
     try:  # 发送请求
-        response = http_session.get(url, headers=headers, params=params)
+        response = http_session.get(url, params=params, allow_redirects=False)
+
+        if response.status_code != 200 and g.refresh:
+            __refresh()
+
+            # 防止递归死循环
+            g.refresh = False
+            return http_get(url, params)
+
     except OSError:
         raise NFUError('学校车票系统错误，请稍后再试')
-
-    # 如果被重定向至支付宝，则重新刷新session
-    if response.url.find('openauth.alipay.com') != -1 and g.refresh:
-        __refresh()
-
-        # 防止递归死循环
-        g.refresh = False
-        return http_get(url, params)
 
     return response
 
@@ -63,10 +70,10 @@ def http_post(url: str, data: dict):
     :return:
     """
     http_session = session()
-    headers = {'Cookie': g.bus_user.bus_session, 'user-agent': get_user_agent()}
+    http_session.headers = {'Cookie': g.bus_user.bus_session, 'user-agent': get_user_agent()}
 
     try:  # 发送请求
-        response = http_session.post(url, data=data, headers=headers)
+        response = http_session.post(url, data=data, allow_redirects=False)
     except OSError:
         raise NFUError('学校车票系统错误，请稍后再试')
 
@@ -74,7 +81,7 @@ def http_post(url: str, data: dict):
         response = loads(response.text)
     except decoder.JSONDecodeError:
 
-        if response.url.find('openauth.alipay.com') == -1:
+        if response.status_code == 200:
             raise NFUError('学校车票系统错误，请稍后再试')
 
         if g.refresh:

@@ -27,6 +27,7 @@ class BusUser(db.Model):
     user_id = db.Column(db.Integer, primary_key=True)
     alipay_user_id = db.Column(db.String)
     id_card = db.Column(db.String)
+    avatar = db.Column(db.String)
     bus_session = db.Column(db.String)
 
 
