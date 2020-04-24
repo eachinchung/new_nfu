@@ -24,7 +24,7 @@ def write_access_token_redis_cache(r, user) -> tuple:
         'dormitory': dormitory,
         'busPower': bus_power,
     })
-    r.set(f"jw-{user.room_id}", user.jw_pwd)
+    r.set(f"jw-{user.id}", user.jw_pwd)
 
     return dormitory, bus_power
 
