@@ -110,12 +110,14 @@ def check_access_token(func):
         except NFUError as err:
             return jsonify({'code': err.code, 'message': err.message})
 
+        r = Redis(host='localhost', password=getenv('REDIS_PASSWORD'), port=6379)
         user_data = loads(validate['data'])
         g.user = User(
             id=validate['id'],
             name=user_data["name"],
             room_id=user_data["roomId"],
-            email=user_data["email"]
+            email=user_data["email"],
+            jw_pwd=r.get(f"jw-{validate['id']}").decode('utf-8')
         )
 
         return func(*args, **kw)

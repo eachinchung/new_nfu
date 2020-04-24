@@ -116,46 +116,5 @@ def __db_input(user_id, class_schedule_list: list, school_year: int, semester: i
             'endWeek': course['end_week']
         })
 
-        def __add_mooc_course(start_node, end_node):
-            db.session.add(
-                ClassSchedule(
-                    user_id=user_id,
-                    school_year=school_year,
-                    semester=semester,
-                    subdivision_type=course['subdivision_type'],
-                    course_name=course['course_name'],
-                    course_id=course['course_id'],
-                    credit=float(course['credit']),
-                    teacher=dumps(course['teacher']),
-                    classroom='学习通网课',
-                    weekday=5,
-                    start_node=start_node,
-                    end_node=end_node,
-                    start_week=0,
-                    end_week=3
-                )
-            )
-
-            class_schedule.append({
-                'courseId': course['course_id'],
-                'subdivisionType': course['subdivision_type'],
-                'courseName': course['course_name'],
-                'credit': float(course['credit']),
-                'teacher': course['teacher'],
-                'classroom': '学习通网课',
-                'weekday': 5,
-                'startNode': start_node,
-                'endNode': end_node,
-                'startWeek': 0,
-                'endWeek': 3
-            })
-
-        if course['course_name'] == '软件测试与质量保证':
-            __add_mooc_course(1, 2)
-        if course['course_name'] == '嵌入式系统与应用':
-            __add_mooc_course(3, 4)
-        if course['course_name'] == '物联网技术及应用':
-            __add_mooc_course(9, 10)
-
     db.session.commit()
     return class_schedule
