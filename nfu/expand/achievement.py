@@ -18,15 +18,16 @@ def db_get(achievement_db) -> list:
     return achievement
 
 
-def db_init(user_id: int, school_year_now: int, semester_now: int) -> list:
+def db_init(user_id: int, jw_pwd: str, school_year_now: int, semester_now: int) -> list:
     """
     从教务系统获取成绩单，并写入数据库
+    :param jw_pwd:
     :param user_id:
     :param school_year_now:
     :param semester_now:
     :return:
     """
-    achievement_list = __get(user_id, school_year_now, semester_now)
+    achievement_list = __get(user_id, jw_pwd, school_year_now, semester_now)
 
     # 接下来把数据写入数据库
     __db_input(user_id, achievement_list)
@@ -34,15 +35,16 @@ def db_init(user_id: int, school_year_now: int, semester_now: int) -> list:
     return achievement_list
 
 
-def db_update(user_id: int, school_year_now: int, semester_now: int) -> list:
+def db_update(user_id: int, jw_pwd: str, school_year_now: int, semester_now: int) -> list:
     """
     更新成绩单
+    :param jw_pwd:
     :param user_id:
     :param school_year_now:
     :param semester_now:
     :return:
     """
-    achievement_list = __get(user_id, school_year_now, semester_now)
+    achievement_list = __get(user_id, jw_pwd, school_year_now, semester_now)
 
     # 从数据库删除已有的记录
     achievement_db = Achievement.query.filter_by(user_id=user_id).all()
@@ -58,16 +60,17 @@ def db_update(user_id: int, school_year_now: int, semester_now: int) -> list:
     return achievement_list
 
 
-def __get(user_id: int, school_year_now: int, semester_now: int) -> list:
+def __get(user_id: int, jw_pwd: str, school_year_now: int, semester_now: int) -> list:
     """
     向教务系统请求数据，
+    :param jw_pwd:
     :param user_id:
     :param school_year_now:
     :param semester_now:
     :return:
     """
 
-    token = get_jw_token(user_id)
+    token = get_jw_token(user_id, jw_pwd)
 
     achievement_list = []
     school_year_list = __get_school_year_list(user_id, school_year_now, semester_now)

@@ -3,13 +3,14 @@ from nfu.extensions import db
 from nfu.models import TotalAchievements
 
 
-def db_init_total(user_id: int) -> dict:
+def db_init_total(user_id: int, jw_pwd: str) -> dict:
     """
     向教务系统请求数据并写入数据库
+    :param jw_pwd:
     :param user_id:
     :return:
     """
-    total_achievement_data = get_total_achievement_point(get_jw_token(user_id))
+    total_achievement_data = get_total_achievement_point(get_jw_token(user_id, jw_pwd))
 
     db.session.add(TotalAchievements(
         user_id=user_id,
@@ -29,13 +30,14 @@ def db_init_total(user_id: int) -> dict:
     }
 
 
-def db_update_total(user_id: int) -> dict:
+def db_update_total(user_id: int, jw_pwd: str) -> dict:
     """
     更新数据库的数据
+    :param jw_pwd:
     :param user_id:
     :return:
     """
-    total_achievement_data = get_total_achievement_point(get_jw_token(user_id))
+    total_achievement_data = get_total_achievement_point(get_jw_token(user_id, jw_pwd))
 
     achievement_db = TotalAchievements.query.get(user_id)
     achievement_db.get_credit = total_achievement_data['get_credit']

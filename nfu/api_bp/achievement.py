@@ -30,7 +30,7 @@ def get():
     try:
         return jsonify({
             'code': '1000',
-            'message': db_init(g.user.id, g.school_config['schoolYear'], g.school_config['semester'])
+            'message': db_init(g.user.id, g.user.jw_pwd, g.school_config['schoolYear'], g.school_config['semester'])
         })
     except NFUError as err:
         return jsonify({'code': err.code, 'message': err.message})
@@ -47,7 +47,7 @@ def update():
     try:
         return jsonify({
             'code': '1000',
-            'message': db_update(g.user.id, g.school_config['schoolYear'], g.school_config['semester'])
+            'message': db_update(g.user.id, g.user.jw_pwd, g.school_config['schoolYear'], g.school_config['semester'])
         })
     except NFUError as err:
         return jsonify({'code': err.code, 'message': err.message})
@@ -68,7 +68,7 @@ def get_total():
         return jsonify({'code': '1000', 'message': achievement_db.get_dict()})
 
     try:
-        return jsonify({'code': '1000', 'message': db_init_total(g.user.id)})
+        return jsonify({'code': '1000', 'message': db_init_total(g.user.id, g.user.jw_pwd)})
     except NFUError as err:
         return jsonify({'code': err.code, 'message': err.message})
 
@@ -81,6 +81,6 @@ def update_total():
     :return:
     """
     try:
-        return jsonify({'code': '1000', 'message': db_update_total(g.user.id)})
+        return jsonify({'code': '1000', 'message': db_update_total(g.user.id, g.user.jw_pwd)})
     except NFUError as err:
         return jsonify({'code': err.code, 'message': err.message})

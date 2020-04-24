@@ -6,9 +6,10 @@ from nfu.extensions import db
 from nfu.models import ClassSchedule
 
 
-def db_init(user_id: int, school_year: int, semester: int, redis) -> list:
+def db_init(user_id: int, jw_pwd: str, school_year: int, semester: int, redis) -> list:
     """
     数据库没有课表数据时，调用此函数写入数据
+    :param jw_pwd:
     :param redis:
     :param user_id:
     :param school_year:
@@ -16,7 +17,7 @@ def db_init(user_id: int, school_year: int, semester: int, redis) -> list:
     :return:
     """
 
-    token = get_jw_token(user_id)
+    token = get_jw_token(user_id, jw_pwd)
     class_schedule_api = get_class_schedule(token, school_year, semester)
 
     version = md5(dumps(class_schedule_api).encode(encoding='UTF-8')).hexdigest()
@@ -27,9 +28,10 @@ def db_init(user_id: int, school_year: int, semester: int, redis) -> list:
     return class_schedule
 
 
-def db_update(user_id: int, school_year: int, semester: int, redis) -> list:
+def db_update(user_id: int, jw_pwd: str, school_year: int, semester: int, redis) -> list:
     """
     更新数据库中的课表数据
+    :param jw_pwd:
     :param redis:
     :param user_id:
     :param school_year:
@@ -37,7 +39,7 @@ def db_update(user_id: int, school_year: int, semester: int, redis) -> list:
     :return:
     """
 
-    token = get_jw_token(user_id)
+    token = get_jw_token(user_id, jw_pwd)
 
     # 先尝试连接教务系统，看是否能获取课程数据
     class_schedule_api = get_class_schedule(token, school_year, semester)

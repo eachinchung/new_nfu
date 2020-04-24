@@ -52,7 +52,13 @@ def get():
 
             # mysql里面也没有缓存，只能向教务系统获取
             try:
-                message = db_init(g.user.id, g.school_config['schoolYear'], g.school_config['semester'], r)
+                message = db_init(
+                    g.user.id,
+                    g.user.jw_pwd,
+                    g.school_config['schoolYear'],
+                    g.school_config['semester'],
+                    r
+                )
             except NFUError as err:
                 return jsonify({'code': err.code, 'message': err.message})
 
@@ -87,7 +93,13 @@ def update():
     try:
         return jsonify({
             'code': '1000',
-            'message': db_update(g.user.id, g.school_config['schoolYear'], g.school_config['semester'], r),
+            'message': db_update(
+                g.user.id,
+                g.user.jw_pwd,
+                g.school_config['schoolYear'],
+                g.school_config['semester'],
+                r
+            ),
             'version': r.get(f'class-schedule-version-{g.user.id}').decode('utf-8')
         })
     except NFUError as err:
