@@ -7,7 +7,6 @@ from string import ascii_letters, digits
 from flask import Blueprint, jsonify, redirect, render_template, request
 from redis import Redis
 from requests import get
-from werkzeug.security import generate_password_hash
 
 from nfu.common import get_token
 from nfu.expand.email import send_validate_email
@@ -120,7 +119,7 @@ def sign_up() -> jsonify:
     r = Redis(host='localhost', password=getenv('REDIS_PASSWORD'), port=6379)
     r.hmset(f"sign-up-{user_id}", {
         'name': name,
-        'password': generate_password_hash(password),
+        'password': password,
         'roomId': room_id,
         'email': email
     })
@@ -129,26 +128,6 @@ def sign_up() -> jsonify:
     r.expire(user_id, 3600)
 
     return jsonify({'code': '1000', 'message': '激活邮件已发送至您的邮箱，请查看'})
-
-
-@oauth_bp.route('/test')
-def test() -> jsonify:
-    try:
-        url = 'https://api.nfuca.com/openLoginGetInfo'
-
-        data = dict(request.args)
-        data['sign'] = md5(f'{data["name"]}{data["time"]}{data["openid"]}{data["nonce"]}{getenv("NFUCA_KEY")}'
-                           .encode(encoding='UTF-8')).hexdigest()
-
-        response = get(url, params=data, timeout=10)
-        nfuca_data = loads(response.text)
-
-    except OSError:
-        return render_template('html/err.html', err='计协服务器繁忙')
-    except KeyError:
-        return render_template('html/err.html', err='提交信息不合法')
-
-    return nfuca_data
 
 
 @oauth_bp.route('/nfuca')
@@ -262,7 +241,7 @@ def nfuca_sign_up() -> jsonify:
     r = Redis(host='localhost', password=getenv('REDIS_PASSWORD'), port=6379)
     r.hmset(f"sign-up-{user_data['no']}", {
         'name': user_data['name'],
-        'password': generate_password_hash(user_data['pwd']),
+        'password': user_data['pwd'],
         'roomId': room_id,
         'email': email
     })

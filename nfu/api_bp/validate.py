@@ -3,6 +3,7 @@ from random import randint
 
 from flask import Blueprint, g, jsonify
 from redis import Redis
+from werkzeug.security import generate_password_hash
 
 from nfu.common import check_access_token, get_token
 from nfu.expand.email import send_verification_code
@@ -45,7 +46,12 @@ def activation() -> jsonify:
     r.delete(f"sign-up-{validate['id']}")
 
     # 把用户数据写入 MySql
-    user = User(id=validate['id'], name=name, password=password, room_id=room_id, email=email, jw_pwd='')
+    user = User(
+        id=validate['id'],
+        name=name,
+        password=generate_password_hash(password),
+        room_id=room_id, email=email, jw_pwd=password
+    )
     db.session.add(user)
     db.session.commit()
 
