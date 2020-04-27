@@ -131,6 +131,26 @@ def sign_up() -> jsonify:
     return jsonify({'code': '1000', 'message': '激活邮件已发送至您的邮箱，请查看'})
 
 
+@oauth_bp.route('/test')
+def test() -> jsonify:
+    try:
+        url = 'https://api.nfuca.com/openLoginGetInfo'
+
+        data = dict(request.args)
+        data['sign'] = md5(f'{data["name"]}{data["time"]}{data["openid"]}{data["nonce"]}{getenv("NFUCA_KEY")}'
+                           .encode(encoding='UTF-8')).hexdigest()
+
+        response = get(url, params=data, timeout=10)
+        nfuca_data = loads(response.text)
+
+    except OSError:
+        return render_template('html/err.html', err='计协服务器繁忙')
+    except KeyError:
+        return render_template('html/err.html', err='提交信息不合法')
+
+    return nfuca_data
+
+
 @oauth_bp.route('/nfuca')
 def nfuca() -> jsonify:
     """
