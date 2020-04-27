@@ -45,7 +45,7 @@ def activation() -> jsonify:
     r.delete(f"sign-up-{validate['id']}")
 
     # 把用户数据写入 MySql
-    user = User(id=validate['id'], name=name, password=password, room_id=room_id, email=email)
+    user = User(id=validate['id'], name=name, password=password, room_id=room_id, email=email, jw_pwd='')
     db.session.add(user)
     db.session.commit()
 
