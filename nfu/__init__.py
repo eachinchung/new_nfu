@@ -4,8 +4,11 @@
 :copyright: © 2020 Eachin Chung
 :license: MIT, see LICENSE for more details.
 """
+import os
 
+import sentry_sdk
 from flask import Flask, jsonify
+from sentry_sdk.integrations.flask import FlaskIntegration
 
 from nfu.api_bp.achievement import achievement_bp
 from nfu.api_bp.class_schedule import class_schedule_bp
@@ -16,6 +19,11 @@ from nfu.api_bp.user import user_bp
 from nfu.api_bp.validate import validate_bp
 from nfu.extensions import db, mail
 
+sentry_sdk.init(
+    dsn=os.getenv("SENRTY_DSN"),
+    integrations=[FlaskIntegration()],
+    traces_sample_rate=1.0,
+)
 
 def create_app(config_name=None) -> Flask:
     """
